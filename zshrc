@@ -39,7 +39,7 @@ HYPHEN_INSENSITIVE="true"
 DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="false"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
@@ -98,6 +98,7 @@ KEYTIMEOUT=1
 alias tmux='tmux -2'
 alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  # This loads nvm
 alias kc='nocorrect kubectl'
+alias l='exa -abglm --color-scale --git --color=automatic'
 
 ### FUNCTIONS
 
@@ -112,6 +113,15 @@ TRAPUSR1() {
 }
 
 fpath=(/usr/local/share/zsh-completions $fpath)
+
+kubectl () {
+    if [[ -z $KUBECTL_COMPLETE ]]
+    then
+        source <($commands[kubectl] completion zsh)
+        KUBECTL_COMPLETE=1 
+    fi
+    $commands[kubectl] $*
+}
 
 zmodload zsh/complist
 
