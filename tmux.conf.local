@@ -159,7 +159,7 @@ tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
 #     - #{username}
 #     - #{esername_ssh}
 tmux_conf_theme_status_left=' ❐ #S | #{loadavg} | #{?battery_status,#{battery_status},}#{?battery_percentage,#{battery_percentage},} '
-tmux_conf_theme_status_right='#{prefix}#{pairing} | #(cat $HOME/.local/tmp/metar.latest || curl ifconfig.me) | #($HOME/.scripts/sinfo.sh ) | %R , %d %b %y  '
+tmux_conf_theme_status_right='#{prefix}#{pairing} | #(cat $HOME/.local/tmp/metar.latest || curl ifconfig.me) | #($HOME/.scripts/spotinfo.sh ) | %R , %d %b %y  '
 
 # status left style
 tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white , white
@@ -274,8 +274,9 @@ bind-key l select-pane -R
 
 # quick bindings
 bind-key / command-prompt "split-window -h 'exec man %%'"
-bind-key e command-prompt "split-window -h 'exec vim %%'"
-
+bind-key q command-prompt "split-window -h 'exec vim %%'"
+bind-key & kill-window
+bind-key x kill-pane
 
 # move status line to top
 #set -g status-position top
