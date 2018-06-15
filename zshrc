@@ -92,6 +92,7 @@ source $ZSH/oh-my-zsh.sh
 
 EDITOR='vim'
 KEYTIMEOUT=1
+PLAYER='spot'
 
 ### ALIASES
 
@@ -161,3 +162,5 @@ done
 autoload -U compinit && compinit
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+setopt no_hist_verify # prevents substitution confirmation
