@@ -7,10 +7,12 @@ on escape_quotes(string_to_escape)
   return string_to_escape
 end escape_quotes
 
-tell application "Spotify"
-  set ctrack to "{"
-  set ctrack to ctrack & "\"artist\":\"" & my escape_quotes(current track's artist) & "\""
-  set ctrack to ctrack & ",\"name\":\"" & my escape_quotes(current track's name) & "\""
-  set ctrack to ctrack & ",\"state\":\"" & player state & "\""
-  set ctrack to ctrack & "}"
-end tell
+with timeout of 1 seconds
+  tell application "Spotify"
+    set ctrack to "{"
+    set ctrack to ctrack & "\"artist\":\"" & my escape_quotes(current track's artist) & "\""
+    set ctrack to ctrack & ",\"name\":\"" & my escape_quotes(current track's name) & "\""
+    set ctrack to ctrack & ",\"state\":\"" & player state & "\""
+    set ctrack to ctrack & "}"
+  end tell
+end
