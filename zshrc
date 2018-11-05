@@ -101,6 +101,11 @@ alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  # This loads n
 alias kc='nocorrect kubectl'
 alias l='exa -abglm --color-scale --git --color=automatic'
 
+alias sleepoff='sudo pmset -b sleep 0; sudo pmset -b disablesleep 1'
+alias sleepon='sudo pmset -b sleep 5; sudo pmset -b disablesleep 0'
+
+alias note="bash $HOME/.etc/scripts/notes.sh"
+
 ### FUNCTIONS
 
 pb () {
