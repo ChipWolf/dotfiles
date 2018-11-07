@@ -15,3 +15,13 @@ _~/.etc/zsh/zsh-os-conf/local-pre/00-bullettrain.zsh_
 BULLETTRAIN_CONTEXT_DEFAULT_USER=Chip
 DEFAULT_USER=Chip
 ```
+
+#### Screnshot Workflow (Automator)
+```
+screencapture -c -s && export PATH=/usr/local/bin:$PATH && pngpaste - | curl -X POST --data-binary @- https://i.cwlf.uk/ | pbcopy && afplay /System/Library/Sounds/Glass.aiff
+```
+
+#### iTerm config
+- Monokai Soda
+- Operator Mono 14pt (ASCII)
+- monofur for Powerline 14pt (non-ASCII)

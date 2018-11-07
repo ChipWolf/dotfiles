@@ -2,11 +2,11 @@
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  DIR="$( cd -P "$(dirname "$SOURCE")" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
-DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+DIR="$( cd -P "$(dirname "$SOURCE")" && pwd )"
 
 TRACK=$(osascript "$DIR/get_track.applescript")
 

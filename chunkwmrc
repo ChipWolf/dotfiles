@@ -14,8 +14,8 @@
 #       'stdout' or 'stderr' can be used instead of an actual filepath.
 #
 
-chunkc core::log_file stdout
-
+#chunkc core::log_file stdout
+chunkc core::log_file /tmp/chunkwm.log
 #
 # NOTE: specify the desired level of logging.
 #
@@ -127,6 +127,6 @@ chunkc tiling::rule --owner \"App Store\" --state float &
 chunkc tiling::rule --owner Emacs --except "^$" --state tile &
 
 # Custom
-chunkc tiling::rule --owner Kap --state float &
+chunkc tiling::rule --owner Kap --state float --state sticky &
 chunkc tiling::rule --owner Calculator --state float &
 chunkc tiling::desktop --toggle offset
