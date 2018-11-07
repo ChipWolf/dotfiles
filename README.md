@@ -22,6 +22,6 @@ screencapture -c -s && export PATH=/usr/local/bin:$PATH && pngpaste - | curl -X 
 ```
 
 #### iTerm config
-- Monokai Soda
+- Tomorrow Night
 - Operator Mono 14pt (ASCII)
 - monofur for Powerline 14pt (non-ASCII)
