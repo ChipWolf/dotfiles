@@ -10,6 +10,7 @@ set hlsearch
 
 set completeopt=menuone,preview,noinsert
 set term=xterm-256color
+set mouse=a
 
 " Swap files in one directory
 set directory^=$HOME/.vim/swap//
