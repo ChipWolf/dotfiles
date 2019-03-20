@@ -1,7 +1,9 @@
-etc
+Dotfiles
 ===
 
 Configuration files for backup/sync between systems.
+
+![](https://i.cwlf.uk/rlPOb)
 
 ## Usage
 
@@ -9,11 +11,11 @@ Configuration files for backup/sync between systems.
  2. Backup: `~/.etc/link.sh/link.sh -u ~/.etc/.link.conf -b`
  3. Link: `~/.etc/link.sh/link.sh -u ~/.etc/.link.conf -wf`
 
-### Remove PS
+### Remove user@hostname from prompt
 _~/.etc/zsh/zsh-os-conf/local-pre/00-bullettrain.zsh_
 ```
-BULLETTRAIN_CONTEXT_DEFAULT_USER=Chip
-DEFAULT_USER=Chip
+BULLETTRAIN_CONTEXT_DEFAULT_USER=$USER
+DEFAULT_USER=$USER
 ```
 
 #### Screnshot Workflow (Automator)
