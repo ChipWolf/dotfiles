@@ -47,6 +47,7 @@
 [submodule "zsh/bullet-train.zsh"]
 	path = zsh/bullet-train.zsh
 	url = https://github.com/caiogondim/bullet-train.zsh.git
+	ignore = all
 [submodule "vim/pack/plugins/start/targets.vim"]
 	path = vim/pack/plugins/start/targets.vim
 	url = https://github.com/wellle/targets.vim.git

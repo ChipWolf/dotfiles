@@ -9,6 +9,7 @@ ZSH_THEME="bullet-train"
 # Bullettrain config
 BULLETTRAIN_CONTEXT_FG="white"
 BULLETTRAIN_NVM_FG="black"
+BULLETTRAIN_VIRTUALENV_FG="black"
 BULLETTRAIN_KCTX_KCONFIG=$HOME/.kube/config
 BULLETTRAIN_KCTX_BG=blue
 BULLETTRAIN_KCTX_FG=white
@@ -19,6 +20,7 @@ BULLETTRAIN_PROMPT_ORDER=(
     context
     dir
     virtualenv
+    ruby
     nvm
     aws
     go
@@ -30,6 +32,9 @@ BULLETTRAIN_PROMPT_ORDER=(
 )
 
 export SHOW_AWS_PROMPT=false
+
+# Apply Bullettrain patch
+zshwd="$(pwd)" cd ~/.etc/zsh/bullet-train.zsh && git apply ~/.etc/bullet-train.patch > /dev/null 2>&1; cd "$zshwd"
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
