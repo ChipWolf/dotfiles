@@ -20,3 +20,5 @@ set undofile
 set undodir=~/.vim/undo
 
 set backspace=indent,eol,start
+
+inoremap § <ESC>
