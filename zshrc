@@ -137,7 +137,7 @@ bindkey "\e\e[C" forward-word # alt + ->
 
 source $HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source <(helm completion zsh | sed -E 's/\["(.+)"\]/\[\1\]/g')
+#source <(helm completion zsh | sed -E 's/\["(.+)"\]/\[\1\]/g')
 
 export NVM_DIR="$HOME/.nvm"
 
@@ -172,4 +172,4 @@ compinit -C
 
 zstyle ':bracketed-paste-magic' active-widgets '.self-*'.
 
-eval "$(rbenv init -)"
+#eval "$(rbenv init -)"
