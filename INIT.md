@@ -7,15 +7,21 @@
   + spotify
   + alfred
   + bartender
+  + docker
+  + grammarly
   + rescuetime
   + missive
   + xscreensaver (then set bsod, disable ransom + macosx)
 > set top right hotcorner to start screensaver
-> brew install pyenv
+> brew install {pyenv(-virtualenv)}
   + tmux 
   + skhd
   + gnupg
+  + wget
+  + exa
+  + coreutils
+  + pngpaste
   + zsh-completions
-  + chunkwm -- --without-ffm --without-border
+  + chunkwm -- --without-ffm --without-border #replace this with yabai
   + macvim -- --with-override-system-vim
 > brew services start {skhd,chunkwm}
