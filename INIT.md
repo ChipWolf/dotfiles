@@ -25,3 +25,4 @@
   + chunkwm -- --without-ffm --without-border #replace this with yabai
   + macvim -- --with-override-system-vim
 > brew services start {skhd,chunkwm}
+> buo/cask-upgrade
