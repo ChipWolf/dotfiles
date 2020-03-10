@@ -48,9 +48,11 @@ yabai -m config normal_window_border_color  "0x00${normal_border_color}"
 
 # ====== List of rules =========================
 
-yabai -m rule --add label="Teams" app="^Microsoft Teams$" manage=off
-yabai -m rule --add label="Cisco AnyConnect Secure Mobility Client" app="^Cisco AnyConnect Secure Mobility Client$" manage=off
-yabai -m rule --add label="Skype for Business" app="^Skype for Business$" manage=off
+yabai -m rule --add app="^Digital Colou?r Meter$" sticky=on manage=off
+yabai -m rule --add label="Toggl Desktop" app="^TogglDesktop$" manage=off
+yabai -m rule --add label="Microsoft Outlook" app="^Microsoft Outlook$" title="Reminder" sticky=on grid="2560:1600:1317:920:360:130"
+yabai -m rule --add label="Microsoft Teams" app="^Microsoft Teams$" title="^(Loading Microsoft )?Teams$" manage=off grid="2500:1600:-299:1028:300:300"
+yabai -m rule --add label="Cisco AnyConnect Secure Mobility Client" app="^Cisco AnyConnect Secure Mobility Client$" topmost=on manage=off
 yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
 yabai -m rule --add label="System Preferences" app="^System Preferences$" manage=off
