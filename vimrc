@@ -5,10 +5,10 @@ set wildmenu
 set wildmode=longest:full,full
 set wildignore+=*/tmp/*,*.swp,*/node_modules/*,*/.git/*
 
+set mouse=a
 set incsearch
 set hlsearch
 
-set mouse=a
 set completeopt=menuone,preview,noinsert
 set term=xterm-256color
 

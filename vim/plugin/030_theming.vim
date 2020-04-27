@@ -7,11 +7,9 @@ let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
 
 " Base colourscheme
-let g:jellybeans_use_term_italics = 1
-colorscheme jellybeans
+colorscheme Tomorrow-Night
 
 "Airline Theme
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
-let g:airline_theme= "jellybeans"
-
+let g:airline_theme= "tomorrow"

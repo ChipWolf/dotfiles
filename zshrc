@@ -39,6 +39,8 @@ export SHOW_AWS_PROMPT=false
 patch --forward --input ~/.etc/bullet-train.patch --directory ~/.etc/zsh/bullet-train.zsh --reject-file /tmp/deleteme.rej > /dev/null 2>&1
 rm -f /tmp/deleteme.rej
 
+export SHOW_AWS_PROMPT=false
+
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
 HYPHEN_INSENSITIVE="true"
@@ -47,7 +49,7 @@ HYPHEN_INSENSITIVE="true"
 DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="false"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
@@ -73,6 +75,9 @@ plugins=(
     fzf
     zsh-completions
     kubectl
+    fasd
+    fzf
+    zsh-completions
 )
 
 ZSH_TMUX_AUTOSTART=true
@@ -108,6 +113,7 @@ alias tmux='tmux -2'
 alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  # This loads nvm
 alias kc='nocorrect kubectl'
 alias l='exa -abglm --color-scale --git --color=automatic'
+alias kc='nocorrect kubectl'
 
 ### FUNCTIONS
 
@@ -164,12 +170,8 @@ alias note='bash ~/.etc/scripts/notes.sh'
 
 setopt no_hist_verify # prevents substitution confirmation
 
-autoload -Uz compinit
-for dump in ~/.zcompdump(N.mh+24); do
-  compinit
-done
-compinit -C
-
 zstyle ':bracketed-paste-magic' active-widgets '.self-*'.
 
-#eval "$(rbenv init -)"
+autoload -U compinit && compinit
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
