@@ -132,4 +132,7 @@
 [submodule "vim/pack/plugins/start/nerdtree-git-plugin"]
 	path = vim/pack/plugins/start/nerdtree-git-plugin
 	url = https://github.com/Xuyuanp/nerdtree-git-plugin.git
+[submodule "zsh/zsh-aws-vault"]
+	path = zsh/zsh-aws-vault
+	url = https://github.com/blimmer/zsh-aws-vault.git
 
