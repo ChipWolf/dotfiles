@@ -21,23 +21,20 @@ BULLETTRAIN_PROMPT_ORDER=(
     status
     context
     dir
-    virtualenv
-    ruby
+    aws_vault
+    virtualenv2
+    ruby2
     nvm
     aws
     go
     custom
-    kctx
+    kctx2
     git
     hg
     cmd_exec_time
 )
 
 export SHOW_AWS_PROMPT=false
-
-# Apply Bullettrain patch
-patch --forward --input ~/.etc/bullet-train.patch --directory ~/.etc/zsh/bullet-train.zsh --reject-file /tmp/deleteme.rej > /dev/null 2>&1
-rm -f /tmp/deleteme.rej
 
 export SHOW_AWS_PROMPT=false
 
@@ -113,7 +110,7 @@ alias tmux='tmux -2'
 alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  # This loads nvm
 alias kc='nocorrect kubectl'
 alias l='exa -abglm --color-scale --git --color=automatic'
-alias kc='nocorrect kubectl'
+alias kx='kubens'
 
 ### FUNCTIONS
 
@@ -144,6 +141,55 @@ bindkey "\e\e[C" forward-word # alt + ->
 source $HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 #source <(helm completion zsh | sed -E 's/\["(.+)"\]/\[\1\]/g')
+
+source $HOME/.zsh/zsh-aws-vault/zsh-aws-vault.plugin.zsh
+
+prompt_aws_vault() {
+  local vault_segment
+  vault_segment="`prompt_aws_vault_segment`"
+  [[ $vault_segment != '' ]] && prompt_segment cyan black "$vault_segment"
+}
+
+prompt_kctx2() {
+  local vault_segment
+  vault_segment="`prompt_aws_vault_segment`"
+  if [[ "$BULLETTRAIN_KCTX_KUBECTL" == "true" && $vault_segment != '' ]] && command -v kubectl > /dev/null 2>&1; then
+    local jsonpath='{.current-context}'
+    if [[ "$BULLETTRAIN_KCTX_NAMESPACE" == "true" ]]; then
+      jsonpath="${jsonpath}{':'}{..namespace}"
+    fi
+    prompt_segment $BULLETTRAIN_KCTX_BG $BULLETTRAIN_KCTX_FG $BULLETTRAIN_KCTX_PREFIX" $(kubectl config view --minify --output "jsonpath=${jsonpath}" 2>/dev/null | cut -d/ -f2)"
+  fi
+}
+
+prompt_ruby2() {
+  if command -v rvm-prompt > /dev/null 2>&1; then
+    prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX" $(rvm-prompt i v g)"
+  elif command -v chruby > /dev/null 2>&1; then
+    prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(chruby | sed -n -e 's/ \* //p')"
+  elif command -v rbenv > /dev/null 2>&1; then
+    current_gemset() {
+      echo "$(rbenv gemset active 2&>/dev/null | sed -e 's/ global$//')"
+    }
+
+    if [[ -n $(current_gemset) ]]; then
+      prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(rbenv version | sed -e 's/ (set.*$//')"@"$(current_gemset)"
+    else
+      prompt_segment $BULLETTRAIN_RUBY_BG $BULLETTRAIN_RUBY_FG $BULLETTRAIN_RUBY_PREFIX"  $(rbenv version | sed -e 's/ (set.*$//')"
+    fi
+  fi
+}
+
+prompt_virtualenv2() {
+  local virtualenv_path="$VIRTUAL_ENV"
+  if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
+    prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(basename $virtualenv_path)"
+  elif which pyenv &> /dev/null; then
+    if [[ "$(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')" != "system" ]]; then
+      prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
+    fi
+  fi
+}
 
 export NVM_DIR="$HOME/.nvm"
 
