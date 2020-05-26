@@ -279,8 +279,8 @@ bind-key e command-prompt "split-window -h 'exec vim %%'"
 
 
 # move status line to top
-#set -g status-position top
-#
+set -g status-position top
+
 set -g @resurrect-capture-pane-contents 'off'
 set -g status-interval 5
 
