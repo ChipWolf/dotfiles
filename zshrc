@@ -106,11 +106,14 @@ KEYTIMEOUT=1
 
 ### ALIASES
 
-alias tmux='tmux -2'
-alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  # This loads nvm
 alias kc='nocorrect kubectl'
-alias l='exa -abglm --color-scale --git --color=automatic'
+alias kd='kubectl describe'
+alias kg='kubectl get'
 alias kx='kubens'
+alias l='exa -abglm --color-scale --git --color=automatic'
+alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+alias note='bash ~/.etc/scripts/notes.sh'
+alias tmux='tmux -2'
 
 ### FUNCTIONS
 
@@ -212,7 +215,6 @@ done
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-alias note='bash ~/.etc/scripts/notes.sh'
 
 setopt no_hist_verify # prevents substitution confirmation
 
