@@ -1,0 +1,21 @@
+{
+  "enabled": "true",
+  "extends": [":assignee(chipwolf)", "config:base"],
+  "git-submodules": {
+    "enabled": true
+  },
+  "includeForks": "true",
+  "masterIssue": "true",
+  "masterIssueAutoclose": "true",
+  "packageRules": [
+    {
+      "automerge": "true", 
+      "updateTypes": ["digest", "minor", "patch", "pin"]
+    },
+    {
+      "managers": ["git-submodules"],
+      "groupName": "git submodules"
+    }
+  ],
+  "pinDigests": "true"
+}
