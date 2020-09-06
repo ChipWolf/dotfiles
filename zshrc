@@ -110,6 +110,23 @@ alias kc='nocorrect kubectl'
 alias kd='kubectl describe'
 alias kg='kubectl get'
 alias kx='kubens'
+
+alias g='git'
+alias ga='git add'
+alias gr='git rm'
+alias grm='git rm'
+alias gc='git commit'
+alias gca='git commit --amend'
+alias gcan='git commit --amend --no-edit'
+alias gpu='git pull'
+alias gp='git push'
+alias gpf='git push --force'
+alias gr='git rebase'
+alias gri='git rebase -i'
+alias grir='git rebase -i --root'
+alias gr='git reset'
+alias grh='git reset --hard'
+
 alias l='exa -abglm --color-scale --git --color=automatic'
 alias loadnvm='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
 alias note='bash ~/.etc/scripts/notes.sh'
@@ -197,6 +214,7 @@ prompt_virtualenv2() {
 export NVM_DIR="$HOME/.nvm"
 
 export PATH="$PATH:$HOME/.scripts"
+export PATH="${PATH}:${HOME}/.krew/bin"
 
 case $(uname -s) in
   *Darwin*)
