@@ -135,4 +135,7 @@
 [submodule "zsh/zsh-aws-vault"]
 	path = zsh/zsh-aws-vault
 	url = https://github.com/blimmer/zsh-aws-vault.git
+[submodule "vim/pack/plugins/start/vim-sops"]
+	path = vim/pack/plugins/start/vim-sops
+	url = https://github.com/ChipWolf/vim-sops.git
 
