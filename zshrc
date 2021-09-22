@@ -75,6 +75,7 @@ plugins=(
     fasd
     fzf
     zsh-completions
+    pyenv
 )
 
 ZSH_TMUX_AUTOSTART=true
@@ -215,6 +216,9 @@ export NVM_DIR="$HOME/.nvm"
 
 export PATH="$PATH:$HOME/.scripts"
 export PATH="${PATH}:${HOME}/.krew/bin"
+
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+export AWS_VAULT_PROMPT=ykman
 
 case $(uname -s) in
   *Darwin*)
