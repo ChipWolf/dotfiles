@@ -1,6 +1,6 @@
 #/bin/bash
 
-STATION="EGPH"
+STATION="EGOM"
 
 while [ ! $# -eq 0 ]; do
   case $1 in 
