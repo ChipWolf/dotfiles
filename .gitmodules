@@ -4,37 +4,6 @@
 [submodule ".tmux"]
 	path = tmux
 	url = https://github.com/gpakosz/.tmux.git
-[submodule "vim/pack/plugins/start/nerdtree"]
-	path = vim/pack/plugins/start/nerdtree
-	url = https://github.com/scrooloose/nerdtree.git
-[submodule "vim/pack/plugins/start/syntastic"]
-	path = vim/pack/plugins/start/syntastic
-	url = https://github.com/vim-syntastic/syntastic.git
-[submodule "vim/pack/plugins/start/vim-airline"]
-	path = vim/pack/plugins/start/vim-airline
-	url = https://github.com/vim-airline/vim-airline.git
-[submodule "vim/pack/plugins/start/vim-airline-themes"]
-	path = vim/pack/plugins/start/vim-airline-themes
-	url = https://github.com/vim-airline/vim-airline-themes.git
-[submodule "vim/pack/plugins/start/vim-fugitive"]
-	path = vim/pack/plugins/start/vim-fugitive
-	url = https://github.com/tpope/vim-fugitive.git
-[submodule "vim/pack/plugins/start/vim-gitgutter"]
-	path = vim/pack/plugins/start/vim-gitgutter
-	url = https://github.com/airblade/vim-gitgutter.git
-[submodule "vim/pack/plugins/start/vim-surround"]
-	path = vim/pack/plugins/start/vim-surround
-	url = https://github.com/tpope/vim-surround.git
-[submodule "vim/pack/plugins/opt/vim-colorschemes"]
-	path = vim/pack/plugins/opt/vim-colorschemes
-	url = https://github.com/flazz/vim-colorschemes.git
-	ignore = dirty
-[submodule "vim/pack/plugins/start/nerdcommenter"]
-	path = vim/pack/plugins/start/nerdcommenter
-	url = https://github.com/scrooloose/nerdcommenter.git
-[submodule "vim/pack/plugins/start/vim-easymotion"]
-	path = vim/pack/plugins/start/vim-easymotion
-	url = https://github.com/easymotion/vim-easymotion.git
 [submodule "zsh/oh-my-zsh"]
 	path = zsh/oh-my-zsh
 	url = https://github.com/robbyrussell/oh-my-zsh.git
@@ -47,97 +16,13 @@
 [submodule "zsh/bullet-train.zsh"]
 	path = zsh/bullet-train.zsh
 	url = https://github.com/caiogondim/bullet-train.zsh.git
-[submodule "vim/pack/plugins/start/targets.vim"]
-	path = vim/pack/plugins/start/targets.vim
-	url = https://github.com/wellle/targets.vim.git
 [submodule "tmux.plugins/tmux-resurrect"]
 	path = tmux.plugins/tmux-resurrect
 	url = https://github.com/tmux-plugins/tmux-resurrect.git
-[submodule "vim/pack/plugins/start/vim-obsession"]
-	path = vim/pack/plugins/start/vim-obsession
-	url = https://github.com/tpope/vim-obsession.git
-[submodule "vim/pack/plugins/opt/Colorizer"]
-	path = vim/pack/plugins/opt/Colorizer
-	url = https://github.com/chrisbra/Colorizer.git
-[submodule "vim/pack/plugins/start/vim-node"]
-	path = vim/pack/plugins/start/vim-node
-	url = https://github.com/moll/vim-node.git
-[submodule "vim/pack/plugins/start/ansible-vim"]
-	path = vim/pack/plugins/start/ansible-vim
-	url = https://github.com/pearofducks/ansible-vim.git
-[submodule "vim/pack/plugins/start/vim-closer"]
-	path = vim/pack/plugins/start/vim-closer
-	url = https://github.com/rstacruz/vim-closer.git
-[submodule "vim/pack/plugins/start/vim-editorconfig"]
-	path = vim/pack/plugins/start/vim-editorconfig
-	url = https://github.com/sgur/vim-editorconfig.git
-[submodule "vim/pack/plugins/start/limelight.vim"]
-	path = vim/pack/plugins/start/limelight.vim
-	url = https://github.com/junegunn/limelight.vim.git
-[submodule "vim/pack/plugins/start/goyo.vim"]
-	path = vim/pack/plugins/start/goyo.vim
-	url = https://github.com/junegunn/goyo.vim.git
-[submodule "vim/pack/plugins/start/vim-dasht"]
-	path = vim/pack/plugins/start/vim-dasht
-	url = https://github.com/sunaku/vim-dasht.git
-[submodule "vim/pack/plugins/start/vim-gnupg"]
-	path = vim/pack/plugins/start/vim-gnupg
-	url = https://github.com/jamessan/vim-gnupg.git
-[submodule "vim/pack/plugins/start/vim-tmux-navigator"]
-	path = vim/pack/plugins/start/vim-tmux-navigator
-	url = https://github.com/christoomey/vim-tmux-navigator.git
-[submodule "tmux.plugins/vim-tmux-navigator"]
-	path = tmux.plugins/vim-tmux-navigator
-	url = https://github.com/christoomey/vim-tmux-navigator.git
-[submodule "vim/pack/plugins/start/tsuquyomi"]
-	path = vim/pack/plugins/start/tsuquyomi
-	url = https://github.com/Quramy/tsuquyomi.git
 [submodule "zsh/custom/plugins/zsh-completions"]
 	path = zsh/custom/plugins/zsh-completions
 	url = https://github.com/zsh-users/zsh-completions.git
-[submodule "vim/pack/plugins/start/YouCompleteMe"]
-	path = vim/pack/plugins/start/YouCompleteMe
-	url = https://github.com/Valloric/YouCompleteMe.git
 	ignore = all
-[submodule "vim/pack/plugins/start/vim-polyglot"]
-	path = vim/pack/plugins/start/vim-polyglot
-	url = https://github.com/sheerun/vim-polyglot.git
-[submodule "vim/pack/plugins/start/ctrlp.vim"]
-	path = vim/pack/plugins/start/ctrlp.vim
-	url = https://github.com/ctrlpvim/ctrlp.vim
-[submodule "vim/pack/plugins/start/scratch.vim"]
-	path = vim/pack/plugins/start/scratch.vim
-	url = https://github.com/mtth/scratch.vim
-[submodule "vim/pack/plugins/start/vim-unimpaired"]
-	path = vim/pack/plugins/start/vim-unimpaired
-	url = https://github.com/tpope/vim-unimpaired.git
-[submodule "vim/pack/plugins/start/vim-repeat"]
-	path = vim/pack/plugins/start/vim-repeat
-	url = https://github.com/tpope/vim-repeat.git
-[submodule "vim/pack/plugins/start/vim-yoink"]
-	path = vim/pack/plugins/start/vim-yoink
-	url = https://github.com/svermeulen/vim-yoink.git
-[submodule "vim/pack/plugins/start/undotree"]
-	path = vim/pack/plugins/start/undotree
-	url = https://github.com/mbbill/undotree.git
-[submodule "vim/pack/plugins/start/ultisnips"]
-	path = vim/pack/plugins/start/ultisnips
-	url = https://github.com/SirVer/ultisnips.git
-[submodule "vim/pack/plugins/start/vim-kubernetes"]
-	path = vim/pack/plugins/start/vim-kubernetes
-	url = https://github.com/andrewstuart/vim-kubernetes.git
-[submodule "vim/pack/plugins/start/vim-go"]
-	path = vim/pack/plugins/start/vim-go
-	url = https://github.com/fatih/vim-go.git
-[submodule "vim/pack/plugins/start/vim-yaml-folds"]
-	path = vim/pack/plugins/start/vim-yaml-folds
-	url = https://github.com/pedrohdz/vim-yaml-folds.git
-[submodule "vim/pack/plugins/start/nerdtree-git-plugin"]
-	path = vim/pack/plugins/start/nerdtree-git-plugin
-	url = https://github.com/Xuyuanp/nerdtree-git-plugin.git
 [submodule "zsh/zsh-aws-vault"]
 	path = zsh/zsh-aws-vault
 	url = https://github.com/blimmer/zsh-aws-vault.git
-[submodule "vim/pack/plugins/start/vim-sops"]
-	path = vim/pack/plugins/start/vim-sops
-	url = https://github.com/ChipWolf/vim-sops.git
