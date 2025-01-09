@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+{{ if eq .chezmoi.os "linux" -}}
+PKGS="build-essential procps curl file git"
+if ! dpkg -s $PKGS &>/dev/null; then
+  sudo apt update -q
+  sudo apt install -yq $PKGS
+fi
+{{ end -}}
+
+{{- if eq .chezmoi.os "darwin" "linux" -}}
+if ! command -v brew 2>&1 >/dev/null; then
+    NONINTERACTIVE=1  -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# FIXME: substitute casks on linux
+# FIXME: decide what mise is responsible for (currently dupes neovim)
+brew bundle --no-lock --file=/dev/stdin <<EOF
+cask "alfred"
+cask "bartender"
+cask "gpgtools"
+cask "iterm2"
+cask "font-fira-code-nerd-font"
+cask "xscreensaver"
+brew "antidote"
+brew "bat"
+brew "eza"
+brew "git"
+brew "mise"
+brew "neovim"
+brew "thefuck"
+brew "tmux"
+brew "zsh"
+EOF
+
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+{{ end -}}
+
+{{- if .codespaces }}
+cat <<EOF > "$HOME/.gitconfig.overrides"
+[user]
+	name = Chip Wolf ‮
+[gpg]
+	program = /.codespaces/bin/gh-gpgsign
+EOF
+{{ end -}}

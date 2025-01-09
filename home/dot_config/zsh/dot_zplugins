@@ -1,0 +1,30 @@
+romkatv/powerlevel10k
+
+getantidote/use-omz
+
+ohmyzsh/ohmyzsh path:lib 
+ohmyzsh/ohmyzsh path:plugins/aws
+ohmyzsh/ohmyzsh path:plugins/docker
+ohmyzsh/ohmyzsh path:plugins/gcloud
+ohmyzsh/ohmyzsh path:plugins/gpg-agent
+ohmyzsh/ohmyzsh path:plugins/history-substring-search
+ohmyzsh/ohmyzsh path:plugins/kubectl
+ohmyzsh/ohmyzsh path:plugins/mise
+ohmyzsh/ohmyzsh path:plugins/terraform
+ohmyzsh/ohmyzsh path:plugins/thefuck
+ohmyzsh/ohmyzsh path:plugins/tmux
+ohmyzsh/ohmyzsh path:plugins/vi-mode
+
+# Add macOS specific plugins
+ohmyzsh/ohmyzsh path:plugins/brew conditional:is-macos
+ohmyzsh/ohmyzsh path:plugins/iterm2 conditional:is-macos
+ohmyzsh/ohmyzsh path:plugins/macos conditional:is-macos
+
+# Add core plugins that make Zsh a bit more like Fish
+zsh-users/zsh-completions path:src kind:fpath
+zsh-users/zsh-autosuggestions
+zdharma-continuum/fast-syntax-highlighting
+
+# Clone tmux dotfiles and plugins
+tmux-plugins/tmux-resurrect kind:clone
+gpakosz/.tmux kind:clone

@@ -1,0 +1,49 @@
+#!/bin/zsh
+
+source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" 2>/dev/null || true
+
+# Lazy-load (autoload) Zsh function files from a directory.
+ZFUNCDIR=${ZDOTDIR:-$HOME}/.zfunctions
+fpath=($ZFUNCDIR $fpath)
+autoload -Uz $ZFUNCDIR/*(.:t)
+
+# Set any zstyles you might use for configuration.
+zstyle ':bracketed-paste-magic' active-widgets '.self-*'.
+zstyle ':antidote:bundle' use-friendly-names 'yes'
+
+# Source and load Antidote
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
+antidote load ${ZDOTDIR:-$HOME}/.zplugins
+
+if [ ! -L $HOME/.tmux.conf ]; then
+  ln -s $(antidote home)/gpakosz/.tmux/.tmux.conf $HOME/.tmux.conf
+fi
+
+if [ ! -L $HOME/.tmux.plugins ]; then
+  ln -s $(antidote home)/tmux-plugins $HOME/.tmux.plugins
+fi
+
+### FUNCTIONS
+
+TRAPUSR1() {
+  if [[ -o INTERACTIVE ]]; then
+     {echo; echo execute a new shell instance } 1>&2
+     exec "${SHELL}"
+  fi
+}
+
+zmodload zsh/complist
+
+setopt no_hist_verify # prevent substitution confirmation
+
+# Source anything in .zshrc.d.
+for _rc in ${ZDOTDIR:-$HOME}/.zshrc.d/*.zsh; do
+  # Ignore tilde files.
+  if [[ $_rc:t != '~'* ]]; then
+    source "$_rc"
+  fi
+done
+unset _rc
+
+# To customize prompt, run `p10k configure` or edit .p10k.zsh.
+[[ ! -f ${ZDOTDIR:-$HOME}/.p10k.zsh ]] || source ${ZDOTDIR:-$HOME}/.p10k.zsh

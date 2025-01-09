@@ -2,10 +2,10 @@
   "workbench.iconTheme": "fira-code-material-minimal",
   "editor.fontFamily": "fira-code-nerd, FiraCode Nerd Font, Consolas, 'Courier New', monospace",
   "editor.fontLigatures": true,
-  "terminal.integrated.defaultProfile.linux": "tmux",
+  "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.profiles.linux": {
-    "tmux": {
-      "path": "tmux"
+    "zsh": {
+      "path": "zsh"
     }
   }
 }

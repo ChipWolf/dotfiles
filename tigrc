@@ -1,5 +1,0 @@
-bind main B !git rebase -i %(commit)
-bind status P !git push origin
-set  line-graphics = utf-8
-set blame-view = date:default author:full file-name:auto id:yes,color \
-                 line-number:yes,interval=5 text
