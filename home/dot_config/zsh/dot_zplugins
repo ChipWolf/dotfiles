@@ -2,8 +2,6 @@ romkatv/powerlevel10k
 
 getantidote/use-omz
 
-belak/zsh-utils path:completion/functions kind:autoload post:compstyle_zshzoo_setup
-
 ohmyzsh/ohmyzsh path:lib 
 ohmyzsh/ohmyzsh path:plugins/aws
 ohmyzsh/ohmyzsh path:plugins/docker
@@ -30,3 +28,6 @@ zdharma-continuum/fast-syntax-highlighting
 # Clone tmux dotfiles and plugins
 tmux-plugins/tmux-resurrect kind:clone
 gpakosz/.tmux kind:clone
+
+belak/zsh-utils path:completion/functions kind:autoload post:compstyle_zshzoo_setup
+
