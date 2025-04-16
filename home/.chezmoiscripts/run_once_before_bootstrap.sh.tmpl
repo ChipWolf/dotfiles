@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # -e: exit on error
 # -u: exit on unset variables
@@ -26,33 +26,41 @@ if command -v nvim 2>&1 >/dev/null; then
   NVIM_PRE_INSTALLED=1
 fi
 
+# do not enforce sha
+unset HOMEBREW_CASK_OPTS
+
+brew update
+brew doctor
+
 # FIXME: substitute casks on linux
-# TODO: attribute packages, ie. ruby-build deps  
-brew bundle --no-lock --file=/dev/stdin <<EOF
+# TODO: attribute packages, ie. ruby-build deps
+brew bundle -q --file=/dev/stdin <<EOF
 brew "age-plugin-yubikey"
-brew "antidote"
+brew "antidote" # zsh plugin manager
 brew "asitop" # apple silicon
 brew "autoconf"
 brew "bat" # better cat
 brew "colordiff"
-brew "eza"
-brew "fzf"
+brew "eza" # better ls
+brew "fzf" # fuzzy finder
 brew "git"
 brew "gmp"
 brew "gnupg"
+brew "kubernetes-cli"
 brew "libyaml"
-brew "mas"
-brew "mise"
+brew "mas" # mac app store
+brew "mise" # mise-en-place
 brew "neovim"
 brew "openssh"
 brew "openssl@3" # FIXME: does not appear in bundle
 brew "pinentry-mac"
-brew "rage"
+brew "rage" # better age
 brew "readline" # FIXME: does not appear in bundle
 brew "ripgrep"
 brew "sevenzip"
 brew "thefuck"
 brew "tmux"
+brew "uv" # python manager
 brew "wakatime-cli"
 brew "wget"
 brew "ykman"
@@ -60,14 +68,14 @@ brew "ykpers"
 brew "zsh"
 cask "1password" # work
 cask "1password-cli" # work
-cask "alfred"
+cask "alfred" # better spotlight
 cask "amethyst" # tiling wm
 cask "element" # matrix chat
 cask "font-fira-code-nerd-font"
 cask "gather"
 cask "google-drive"
 cask "gpg-suite"
-cask "iterm2"
+cask "iterm2" # better terminal
 cask "jordanbaird-ice" # menu bar
 cask "lm-studio"
 cask "lookaway" # screen breaks
@@ -75,6 +83,8 @@ cask "lulu" # firewall
 cask "macwhisper"
 cask "notion" # work
 cask "obsidian"
+cask "rewind"
+cask "slack"
 cask "wakatime"
 cask "xscreensaver"
 cask "yubico-authenticator"
@@ -83,8 +93,13 @@ cask "zulip"
 mas "1Password for Safari", id: 1569813296
 mas "Fantastical", id: 975937182
 mas "monday.com", id: 1298450641
-tap "homebrew/bundle"
 EOF
+
+brew upgrade --cask --greedy
+brew upgrade --greedy
+brew outdated --cask --greedy --verbose
+brew outdated --greedy --verbose
+brew cleanup
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -99,7 +114,7 @@ fi
 {{ end -}}
 
 {{- if .codespaces }}
-cat <<EOF > "$HOME/.gitconfig.overrides"
+cat <<EOF >"$HOME/.gitconfig.overrides"
 [user]
 	name = Chip Wolf ‮
 [gpg]
