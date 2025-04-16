@@ -30,6 +30,8 @@ alias vim='nvim'
 
 alias cm='chezmoi'
 
+alias fuck='say fuck; fuck'
+
 if (( $+commands[bat] )); then
   alias cat=bat
 fi
