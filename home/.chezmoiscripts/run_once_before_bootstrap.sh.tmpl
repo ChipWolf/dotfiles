@@ -30,7 +30,7 @@ fi
 unset HOMEBREW_CASK_OPTS
 
 brew update
-brew doctor
+brew doctor || true
 
 # FIXME: substitute casks on linux
 # TODO: attribute packages, ie. ruby-build deps
