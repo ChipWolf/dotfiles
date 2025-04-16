@@ -9,12 +9,13 @@ autoload -Uz $ZFUNCDIR/*(.:t)
 
 # Set any zstyles you might use for configuration.
 zstyle ':antidote:bundle' use-friendly-names 'yes'
+zstyle ':antidote:bundle' file ${ZDOTDIR:-$HOME}/.zplugins
 zstyle ':completion:*:commands' rehash yes
 zstyle ':bracketed-paste-magic' active-widgets '.self-*'.
 
 # Source and load Antidote
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
-antidote load ${ZDOTDIR:-$HOME}/.zplugins
+antidote load
 
 if [ ! -L $XDG_CONFIG_HOME/tmux/tmux.conf ]; then
   ln -s $(antidote home)/gpakosz/.tmux/.tmux.conf $XDG_CONFIG_HOME/tmux/tmux.conf
