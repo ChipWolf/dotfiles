@@ -1,4 +1,5 @@
 *.swp
+.DS_Store
 zsh/zsh-os-conf/local-pre/*
 !zsh/zsh-os-conf/local-pre/.gitkeep
 zsh/zsh-os-conf/local-post/*
