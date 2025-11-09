@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # -e: exit on error
-# -u: exit on unset variables
-set -eu
+# -u: exit on unset variables # FIXME: NVIM_PRE_INSTALLED
+set -e
 
 {{ if eq .chezmoi.os "linux" -}}
 PKGS="build-essential procps curl file git"
