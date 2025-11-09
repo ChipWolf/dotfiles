@@ -37,7 +37,7 @@ brew doctor || true
 brew bundle -q --file=/dev/stdin <<EOF
 brew "age-plugin-yubikey"
 brew "antidote" # zsh plugin manager
-brew "asitop" # apple silicon
+# brew "asitop" # apple silicon # FIXME: fails to skip cleanly on linux
 brew "autoconf"
 brew "bat" # better cat
 brew "colordiff"
