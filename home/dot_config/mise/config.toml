@@ -1,7 +1,6 @@
 [tools]
 go = "latest"
 node = "latest"
-"npm:hrvst-cli" = "latest"
 ruby = "latest"
 
 [settings]
