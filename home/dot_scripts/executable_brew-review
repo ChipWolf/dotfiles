@@ -34,6 +34,72 @@ _extract_keys() {
     || true
 }
 
+# Sort entries within each section of a Brewfile while preserving the file
+# header and section order (tap, brew, cask, mas).
+#
+# Within each section, active lines and commented-out entries are sorted
+# together alphabetically by package name (case-insensitive). The sort key
+# is the first quoted token on the line, stripping any leading "# ".
+#
+# The file header (everything before the first tap/brew/cask/mas line,
+# including commented-out entries that don't look like package lines) is
+# preserved verbatim.
+_sort_brewfile() {
+  local file="$1"
+  python3 - "$file" <<'PYEOF'
+import sys, re
+
+path = sys.argv[1]
+with open(path) as f:
+    lines = f.readlines()
+
+TYPES = ("tap", "brew", "cask", "mas", "whalebrew")
+# Matches active or commented-out package lines
+PKG_RE = re.compile(r'^\s*#?\s*(?:' + '|'.join(TYPES) + r')\s+"([^"]+)"')
+
+def sort_key(line):
+    m = PKG_RE.match(line)
+    return m.group(1).lower() if m else ""
+
+def is_pkg_line(line):
+    return bool(PKG_RE.match(line))
+
+def section_type(line):
+    stripped = line.lstrip("# \t")
+    for t in TYPES:
+        if stripped.startswith(t + " ") or stripped.startswith(t + "\t"):
+            return t
+    return None
+
+# Split into header + sections
+# Header = everything before the first package line
+header = []
+sections = {}   # type -> [lines]
+section_order = []
+current_type = None
+
+for line in lines:
+    t = section_type(line)
+    if t is None and current_type is None:
+        header.append(line)
+    else:
+        if t is not None and t != current_type:
+            current_type = t
+            if t not in sections:
+                sections[t] = []
+                section_order.append(t)
+        sections[current_type].append(line)
+
+# Sort each section's lines by package name
+out = header[:]
+for t in section_order:
+    out.extend(sorted(sections[t], key=sort_key))
+
+with open(path, "w") as f:
+    f.writelines(out)
+PYEOF
+}
+
 # Extract declared keys from Brewfile directly (preserves type prefix; strips conditionals/comments)
 declared_keys=$(_extract_keys "$BREWFILE")
 
@@ -128,6 +194,7 @@ if [ ${#extras[@]} -gt 0 ]; then
       case "$reply" in
         a|A)
           echo "$key" >> "$BREWFILE"
+          _sort_brewfile "$BREWFILE"
           echo "  -> Added to $BREWFILE"
           break
           ;;

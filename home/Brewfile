@@ -36,7 +36,6 @@ brew "neovim"
 brew "opencode"
 brew "parallel"
 # brew "pinentry-mac" if OS.mac?
-brew "prowler"
 # brew "rage" # better age
 brew "ripgrep"
 brew "sevenzip"
