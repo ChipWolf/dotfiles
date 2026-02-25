@@ -1,0 +1,59 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // User preferences (override in project opencode.json if needed)
+  "autoupdate": true,
+
+  // GitHub Copilot: run /connect and select "GitHub Copilot", then sign in at github.com/login/device
+  "model": "github-copilot/claude-sonnet-4.6",
+
+  "permission": {
+    // Require approval before running any shell command
+    "bash": "ask",
+
+    // Require approval before any Atlassian MCP tool is invoked
+    "atlassian_*": "ask",
+
+    // Require approval before any sooperset/mcp-atlassian tool is invoked
+    "mcp-atlassian_*": "ask",
+
+    // Read-only Atlassian tools (only read:* scopes) — allow without prompting
+    "atlassian_get*": "allow",
+    "atlassian_search*": "allow",
+    // Outliers with read-only scopes that don't match above patterns
+    "atlassian_atlassianUserInfo": "allow",
+    "atlassian_fetch": "allow",
+    "atlassian_lookupJiraAccountId": "allow"
+  },
+
+  "mcp": {
+    // Atlassian Rovo MCP server — connects Jira, Confluence, and Compass
+    // Auth: run `opencode mcp auth atlassian` to complete the OAuth 2.1 flow
+    "atlassian": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "enabled": true
+    },
+
+    // sooperset/mcp-atlassian — full Jira tool suite including issue linking
+    // Credentials sourced from ~/.config/opencode/mcp-atlassian.env at launch
+    "mcp-atlassian": {
+      "type": "local",
+      "command": ["bash", "-c", "set -a; source ~/.config/opencode/mcp-atlassian.env; set +a; exec uvx mcp-atlassian"],
+      "enabled": true
+    },
+
+    // mcp-obsidian — gives OpenCode access to your Obsidian vault
+    // https://mcp-obsidian.org
+    "obsidian": {
+      "type": "local",
+      "command": ["npx", "-y", "@mauricio.wolff/mcp-obsidian@latest", "/Users/chip.wolf_ext/Documents/Obsidian/Vault"],
+      "enabled": true
+    },
+
+    // Chrome DevTools MCP — browser automation and debugging
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}

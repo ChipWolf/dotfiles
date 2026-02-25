@@ -1,7 +1,7 @@
 [user]
   name = Chip Wolf
-  email = chip.wolf@control-plane.io
-  signingkey = 0x4C90101E11349775
+  email = hello@chipwolf.uk
+  #signingkey = 0x4C90101E11349775
 [color]
   ui = true
 [core]
