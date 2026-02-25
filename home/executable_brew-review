@@ -9,7 +9,7 @@
 #
 # Exits silently if there is no drift or if stdin is not a tty.
 
-set -euo pipefail
+set -uo pipefail
 
 # Skip entirely when not interactive
 if [ ! -t 0 ]; then
@@ -95,6 +95,16 @@ if [ ${#extras[@]} -gt 0 ]; then
     pkg=$(echo "$key" | grep -oE '"[^"]+"' | tr -d '"')
     type=$(echo "$key" | awk '{print $1}')
 
+    # Skip if already gone (e.g. removed as a tap dependency earlier in this run)
+    case "$type" in
+      tap)
+        brew tap-info "$pkg" &>/dev/null || { echo "  (skipping $key — already removed)"; echo ""; continue; } ;;
+      cask)
+        brew list --cask "$pkg" &>/dev/null || { echo "  (skipping $key — already removed)"; echo ""; continue; } ;;
+      *)
+        brew list --formula "$pkg" &>/dev/null || { echo "  (skipping $key — already removed)"; echo ""; continue; } ;;
+    esac
+
     # For taps, show contents upfront as context before prompting
     if [ "$type" = "tap" ]; then
       tap_info=$(brew tap-info --json "$pkg" 2>/dev/null)
@@ -123,6 +133,21 @@ if [ ${#extras[@]} -gt 0 ]; then
           ;;
         r|R)
           if [ "$type" = "tap" ]; then
+            # Uninstall installed formulae/casks from the tap before untapping
+            if [ -n "${tap_formulae:-}" ]; then
+              while IFS= read -r f; do
+                [ -z "$f" ] && continue
+                echo "  -> Uninstalling formula: $f"
+                brew uninstall "$f"
+              done <<< "$tap_formulae"
+            fi
+            if [ -n "${tap_casks:-}" ]; then
+              while IFS= read -r c; do
+                [ -z "$c" ] && continue
+                echo "  -> Uninstalling cask: $c"
+                brew uninstall --cask "$c"
+              done <<< "$tap_casks"
+            fi
             brew untap --force "$pkg"
           elif [ "$type" = "cask" ]; then
             brew uninstall --cask "$pkg"

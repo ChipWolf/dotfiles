@@ -14,8 +14,8 @@ if ! command -v brew &>/dev/null; then
   done
 fi
 
-BREW_REVIEW="$CHEZMOI_SOURCE_DIR/dot_config/zsh/dot_zfunctions/brew-review"
+BREW_REVIEW="$CHEZMOI_SOURCE_DIR/brew-review"
 if command -v brew &>/dev/null && [ -f "$BREW_REVIEW" ]; then
-  bash "$BREW_REVIEW"
+  bash "$BREW_REVIEW" || true
 fi
 {{ end -}}

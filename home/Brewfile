@@ -65,3 +65,22 @@ cask "xscreensaver" if OS.mac?
 # cask "zoom" if OS.mac?
 mas "Fantastical", id: 975937182 if OS.mac?
 mas "Irvue", id: 1039633667 if OS.mac?
+brew "asitop"
+brew "bash"
+brew "blueutil"
+brew "btop"
+brew "cbonsai"
+brew "chezmoi"
+brew "docker"
+brew "docker-compose"
+brew "mas"
+brew "opencode"
+brew "prowler"
+cask "cursor"
+cask "eqmac"
+cask "finicky"
+cask "gcloud-cli"
+cask "openlens"
+cask "shadow"
+cask "visual-studio-code"
+cask "zed"
