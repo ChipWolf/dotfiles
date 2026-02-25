@@ -92,13 +92,44 @@ if [ ${#extras[@]} -gt 0 ]; then
   echo "The following packages are installed but not in Brewfile:"
   echo ""
   for key in "${extras[@]}"; do
+    pkg=$(echo "$key" | grep -oE '"[^"]+"' | tr -d '"')
+    type=$(echo "$key" | awk '{print $1}')
+
+    # For taps, show contents upfront as context before prompting
+    if [ "$type" = "tap" ]; then
+      tap_info=$(brew tap-info --json "$pkg" 2>/dev/null)
+      tap_formulae=$(echo "$tap_info" | python3 -c "import json,sys; t=json.load(sys.stdin)[0]; [print(f) for f in t.get('formula_names',[])]" 2>/dev/null | while IFS= read -r f; do brew list --formula "$f" &>/dev/null && echo "$f"; done || true)
+      tap_casks=$(echo "$tap_info" | python3 -c "import json,sys; t=json.load(sys.stdin)[0]; [print(c) for c in t.get('cask_tokens',[])]" 2>/dev/null | while IFS= read -r c; do brew list --cask "$c" &>/dev/null && echo "$c"; done || true)
+      printf "  %s" "$key"
+      if [ -n "$tap_formulae" ] || [ -n "$tap_casks" ]; then
+        echo " (contains installed packages:"
+        [ -n "$tap_formulae" ] && echo "$tap_formulae" | sed 's/^/     formula: /'
+        [ -n "$tap_casks" ] && echo "$tap_casks" | sed 's/^/     cask: /'
+        printf "  )"
+      fi
+      echo ""
+    else
+      printf "  %s\n" "$key"
+    fi
+
     while true; do
-      printf "  %s\n  [a]dd to Brewfile / [i]gnore permanently / [s]kip: " "$key"
+      printf "  [a]dd to Brewfile / [r]emove / [i]gnore permanently / [s]kip: "
       read -r reply </dev/tty
       case "$reply" in
         a|A)
           echo "$key" >> "$BREWFILE"
           echo "  -> Added to $BREWFILE"
+          break
+          ;;
+        r|R)
+          if [ "$type" = "tap" ]; then
+            brew untap --force "$pkg"
+          elif [ "$type" = "cask" ]; then
+            brew uninstall --cask "$pkg"
+          else
+            brew uninstall "$pkg"
+          fi
+          echo "  -> Removed $pkg"
           break
           ;;
         i|I)
@@ -111,7 +142,7 @@ if [ ${#extras[@]} -gt 0 ]; then
           break
           ;;
         *)
-          echo "  Please enter a, i, or s."
+          echo "  Please enter a, r, i, or s."
           ;;
       esac
     done
