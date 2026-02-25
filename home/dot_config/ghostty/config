@@ -1,0 +1,44 @@
+# Ghostty configuration
+# https://ghostty.org/docs/config/reference
+
+# --- Font ---
+font-family = "FiraCode Nerd Font Mono"
+font-size = 13
+
+# --- Theme ---
+theme = "Catppuccin Mocha"
+
+# --- Window ---
+# Remove the native title bar
+window-decoration = false
+
+# Remove all padding
+window-padding-x = 0
+window-padding-y = 0
+window-padding-balance = false
+
+# --- Command ---
+# Start in tmux: new session per window
+command = /opt/homebrew/bin/tmux -2 new-session
+
+# --- Cursor ---
+cursor-style = block
+cursor-style-blink = false
+
+# --- Scrollback ---
+scrollback-limit = 10000000
+
+# --- Mouse ---
+# Hide the mouse pointer while typing
+mouse-hide-while-typing = true
+
+# --- Shell integration ---
+# Shell integration is on by default; keep it enabled for prompt features
+shell-integration = detect
+
+# --- Clipboard ---
+# Copy selected text to clipboard automatically
+copy-on-select = clipboard
+
+# --- Links ---
+link-url = true

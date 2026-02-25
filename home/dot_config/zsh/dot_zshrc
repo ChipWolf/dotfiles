@@ -13,6 +13,10 @@ zstyle ':antidote:bundle' file ${ZDOTDIR:-$HOME}/.zplugins
 zstyle ':completion:*:commands' rehash yes
 zstyle ':bracketed-paste-magic' active-widgets '.self-*'.
 
+# Catppuccin Powerlevel10k theme
+zstyle ':catppuccin:p10k' theme 'rainbow'
+zstyle ':catppuccin:p10k' flavour 'mocha'
+
 # Source and load Antidote
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 antidote load

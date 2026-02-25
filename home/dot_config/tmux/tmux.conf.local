@@ -85,21 +85,21 @@ tmux_conf_24b_colour=auto
 #   - tmux_conf_theme_synchronized
 tmux_conf_theme=enabled
 
-# default theme
-tmux_conf_theme_colour_1="#000000"
-tmux_conf_theme_colour_2="#0087d7"
-tmux_conf_theme_colour_3="#00afff"
-tmux_conf_theme_colour_4="#1d1f21"
-tmux_conf_theme_colour_5="#282a2e"
-tmux_conf_theme_colour_6="#373b41"
-tmux_conf_theme_colour_7="#81a2be"
-tmux_conf_theme_colour_8="#8abeb7"
-tmux_conf_theme_colour_9="#b294bb"
-tmux_conf_theme_colour_10="#b5bd68"
-tmux_conf_theme_colour_11="#c5c8c6"
-tmux_conf_theme_colour_12="#cc6666"
-tmux_conf_theme_colour_13="#de935f"
-tmux_conf_theme_colour_14="#ffff00"
+# Catppuccin Mocha theme
+tmux_conf_theme_colour_1="#1e1e2e"   # base (darkest bg)
+tmux_conf_theme_colour_2="#89b4fa"   # blue (accent)
+tmux_conf_theme_colour_3="#b4befe"   # lavender (lighter accent)
+tmux_conf_theme_colour_4="#1e1e2e"   # base (status bg)
+tmux_conf_theme_colour_5="#313244"   # surface0
+tmux_conf_theme_colour_6="#45475a"   # surface1
+tmux_conf_theme_colour_7="#cdd6f4"   # text
+tmux_conf_theme_colour_8="#94e2d5"   # teal
+tmux_conf_theme_colour_9="#cba6f7"   # mauve
+tmux_conf_theme_colour_10="#a6e3a1"  # green
+tmux_conf_theme_colour_11="#cdd6f4"  # text
+tmux_conf_theme_colour_12="#f38ba8"  # red
+tmux_conf_theme_colour_13="#fab387"  # peach
+tmux_conf_theme_colour_14="#f9e2af"  # yellow
 
 # default theme (ansi)
 #tmux_conf_theme_colour_1="colour0"
@@ -278,7 +278,7 @@ tmux_conf_theme_status_left_attr="bold,none,none"
 # status right style
 tmux_conf_theme_status_right_fg="$tmux_conf_theme_colour_11,$tmux_conf_theme_colour_4,$tmux_conf_theme_colour_4"
 tmux_conf_theme_status_right_bg="$tmux_conf_theme_colour_4,$tmux_conf_theme_colour_10,$tmux_conf_theme_colour_13"
-tmux_conf_theme_status_right_attr="none,none,none12 s1§a`"
+tmux_conf_theme_status_right_attr="none,none,none"
 
 # pairing indicator
 tmux_conf_theme_pairing="⚇"                 # U+2687
