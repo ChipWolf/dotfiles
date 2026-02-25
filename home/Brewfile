@@ -7,13 +7,19 @@
 
 # brew "age-plugin-yubikey"
 brew "antidote" # zsh plugin manager
-# brew "asitop" # apple silicon # FIXME: fails to skip cleanly on linux
-# brew "autoconf"
+brew "asitop" if OS.mac? # apple silicon top
 brew "aws-vault"
 brew "awscli"
+brew "bash"
 brew "bat" # better cat
+brew "blueutil" if OS.mac?
+brew "btop"
+brew "cbonsai"
+brew "chezmoi"
 brew "colima"
 brew "colordiff"
+brew "docker"
+brew "docker-compose"
 brew "eza" # better ls
 brew "fd" # nvim mason dep
 brew "fzf" # fuzzy finder
@@ -24,15 +30,14 @@ brew "git"
 brew "htop"
 brew "kubernetes-cli"
 # brew "libyaml"
-# brew "mas" # mac app store # FIXME: fails to skip cleanly on linux
+brew "mas" if OS.mac? # mac app store
 brew "mise" # mise-en-place
 brew "neovim"
-# brew "openssh"
-# brew "openssl@3" # FIXME: does not appear in bundle
+brew "opencode"
 brew "parallel"
-# brew "pinentry-mac" # FIXME: fails to skip cleanly on linux
+# brew "pinentry-mac" if OS.mac?
+brew "prowler"
 # brew "rage" # better age
-# brew "readline" # FIXME: does not appear in bundle
 brew "ripgrep"
 brew "sevenzip"
 brew "thefuck"
@@ -47,8 +52,12 @@ cask "1password" if OS.mac? # work
 cask "1password-cli" if OS.mac? # work
 cask "alfred" if OS.mac? # better spotlight
 cask "amethyst" if OS.mac? # tiling wm
+cask "cursor" if OS.mac?
 # cask "element" if OS.mac? # matrix chat
+cask "eqmac" if OS.mac?
+cask "finicky" if OS.mac?
 cask "font-fira-code-nerd-font" if OS.mac?
+cask "gcloud-cli" if OS.mac?
 # cask "google-drive" if OS.mac?
 # cask "gpg-suite" if OS.mac?
 cask "iterm2" if OS.mac? # better terminal
@@ -58,29 +67,14 @@ cask "lookaway" if OS.mac? # screen breaks
 cask "lulu" if OS.mac? # firewall
 # cask "macwhisper" if OS.mac?
 cask "obsidian" if OS.mac?
+cask "openlens" if OS.mac?
+cask "shadow" if OS.mac?
 # cask "slack" if OS.mac?
+cask "visual-studio-code" if OS.mac?
 cask "wakatime" if OS.mac?
 cask "xscreensaver" if OS.mac?
 # cask "yubico-authenticator" if OS.mac?
+cask "zed" if OS.mac?
 # cask "zoom" if OS.mac?
 mas "Fantastical", id: 975937182 if OS.mac?
 mas "Irvue", id: 1039633667 if OS.mac?
-brew "asitop"
-brew "bash"
-brew "blueutil"
-brew "btop"
-brew "cbonsai"
-brew "chezmoi"
-brew "docker"
-brew "docker-compose"
-brew "mas"
-brew "opencode"
-brew "prowler"
-cask "cursor"
-cask "eqmac"
-cask "finicky"
-cask "gcloud-cli"
-cask "openlens"
-cask "shadow"
-cask "visual-studio-code"
-cask "zed"
