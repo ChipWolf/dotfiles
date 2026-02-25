@@ -1,0 +1,67 @@
+# Brewfile — managed by chezmoi
+# Source of truth for intended Homebrew state.
+# - This file is evaluated as Ruby; use OS.mac? / OS.linux? for platform-specific entries.
+# - Do NOT regenerate this file wholesale from `brew bundle dump`.
+#   Comments, conditionals, and annotations are hand-maintained.
+# - Commented-out lines are intentionally excluded (broken, unwanted, or deferred).
+
+# brew "age-plugin-yubikey"
+brew "antidote" # zsh plugin manager
+# brew "asitop" # apple silicon # FIXME: fails to skip cleanly on linux
+# brew "autoconf"
+brew "aws-vault"
+brew "awscli"
+brew "bat" # better cat
+brew "colima"
+brew "colordiff"
+brew "eza" # better ls
+brew "fd" # nvim mason dep
+brew "fzf" # fuzzy finder
+brew "gh" # github cli
+brew "git"
+# brew "gmp"
+# brew "gnupg"
+brew "htop"
+brew "kubernetes-cli"
+# brew "libyaml"
+# brew "mas" # mac app store # FIXME: fails to skip cleanly on linux
+brew "mise" # mise-en-place
+brew "neovim"
+# brew "openssh"
+# brew "openssl@3" # FIXME: does not appear in bundle
+brew "parallel"
+# brew "pinentry-mac" # FIXME: fails to skip cleanly on linux
+# brew "rage" # better age
+# brew "readline" # FIXME: does not appear in bundle
+brew "ripgrep"
+brew "sevenzip"
+brew "thefuck"
+brew "tmux"
+brew "uv" # python manager
+brew "wakatime-cli"
+brew "wget"
+# brew "ykman"
+# brew "ykpers"
+brew "zsh"
+cask "1password" if OS.mac? # work
+cask "1password-cli" if OS.mac? # work
+cask "alfred" if OS.mac? # better spotlight
+cask "amethyst" if OS.mac? # tiling wm
+# cask "element" if OS.mac? # matrix chat
+cask "font-fira-code-nerd-font" if OS.mac?
+# cask "google-drive" if OS.mac?
+# cask "gpg-suite" if OS.mac?
+cask "iterm2" if OS.mac? # better terminal
+cask "jordanbaird-ice" if OS.mac? # menu bar
+# cask "lm-studio" if OS.mac?
+cask "lookaway" if OS.mac? # screen breaks
+cask "lulu" if OS.mac? # firewall
+# cask "macwhisper" if OS.mac?
+cask "obsidian" if OS.mac?
+# cask "slack" if OS.mac?
+cask "wakatime" if OS.mac?
+cask "xscreensaver" if OS.mac?
+# cask "yubico-authenticator" if OS.mac?
+# cask "zoom" if OS.mac?
+mas "Fantastical", id: 975937182 if OS.mac?
+mas "Irvue", id: 1039633667 if OS.mac?

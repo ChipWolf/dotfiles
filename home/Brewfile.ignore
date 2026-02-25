@@ -1,0 +1,4 @@
+# Brewfile.ignore — managed by chezmoi
+# Packages listed here are permanently excluded from drift review.
+# One entry per line, same format as Brewfile (e.g. `brew "foo"`, `cask "bar"`).
+# Lines beginning with # are ignored.

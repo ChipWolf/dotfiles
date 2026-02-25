@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# -e: exit on error
+# -u: exit on unset variables # FIXME: NVIM_PRE_INSTALLED
+set -e
+
+# Brewfile hash (triggers re-run when Brewfile changes):
+# {{ include "Brewfile" | sha256sum }}
+
+{{ if eq .chezmoi.os "linux" -}}
+PKGS="build-essential procps curl file git"
+if ! dpkg -s $PKGS &>/dev/null; then
+  sudo apt update -q
+  sudo apt install -yq $PKGS
+fi
+{{ end -}}
+
+{{- if eq .chezmoi.os "darwin" "linux" -}}
+if ! command -v brew 2>&1 >/dev/null; then
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+if ! command -v brew 2>&1 >/dev/null; then
+  export PATH="$PATH:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/opt/homebrew/bin"
+  eval $(brew shellenv)
+fi
+
+if command -v nvim 2>&1 >/dev/null; then
+  NVIM_PRE_INSTALLED=1
+fi
+
+# do not enforce sha
+unset HOMEBREW_CASK_OPTS
+
+brew update
+brew doctor || true
+
+brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile"
+
+brew upgrade --cask --greedy
+brew upgrade --greedy
+brew outdated --cask --greedy --verbose
+brew outdated --greedy --verbose
+brew cleanup
+
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+mise trust
+mise install
+
+if [ -z "$NVIM_PRE_INSTALLED" ]; then
+  nvim --headless "+Lazy! sync" +qa
+fi
+{{ end -}}
+
+{{- if .codespaces }}
+cat <<EOF >"$HOME/.gitconfig.overrides"
+[user]
+	name = Chip Wolf ‮
+[gpg]
+	program = /.codespaces/bin/gh-gpgsign
+EOF
+{{ end -}}

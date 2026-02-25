@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# brew-review — interactive Homebrew drift review
+#
+# Compares what is actually installed (brew bundle dump) against the
+# declared Brewfile in the chezmoi source directory. Prompts for each
+# package that is installed but not declared.
+#
+# Usage: brew-review [--brewfile <path>] [--ignore <path>]
+#
+# Exits silently if there is no drift or if stdin is not a tty.
+
+set -euo pipefail
+
+# Skip entirely when not interactive
+if [ ! -t 0 ]; then
+  exit 0
+fi
+
+# Resolve paths — prefer env vars set by chezmoi, fall back to defaults
+CHEZMOI_SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi")}"
+BREWFILE="${1:-$CHEZMOI_SOURCE_DIR/Brewfile}"
+IGNOREFILE="${2:-$CHEZMOI_SOURCE_DIR/Brewfile.ignore}"
+
+if [ ! -f "$BREWFILE" ]; then
+  echo "brew-review: Brewfile not found at $BREWFILE" >&2
+  exit 1
+fi
+
+# Extract base keys from a Brewfile-format file (type + quoted name only)
+# e.g. 'cask "1password" if OS.mac? # work' -> 'cask "1password"'
+_extract_keys() {
+  grep -v '^\s*#' "$1" 2>/dev/null \
+    | grep -oE '(brew|cask|mas|tap|whalebrew)\s+"[^"]+"' \
+    || true
+}
+
+# Extract declared keys from Brewfile directly (preserves type prefix; strips conditionals/comments)
+declared_keys=$(_extract_keys "$BREWFILE")
+
+# Get installed set via brew bundle dump
+dump_tmp=$(mktemp)
+trap 'rm -f "$dump_tmp"' EXIT
+brew bundle dump --file="$dump_tmp" --force --quiet 2>/dev/null
+installed_keys=$(_extract_keys "$dump_tmp")
+
+# Get ignore set
+ignore_keys=""
+if [ -f "$IGNOREFILE" ]; then
+  ignore_keys=$(_extract_keys "$IGNOREFILE")
+fi
+
+# Find extras: installed but not in Brewfile and not in ignore
+extras=()
+while IFS= read -r key; do
+  [ -z "$key" ] && continue
+  if ! echo "$declared_keys" | grep -qF "$key"; then
+    if ! echo "$ignore_keys" | grep -qF "$key"; then
+      extras+=("$key")
+    fi
+  fi
+done <<< "$installed_keys"
+
+# Find missing: in Brewfile active lines but not installed
+missing=()
+while IFS= read -r key; do
+  [ -z "$key" ] && continue
+  if ! echo "$installed_keys" | grep -qF "$key"; then
+    missing+=("$key")
+  fi
+done <<< "$declared_keys"
+
+if [ ${#extras[@]} -eq 0 ] && [ ${#missing[@]} -eq 0 ]; then
+  exit 0
+fi
+
+echo ""
+echo "==> Homebrew drift review"
+echo ""
+
+# Report missing (no prompt — bootstrap will install them)
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "The following packages are declared in Brewfile but not installed:"
+  for key in "${missing[@]}"; do
+    echo "  - $key"
+  done
+  echo "  Run 'chezmoi apply' or 'brew bundle --file \"$BREWFILE\"' to install."
+  echo ""
+fi
+
+# Prompt for extras
+if [ ${#extras[@]} -gt 0 ]; then
+  echo "The following packages are installed but not in Brewfile:"
+  echo ""
+  for key in "${extras[@]}"; do
+    while true; do
+      printf "  %s\n  [a]dd to Brewfile / [i]gnore permanently / [s]kip: " "$key"
+      read -r reply </dev/tty
+      case "$reply" in
+        a|A)
+          echo "$key" >> "$BREWFILE"
+          echo "  -> Added to $BREWFILE"
+          break
+          ;;
+        i|I)
+          echo "$key" >> "$IGNOREFILE"
+          echo "  -> Added to $IGNOREFILE"
+          break
+          ;;
+        s|S|"")
+          echo "  -> Skipped"
+          break
+          ;;
+        *)
+          echo "  Please enter a, i, or s."
+          ;;
+      esac
+    done
+    echo ""
+  done
+fi
