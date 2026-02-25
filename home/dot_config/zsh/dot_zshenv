@@ -18,7 +18,7 @@ DISABLE_AUTO_TITLE="true"
 ENABLE_CORRECTION="false"
 COMPLETION_WAITING_DOTS="true"
 
-export PATH="${PATH}:${HOME}/.scripts:${HOME}/.krew/bin"
+export PATH="${PATH}:${HOME}/.krew/bin"
 export GPG_TTY=$(tty)
 
 export HOMEBREW_NO_ENV_HINTS=true
@@ -46,6 +46,7 @@ typeset -gU path fpath
 path=(
   $HOME/{,s}bin(N)
   $HOME/.local/{,s}bin(N)
+  $HOME/.scripts(N)
   {$HOME,/home/linuxbrew}/.linuxbrew/bin(N)
   /opt/{homebrew,local}/{,s}bin(N)
   /usr/local/{,s}bin(N)
