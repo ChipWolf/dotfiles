@@ -10,7 +10,7 @@ brew "antidote" # zsh plugin manager
 brew "asitop" if OS.mac? # apple silicon top
 brew "aws-vault" unless ENV["HOMEBREW_CODESPACES"]
 brew "awscli" unless ENV["HOMEBREW_CODESPACES"]
-brew "bash"
+brew "bash" unless ENV["HOMEBREW_CODESPACES"]
 brew "bat" # better cat
 brew "blueutil" if OS.mac?
 brew "btop" unless ENV["HOMEBREW_CODESPACES"]
