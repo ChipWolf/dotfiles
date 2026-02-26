@@ -111,7 +111,7 @@ Deleting a file from the chezmoi source does **not** remove it from the target (
 
 - **Zsh** – Primary config under `home/dot_config/zsh/`: `dot_zshrc`, `dot_zshenv`, `dot_zprofile`, `dot_zplugins`, `dot_zshrc.d/`, `dot_zfunctions/`, `dot_p10k.zsh`. Top-level `home/dot_zshenv` and `home/dot_profile` set `ZDOTDIR` / `XDG_CONFIG_HOME` and are sourced by the shell.
 - **Neovim** – `home/dot_config/nvim/` (LazyVim-style: `init.lua`, `lua/config/`, `lua/plugins/`).
-- **OpenCode** – `home/dot_config/opencode/opencode.jsonc` (→ `~/.config/opencode/opencode.jsonc`). This is the global OpenCode config: model, MCP servers, permissions, etc. Edit it here when updating OpenCode settings.
+- **OpenCode** – `home/dot_config/opencode/opencode.jsonc.tmpl` (→ `~/.config/opencode/opencode.jsonc`). This is the global OpenCode config: model, MCP servers, permissions, etc. It is a chezmoi template (uses `.chezmoi.homeDir` for the Obsidian vault path). Edit the source here when updating OpenCode settings.
 - **OpenCode global agent rules** – `home/dot_config/opencode/AGENTS.md` (→ `~/.config/opencode/AGENTS.md`). Universal agent rules that apply across all OpenCode sessions and projects. Edit the source here and run `chezmoi apply`. Never edit `~/.config/opencode/AGENTS.md` directly.
 - **Other config** – `home/dot_config/` includes tmux, mise, finicky; `home/private_dot_gnupg/` for GnuPG (private permissions).
 - **Executable** – `home/dot_scripts/executable_brew-review` (→ `~/.scripts/brew-review`) is the Homebrew drift review script. `home/dot_scripts/executable_7zw` (→ `~/.scripts/7zw`) is a 7-zip wrapper. Both live in `dot_scripts/` — not `dot_zfunctions/` (see Brew section below).
