@@ -61,6 +61,13 @@ brew outdated --greedy --verbose
 brew cleanup
 {{- end }}
 
+# Prewarm antidote plugin cache so the first shell launch doesn't clone everything
+zsh -c '
+  zstyle ":antidote:bundle" use-friendly-names yes
+  source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
+  antidote bundle < "${ZDOTDIR:-$HOME/.config/zsh}/.zplugins" > /dev/null
+' || true
+
 {{- if not .codespaces }}
 mise trust
 mise install
