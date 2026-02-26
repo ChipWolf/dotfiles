@@ -11,6 +11,8 @@
 
 set -uo pipefail
 
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 # Skip entirely when not interactive
 if [ ! -t 0 ]; then
   exit 0

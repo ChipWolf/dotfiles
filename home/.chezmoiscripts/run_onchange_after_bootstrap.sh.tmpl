@@ -31,6 +31,7 @@ fi
 
 # do not enforce sha
 unset HOMEBREW_CASK_OPTS
+export HOMEBREW_NO_AUTO_UPDATE=1
 
 {{- if not .codespaces }}
 brew update
