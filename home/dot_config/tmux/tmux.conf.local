@@ -414,6 +414,10 @@ bind-key e command-prompt "split-window -h 'exec nvim %%'"
 # move status line to top
 set -g status-position top
 
+set -g allow-passthrough on
+set -ga update-environment "GHOSTTY_RESOURCES_DIR"
+set -ga update-environment "KITTY_WINDOW_ID"
+if-shell '[ -n "$GHOSTTY_RESOURCES_DIR" ]' 'setenv -g KITTY_WINDOW_ID 1'
 set -g @resurrect-capture-pane-contents 'off'
 set -g status-interval 5
 
@@ -421,7 +425,7 @@ set -g @resurrect-strategy-vim 'session'
 
 set -g default-shell /usr/bin/zsh
 
-run-shell ~/.tmux.plugins/tmux-resurrect/resurrect.tmux
+run-shell "$HOME/.config/tmux/tmux.plugins/tmux-resurrect/resurrect.tmux"
 
 
 # -- tpm -----------------------------------------------------------------------
