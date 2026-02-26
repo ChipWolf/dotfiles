@@ -1,0 +1,2 @@
+#!/bin/zsh
+[[ $TERM_PROGRAM == iTerm.app ]]
