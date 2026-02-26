@@ -22,7 +22,12 @@
     // Outliers with read-only scopes that don't match above patterns
     "atlassian_atlassianUserInfo": "allow",
     "atlassian_fetch": "allow",
-    "atlassian_lookupJiraAccountId": "allow"
+    "atlassian_lookupJiraAccountId": "allow",
+
+    // Read-only mcp-atlassian (sooperset) tools — allow without prompting
+    "mcp-atlassian_jira_get_*": "allow",
+    "mcp-atlassian_jira_search*": "allow",
+    "mcp-atlassian_jira_batch_get_changelogs": "allow"
   },
 
   "mcp": {
