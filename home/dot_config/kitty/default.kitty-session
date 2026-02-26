@@ -1,0 +1,4 @@
+# Default kitty session
+# This file must exist to prevent kitty from prompting on first launch.
+# Add `new_tab`, `launch`, etc. here to define a startup layout.
+# https://sw.kovidgoyal.net/kitty/overview/#startup-sessions
