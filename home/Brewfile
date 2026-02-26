@@ -8,47 +8,47 @@
 # brew "age-plugin-yubikey"
 brew "antidote" # zsh plugin manager
 brew "asitop" if OS.mac? # apple silicon top
-brew "aws-vault" unless ENV["CODESPACES"]
-brew "awscli" unless ENV["CODESPACES"]
+brew "aws-vault" unless ENV["HOMEBREW_CODESPACES"]
+brew "awscli" unless ENV["HOMEBREW_CODESPACES"]
 brew "bash"
 brew "bat" # better cat
 brew "blueutil" if OS.mac?
-brew "btop" unless ENV["CODESPACES"]
-brew "cbonsai" unless ENV["CODESPACES"]
+brew "btop" unless ENV["HOMEBREW_CODESPACES"]
+brew "cbonsai" unless ENV["HOMEBREW_CODESPACES"]
 brew "chezmoi"
-brew "colima" unless ENV["CODESPACES"]
-brew "colordiff" unless ENV["CODESPACES"]
-brew "docker" unless ENV["CODESPACES"]
-brew "docker-compose" unless ENV["CODESPACES"]
+brew "colima" unless ENV["HOMEBREW_CODESPACES"]
+brew "colordiff" unless ENV["HOMEBREW_CODESPACES"]
+brew "docker" unless ENV["HOMEBREW_CODESPACES"]
+brew "docker-compose" unless ENV["HOMEBREW_CODESPACES"]
 brew "eza" # better ls
 brew "fd" # nvim mason dep
 brew "fzf" # fuzzy finder
-brew "gh" unless ENV["CODESPACES"]
-brew "git" unless ENV["CODESPACES"]
+brew "gh" unless ENV["HOMEBREW_CODESPACES"]
+brew "git" unless ENV["HOMEBREW_CODESPACES"]
 # brew "gmp"
 # brew "gnupg"
-brew "htop" unless ENV["CODESPACES"]
-brew "kubernetes-cli" unless ENV["CODESPACES"]
+brew "htop" unless ENV["HOMEBREW_CODESPACES"]
+brew "kubernetes-cli" unless ENV["HOMEBREW_CODESPACES"]
 # brew "libyaml"
 brew "mas" if OS.mac? # mac app store
 brew "mise" # mise-en-place
 brew "neovim"
-brew "opencode" unless ENV["CODESPACES"]
-brew "parallel" unless ENV["CODESPACES"]
+brew "opencode" unless ENV["HOMEBREW_CODESPACES"]
+brew "parallel" unless ENV["HOMEBREW_CODESPACES"]
 # brew "pinentry-mac" if OS.mac?
 # brew "rage" # better age
 brew "ripgrep"
-brew "sevenzip" unless ENV["CODESPACES"]
-brew "thefuck" unless ENV["CODESPACES"]
-brew "timg" unless ENV["CODESPACES"] # terminal image/video viewer (kitty graphics)
-brew "tmux" unless ENV["CODESPACES"]
+brew "sevenzip" unless ENV["HOMEBREW_CODESPACES"]
+brew "thefuck" unless ENV["HOMEBREW_CODESPACES"]
+brew "timg" unless ENV["HOMEBREW_CODESPACES"] # terminal image/video viewer (kitty graphics)
+brew "tmux" unless ENV["HOMEBREW_CODESPACES"]
 brew "uv" # python manager
-brew "viu" unless ENV["CODESPACES"] # terminal image viewer (kitty graphics)
-brew "wakatime-cli" unless ENV["CODESPACES"]
-brew "wget" unless ENV["CODESPACES"]
+brew "viu" unless ENV["HOMEBREW_CODESPACES"] # terminal image viewer (kitty graphics)
+brew "wakatime-cli" unless ENV["HOMEBREW_CODESPACES"]
+brew "wget" unless ENV["HOMEBREW_CODESPACES"]
 # brew "ykman"
 # brew "ykpers"
-brew "zsh" unless ENV["CODESPACES"]
+brew "zsh" unless ENV["HOMEBREW_CODESPACES"]
 cask "1password" if OS.mac? # work
 cask "1password-cli" if OS.mac? # work
 cask "alfred" if OS.mac? # better spotlight
