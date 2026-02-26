@@ -21,7 +21,7 @@ brew "colordiff" unless ENV["HOMEBREW_CODESPACES"]
 brew "docker" unless ENV["HOMEBREW_CODESPACES"]
 brew "docker-compose" unless ENV["HOMEBREW_CODESPACES"]
 brew "eza" # better ls
-brew "fd" # nvim mason dep
+brew "fd" unless ENV["HOMEBREW_CODESPACES"] # nvim mason dep
 brew "fzf" # fuzzy finder
 brew "gh" unless ENV["HOMEBREW_CODESPACES"]
 brew "git" unless ENV["HOMEBREW_CODESPACES"]
@@ -32,7 +32,7 @@ brew "kubernetes-cli" unless ENV["HOMEBREW_CODESPACES"]
 # brew "libyaml"
 brew "mas" if OS.mac? # mac app store
 brew "mise" # mise-en-place
-brew "neovim"
+brew "neovim" unless ENV["HOMEBREW_CODESPACES"]
 brew "opencode" unless ENV["HOMEBREW_CODESPACES"]
 brew "parallel" unless ENV["HOMEBREW_CODESPACES"]
 # brew "pinentry-mac" if OS.mac?
