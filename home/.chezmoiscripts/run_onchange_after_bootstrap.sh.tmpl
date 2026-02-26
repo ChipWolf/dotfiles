@@ -79,4 +79,7 @@ if [ -z "$NVIM_PRE_INSTALLED" ]; then
   nvim --headless "+Lazy! sync" +qa
 fi
 {{- end }}
+
+# Reload all running zsh sessions so they pick up the updated config
+pkill -HUP -u "$USER" zsh || true
 {{ end -}}
