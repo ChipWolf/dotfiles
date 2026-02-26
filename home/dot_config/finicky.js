@@ -29,6 +29,10 @@ export default {
       match: ["okta.com/*", "*.okta.com/*"],
       browser: "Google Chrome:on-running.com",
     },
+    {
+      match: ["slack.com/*", "*.slack.com/*"],
+      browser: "Google Chrome:on-running.com",
+    },
   ],
 };
 
