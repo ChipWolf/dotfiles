@@ -3,6 +3,9 @@
 # -e: exit on error
 # -u: exit on unset variables # FIXME: NVIM_PRE_INSTALLED
 set -e
+{{ if .codespaces -}}
+set -x
+{{- end }}
 
 # Brewfile hash (triggers re-run when Brewfile changes):
 # {{ include "Brewfile" | sha256sum }}
