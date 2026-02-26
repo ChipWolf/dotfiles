@@ -4,17 +4,19 @@ tolkonepiu/catppuccin-powerlevel10k-themes
 getantidote/use-omz
 
 ohmyzsh/ohmyzsh path:lib 
+ohmyzsh/ohmyzsh path:plugins/history-substring-search
+ohmyzsh/ohmyzsh path:plugins/mise
+ohmyzsh/ohmyzsh path:plugins/vi-mode
+{{- if not .codespaces }}
 ohmyzsh/ohmyzsh path:plugins/aws
 ohmyzsh/ohmyzsh path:plugins/docker
 ohmyzsh/ohmyzsh path:plugins/gcloud
 ohmyzsh/ohmyzsh path:plugins/gpg-agent
-ohmyzsh/ohmyzsh path:plugins/history-substring-search
 ohmyzsh/ohmyzsh path:plugins/kubectl
-ohmyzsh/ohmyzsh path:plugins/mise
 ohmyzsh/ohmyzsh path:plugins/terraform
 ohmyzsh/ohmyzsh path:plugins/thefuck
 ohmyzsh/ohmyzsh path:plugins/tmux
-ohmyzsh/ohmyzsh path:plugins/vi-mode
+{{- end }}
 
 # Add macOS specific plugins
 ohmyzsh/ohmyzsh path:plugins/brew conditional:is-macos

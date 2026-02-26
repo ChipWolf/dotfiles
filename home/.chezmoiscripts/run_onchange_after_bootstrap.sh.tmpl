@@ -32,16 +32,25 @@ fi
 # do not enforce sha
 unset HOMEBREW_CASK_OPTS
 
+{{- if not .codespaces }}
 brew update
 brew doctor || true
+{{- end }}
 
+{{- if .codespaces }}
+brew install neovim mise
+CODESPACES=1 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile" || true
+{{- else }}
 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile"
+{{- end }}
 
+{{- if not .codespaces }}
 brew upgrade --cask --greedy
 brew upgrade --greedy
 brew outdated --cask --greedy --verbose
 brew outdated --greedy --verbose
 brew cleanup
+{{- end }}
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
