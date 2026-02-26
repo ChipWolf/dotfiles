@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # -e: exit on error
-# -u: exit on unset variables # FIXME: NVIM_PRE_INSTALLED
-set -e
+# -u: exit on unset variables
+set -eu
 {{ if .codespaces -}}
 set -x
 {{- end }}
@@ -37,6 +37,7 @@ if ! command -v brew 2>&1 >/dev/null; then
   eval $(brew shellenv)
 fi
 
+NVIM_PRE_INSTALLED=""
 if command -v nvim 2>&1 >/dev/null; then
   NVIM_PRE_INSTALLED=1
 fi
@@ -81,5 +82,7 @@ fi
 {{- end }}
 
 # Reload all running zsh sessions so they pick up the updated config
+{{- if .codespaces }}
 pkill -HUP -u "$USER" zsh || true
+{{- end }}
 {{ end -}}
