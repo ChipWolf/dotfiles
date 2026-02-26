@@ -8,45 +8,47 @@
 # brew "age-plugin-yubikey"
 brew "antidote" # zsh plugin manager
 brew "asitop" if OS.mac? # apple silicon top
-brew "aws-vault"
-brew "awscli"
+brew "aws-vault" unless ENV["CODESPACES"]
+brew "awscli" unless ENV["CODESPACES"]
 brew "bash"
 brew "bat" # better cat
 brew "blueutil" if OS.mac?
-brew "btop"
-brew "cbonsai"
+brew "btop" unless ENV["CODESPACES"]
+brew "cbonsai" unless ENV["CODESPACES"]
 brew "chezmoi"
-brew "colima"
-brew "colordiff"
-brew "docker"
-brew "docker-compose"
+brew "colima" unless ENV["CODESPACES"]
+brew "colordiff" unless ENV["CODESPACES"]
+brew "docker" unless ENV["CODESPACES"]
+brew "docker-compose" unless ENV["CODESPACES"]
 brew "eza" # better ls
 brew "fd" # nvim mason dep
 brew "fzf" # fuzzy finder
-brew "gh" # github cli
-brew "git"
+brew "gh" unless ENV["CODESPACES"]
+brew "git" unless ENV["CODESPACES"]
 # brew "gmp"
 # brew "gnupg"
-brew "htop"
-brew "kubernetes-cli"
+brew "htop" unless ENV["CODESPACES"]
+brew "kubernetes-cli" unless ENV["CODESPACES"]
 # brew "libyaml"
 brew "mas" if OS.mac? # mac app store
 brew "mise" # mise-en-place
 brew "neovim"
-brew "opencode"
-brew "parallel"
+brew "opencode" unless ENV["CODESPACES"]
+brew "parallel" unless ENV["CODESPACES"]
 # brew "pinentry-mac" if OS.mac?
 # brew "rage" # better age
 brew "ripgrep"
-brew "sevenzip"
-brew "thefuck"
-brew "tmux"
+brew "sevenzip" unless ENV["CODESPACES"]
+brew "thefuck" unless ENV["CODESPACES"]
+brew "timg" unless ENV["CODESPACES"] # terminal image/video viewer (kitty graphics)
+brew "tmux" unless ENV["CODESPACES"]
 brew "uv" # python manager
-brew "wakatime-cli"
-brew "wget"
+brew "viu" unless ENV["CODESPACES"] # terminal image viewer (kitty graphics)
+brew "wakatime-cli" unless ENV["CODESPACES"]
+brew "wget" unless ENV["CODESPACES"]
 # brew "ykman"
 # brew "ykpers"
-brew "zsh"
+brew "zsh" unless ENV["CODESPACES"]
 cask "1password" if OS.mac? # work
 cask "1password-cli" if OS.mac? # work
 cask "alfred" if OS.mac? # better spotlight
@@ -56,11 +58,14 @@ cask "cursor" if OS.mac?
 cask "eqmac" if OS.mac?
 cask "finicky" if OS.mac?
 cask "font-fira-code-nerd-font" if OS.mac?
+cask "font-symbols-only-nerd-font" if OS.mac?
 cask "gcloud-cli" if OS.mac?
+cask "ghostty" if OS.mac?
 # cask "google-drive" if OS.mac?
 # cask "gpg-suite" if OS.mac?
 cask "iterm2" if OS.mac? # better terminal
 cask "jordanbaird-ice" if OS.mac? # menu bar
+cask "kitty" if OS.mac?
 # cask "lm-studio" if OS.mac?
 cask "lookaway" if OS.mac? # screen breaks
 cask "lulu" if OS.mac? # firewall

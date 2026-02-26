@@ -97,6 +97,14 @@ See [Templating](https://www.chezmoi.io/user-guide/templating/) and [Templates](
 3. **After editing:** `chezmoi diff` then `chezmoi apply`. To re-import from the machine: `chezmoi re-add ~/path`.
 4. **Making a file a template:** `chezmoi chattr +template ~/.somefile` or add the `.tmpl` suffix in the source.
 
+### Removing a managed file
+
+Deleting a file from the chezmoi source does **not** remove it from the target (`~/`). Chezmoi only removes targets when explicitly told to via `.chezmoiremove` or the `remove_` prefix. If you delete a source file and run `chezmoi apply`, the deployed target is left behind as an unmanaged file. To fully remove a managed file:
+
+- Delete the source file from `home/`.
+- Run `chezmoi apply` (this will not touch the target).
+- Manually delete the deployed file from `~/` (e.g. `rm ~/.scripts/kitten`).
+
 ---
 
 ## Repo-specific conventions
@@ -118,7 +126,7 @@ See [Templating](https://www.chezmoi.io/user-guide/templating/) and [Templates](
 - **`home/.chezmoiscripts/run_onchange_after_bootstrap.sh.tmpl`** – runs `brew bundle install` when `Brewfile` changes (uses `{{ include "Brewfile" | sha256sum }}` in a comment to trigger).
 - **`home/.chezmoiscripts/run_onchange_after_brew_review.sh.tmpl`** – calls `brew-review` via `bash "$CHEZMOI_SOURCE_DIR/dot_scripts/brew-review" || true` when `Brewfile` changes.
 - **`$CHEZMOI_SOURCE_DIR` in script context** points to `home/` (the chezmoiroot), so paths within scripts use `dot_scripts/brew-review` not `.scripts/brew-review`.
-- **Brewfile conventions:** alphabetised within each section (brew, cask, mas); commented-out entries sorted inline with active lines by package name; darwin-only entries use `if OS.mac?` conditionals; entries are never regenerated wholesale.
+- **Brewfile conventions:** alphabetised within each section (brew, cask, mas); commented-out entries sorted inline with active lines by package name; darwin-only entries use `if OS.mac?` conditionals; Codespaces-irrelevant entries (GUI apps, Docker, cloud CLIs, decorative tools, packages pre-installed in Codespaces like `gh`, `git`, `zsh`) use `unless ENV["CODESPACES"]`; entries are never regenerated wholesale.
 - **brew-review add action:** appends the new entry then calls `_sort_brewfile` (a Python-based sort function embedded in the script) to re-sort the whole file in place. The sort preserves the file header, keeps section order, and sorts active and commented-out lines together by package name (case-insensitive).
 - **`brew-review` must NOT be in `dot_zfunctions/`** — autoloaded zsh functions run in the current shell, so `exit` kills the terminal. It lives in `dot_scripts/` instead, deployed to `~/.scripts/` which is on PATH via the `path` array in `dot_config/zsh/dot_zshenv`.
 - **PATH for `~/.scripts`** – added to the `path` array with `(N)` glob qualifier in `dot_config/zsh/dot_zshenv`, not as a raw `$PATH` string export.
@@ -139,6 +147,18 @@ See [Templating](https://www.chezmoi.io/user-guide/templating/) and [Templates](
 - [Setup](https://www.chezmoi.io/user-guide/setup/)
 
 When adding or changing attributes, scripts, or templates, verify behavior against the docs above rather than guessing.
+
+---
+
+## Finicky config changes
+
+After applying changes to the Finicky config (`~/.config/finicky.js`), reload it by:
+
+1. `killall Finicky || true`
+2. `open -a Finicky`
+3. Close the foreground window manually (AppleScript window close is not available without assistive access)
+
+Finicky's built-in auto-reload does NOT work when the config is managed by chezmoi. Chezmoi replaces the file with a new inode on every write; Finicky's fsnotify watcher (kqueue on macOS) tracks by inode and loses the watch when this happens. A restart is always required.
 
 ---
 
