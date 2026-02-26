@@ -8,7 +8,13 @@ export ZDOTDIR=${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}
 
 export EDITOR='nvim'
 export KEYTIMEOUT=1
-export TERM="xterm-256color"
+
+# Fake KITTY_WINDOW_ID when running inside Ghostty so kitty graphics tools
+# auto-detect support (Ghostty supports the kitty graphics protocol).
+if [[ -n "$GHOSTTY_RESOURCES_DIR" ]]; then
+  export KITTY_WINDOW_ID=${KITTY_WINDOW_ID:-1}
+  export TIMG_PIXELATION=k
+fi
 
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=15
 ZSH_AUTOSUGGEST_USE_ASYNC=true
