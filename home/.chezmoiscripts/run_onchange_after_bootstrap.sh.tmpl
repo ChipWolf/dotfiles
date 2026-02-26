@@ -38,12 +38,12 @@ brew update
 brew doctor || true
 {{- end }}
 
-if [ -n "${CODESPACES:-}" ]; then
-  brew install neovim mise
-  CODESPACES=1 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile" || true
-else
-  brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile"
-fi
+{{- if .codespaces }}
+brew install neovim mise
+CODESPACES=1 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile" || true
+{{- else }}
+brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile"
+{{- end }}
 
 {{- if not .codespaces }}
 brew upgrade --cask --greedy
