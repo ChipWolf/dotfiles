@@ -7,6 +7,15 @@ set -e
 # Brewfile hash (triggers re-run when Brewfile changes):
 # {{ include "Brewfile" | sha256sum }}
 
+{{ if .codespaces -}}
+cat <<EOF >"$HOME/.gitconfig.overrides"
+[user]
+	name = Chip Wolf ‮
+[gpg]
+	program = /.codespaces/bin/gh-gpgsign
+EOF
+{{ end -}}
+
 {{ if eq .chezmoi.os "linux" -}}
 PKGS="build-essential procps curl file git"
 if ! dpkg -s $PKGS &>/dev/null; then
@@ -63,13 +72,4 @@ mise install
 if [ -z "$NVIM_PRE_INSTALLED" ]; then
   nvim --headless "+Lazy! sync" +qa
 fi
-{{ end -}}
-
-{{- if .codespaces }}
-cat <<EOF >"$HOME/.gitconfig.overrides"
-[user]
-	name = Chip Wolf ‮
-[gpg]
-	program = /.codespaces/bin/gh-gpgsign
-EOF
 {{ end -}}
