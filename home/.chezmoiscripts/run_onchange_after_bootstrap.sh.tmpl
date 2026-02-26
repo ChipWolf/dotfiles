@@ -48,7 +48,6 @@ brew doctor || true
 {{- end }}
 
 {{- if .codespaces }}
-brew install neovim mise
 CODESPACES=1 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile" || true
 {{- else }}
 brew bundle -q --file="$CHEZMOI_SOURCE_DIR/Brewfile"
@@ -62,10 +61,12 @@ brew outdated --greedy --verbose
 brew cleanup
 {{- end }}
 
+{{- if not .codespaces }}
 mise trust
 mise install
 
 if [ -z "$NVIM_PRE_INSTALLED" ]; then
   nvim --headless "+Lazy! sync" +qa
 fi
+{{- end }}
 {{ end -}}
