@@ -64,6 +64,12 @@ When something is achieved during a session (a task completed, a ticket updated,
 
 ---
 
+## Problem-solving attitude
+
+Never suggest the user accept a limitation, take a shortcut, or move on when a proper solution may exist. Keep investigating until the problem is actually solved. Suggesting workarounds as a final answer is not acceptable.
+
+---
+
 ## Atlassian Jira — writing ticket content
 
 When writing content to Jira tickets via the Atlassian MCP (descriptions, comments, etc.):
@@ -72,3 +78,9 @@ When writing content to Jira tickets via the Atlassian MCP (descriptions, commen
 - Do **not** use the `JIRA:KEY-123` prefix — that is an Obsidian-specific convention for the Jira plugin and will appear as literal text in Jira.
 - Jira Cloud uses Atlassian Document Format (ADF) for rich text. When passing content via MCP tools, prefer plain text or ADF-structured input as required by the tool — do not use Confluence/Jira wiki markup (e.g. `h2.`, `||`, `{code}`) unless the tool explicitly expects it.
 - In Obsidian notes, continue to use `JIRA:KEY-123` as per vault conventions.
+
+---
+
+## Commit discipline
+
+Before committing, run `git diff --staged` and make an objective assessment of whether the change is both atomic and in-scope based on the context of the request. Do not commit unrelated changes that happened to be modified in the working tree.
