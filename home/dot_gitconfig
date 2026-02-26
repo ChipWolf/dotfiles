@@ -18,7 +18,7 @@
 [gpg]
   program = gpg
 [commit]
-  gpgsign = true
+  #gpgsign = true
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
