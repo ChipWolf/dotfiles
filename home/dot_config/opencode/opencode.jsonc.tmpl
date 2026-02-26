@@ -51,14 +51,15 @@
     // https://mcp-obsidian.org
     "obsidian": {
       "type": "local",
-      "command": ["npx", "-y", "@mauricio.wolff/mcp-obsidian@latest", "/Users/chip.wolf_ext/Documents/Obsidian/Vault"],
+      "command": ["npx", "-y", "@mauricio.wolff/mcp-obsidian@latest", "{{ .chezmoi.homeDir }}/Documents/Obsidian/Vault"],
       "enabled": true
     },
 
     // Chrome DevTools MCP — browser automation and debugging
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "enabled": true
     }
   }
 }
