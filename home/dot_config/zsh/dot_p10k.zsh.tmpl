@@ -123,6 +123,11 @@ apply_catppuccin rainbow mocha
 
   # Defines character set used by powerlevel10k. It's best to let `p10k configure` set it for you.
   typeset -g POWERLEVEL9K_MODE=nerdfont-v3
+{{ if .codespaces -}}
+  # In Codespaces, git status is shown in the VS Code status bar.
+  # Disable gitstatus to skip the gitstatusd binary download on first shell launch.
+  typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+{{ end -}}
   # When set to `moderate`, some icons will have an extra space after them. This is meant to avoid
   # icon overlap when using non-monospace fonts. When set to `none`, spaces are not added.
   typeset -g POWERLEVEL9K_ICON_PADDING=none
@@ -224,7 +229,7 @@ apply_catppuccin rainbow mocha
 
   ##################################[ dir: current directory ]##################################
   # Current directory background color.
-   typeset -g POWERLEVEL9K_DIR_BACKGROUND=$P10K_COLOR_RED
+   typeset -g POWERLEVEL9K_DIR_BACKGROUND=$P10K_COLOR_BLUE
   # Default current directory foreground color.
   typeset -g POWERLEVEL9K_DIR_FOREGROUND=254
   # If directory is too long, shorten some of its segments to the shortest possible unique
