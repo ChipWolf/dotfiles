@@ -1,7 +1,9 @@
 [tools]
+{{ if not .codespaces -}}
 go = "latest"
 node = "latest"
 ruby = "latest"
+{{ end -}}
 
 [settings]
 experimental = true
