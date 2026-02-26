@@ -1,14 +1,5 @@
 *.swp
 .DS_Store
-zsh/zsh-os-conf/local-pre/*
-!zsh/zsh-os-conf/local-pre/.gitkeep
-zsh/zsh-os-conf/local-post/*
-!zsh/zsh-os-conf/local-post/.gitkeep
-vim/swap/*
-!vim/swap/.gitkeep
-vim/undo/*
-!vim/undo/.gitkeep
 **/*.local.*
-vim/spell/*
 home/dot_config/opencode/private_mcp-atlassian.env
 home/dot_config/opencode/skills/onw-monthly-tickets/SKILL.md
