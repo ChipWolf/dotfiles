@@ -29,8 +29,10 @@ zsh-users/zsh-autosuggestions
 zdharma-continuum/fast-syntax-highlighting
 
 # Clone tmux dotfiles and plugins
+{{- if not .codespaces }}
 tmux-plugins/tmux-resurrect kind:clone
 gpakosz/.tmux kind:clone
+{{- end }}
 
 belak/zsh-utils path:completion/functions kind:autoload post:compstyle_zshzoo_setup
 
