@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Re-runs when .zplugins changes (antidote plugin layout may change):
+# {{ include "dot_config/zsh/dot_zplugins.tmpl" | sha256sum }}
+
+set -eu
+
+{{ if not .codespaces -}}
+ANTIDOTE_HOME="$(zsh -c '
+  source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
+  antidote home
+')"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+ln -sf "$ANTIDOTE_HOME/gpakosz/.tmux/.tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
+ln -sf "$ANTIDOTE_HOME/tmux-plugins" "$XDG_CONFIG_HOME/tmux/tmux.plugins"
+{{ end -}}

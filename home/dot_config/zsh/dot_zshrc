@@ -21,14 +21,6 @@ zstyle ':catppuccin:p10k' flavour 'mocha'
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 antidote load
 
-if [ ! -L $XDG_CONFIG_HOME/tmux/tmux.conf ]; then
-  ln -s $(antidote home)/gpakosz/.tmux/.tmux.conf $XDG_CONFIG_HOME/tmux/tmux.conf
-fi
-
-if [ ! -L $XDG_CONFIG_HOME/tmux/tmux.plugins ]; then
-  ln -s $(antidote home)/tmux-plugins $XDG_CONFIG_HOME/tmux/tmux.plugins
-fi
-
 TRAPUSR1() {
   if [[ -o INTERACTIVE ]]; then
      {echo; echo execute a new shell instance } 1>&2
