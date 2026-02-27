@@ -4,6 +4,41 @@
 # -u: exit on unset variables
 set -eu
 
+# --- Codespaces fast path ---
+# Pull only our overlay layers from GHCR and extract them directly,
+# skipping the full chezmoi apply + brew bundle. Falls back silently.
+if [ -n "${CODESPACES:-}" ]; then
+  _dotfiles_fast_path() {
+    CRANE_VERSION="v0.20.2"
+    mkdir -p /tmp/_crane
+    curl -fsSL "https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
+      | tar -xz -C /tmp/_crane crane
+    CRANE=/tmp/_crane/crane
+
+    OUR_IMAGE="ghcr.io/chipwolf/dotfiles:latest"
+    BASE_IMAGE="mcr.microsoft.com/devcontainers/universal:latest"
+
+    OUR_LAYERS=$("$CRANE" manifest "$OUR_IMAGE" | jq -r '.layers[].digest')
+    BASE_LAYERS=$("$CRANE" manifest --platform linux/amd64 "$BASE_IMAGE" | jq -r '.layers[].digest')
+
+    printf '%s\n' "$OUR_LAYERS" | while IFS= read -r digest; do
+      if ! printf '%s\n' "$BASE_LAYERS" | grep -qxF "$digest"; then
+        printf 'Applying overlay layer %s\n' "$digest" >&2
+        "$CRANE" blob "$OUR_IMAGE" "$digest" | tar -xz --no-same-owner -C /
+      fi
+    done
+
+    rm -rf /tmp/_crane
+  }
+
+  if (set -e; _dotfiles_fast_path); then
+    printf 'Dotfiles applied from pre-built overlay.\n' >&2
+    exit 0
+  fi
+  printf 'Overlay fast path failed — falling back to chezmoi.\n' >&2
+fi
+# --- end Codespaces fast path ---
+
 # run_remote <interpreter> <url> [args...]: fetch a script from <url> and run it
 run_remote() {
   interpreter="$1"; url="$2"; shift 2
