@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/ChipWolf/dotfiles/compare/v1.0.0...v1.1.0) (2026-03-23)
+
+
+### Features
+
+* **release:** pin version strings in install scripts, let release-please bump them ([86f52cf](https://github.com/ChipWolf/dotfiles/commit/86f52cf0e376a7426e43daec31ef20f330d9b458))
+
+
+### Miscellaneous
+
+* **agents:** clarify Docker containers wording rule ([f3e6788](https://github.com/ChipWolf/dotfiles/commit/f3e67887eb471e87f9aec5b74676c323977728df))
+
 ## 1.0.0 (2026-03-23)
 
 
