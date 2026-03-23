@@ -24,3 +24,7 @@ RUN CODESPACES=1 DOTFILES_NO_OVERLAY=1 /tmp/dotfiles/install.sh \
     && { find /home/codespace/.cache/antidote -name .git -type d -exec rm -rf {} + 2>/dev/null || true; } \
     # Remove duplicate chezmoi binary (brew-installed copy is on PATH)
     && rm -f /home/codespace/.local/bin/chezmoi
+
+# Lightweight runtime sanity check for the pre-baked Codespaces overlay image.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["/bin/sh", "-c", "test -d /home/codespace && test -f /home/codespace/.zshrc"]

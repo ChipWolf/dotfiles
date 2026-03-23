@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,7 +22,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Generate badges
-        uses: docker://ghcr.io/chipwolf/badgesort:latest
+        uses: docker://ghcr.io/chipwolf/badgesort@sha256:a0b74fd865d8c93040f74c865272421e6ba4cdeb4b882990548f90e2debed04a
         with:
           slugs: >-
             bitwarden
@@ -40,7 +43,7 @@ jobs:
           output: README.md
 
       - name: Commit badge updates
-        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
         with:
           commit_message: "chore: update badges"
           file_pattern: README.md
