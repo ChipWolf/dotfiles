@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Generate badges
         uses: docker://ghcr.io/chipwolf/badgesort@sha256:a0b74fd865d8c93040f74c865272421e6ba4cdeb4b882990548f90e2debed04a
