@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/ChipWolf/dotfiles/compare/v1.1.0...v1.1.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* **install:** use sudo for overlay tar extraction in Codespaces ([c032841](https://github.com/ChipWolf/dotfiles/commit/c0328412b2d16a050791517d4f7683dfb9a691a2))
+
 ## [1.1.0](https://github.com/ChipWolf/dotfiles/compare/v1.0.0...v1.1.0) (2026-03-23)
 
 
