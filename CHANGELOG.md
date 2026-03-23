@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/ChipWolf/dotfiles/compare/v1.3.1...v1.3.2) (2026-03-23)
+
+
+### Miscellaneous
+
+* **container:** add cross-reference comments for DIFF_COUNT ([9353128](https://github.com/ChipWolf/dotfiles/commit/935312831366d143c366284a7022ced4e99ed677))
+* **install:** add set -x to overlay post-apply block for debugging ([16b5fc5](https://github.com/ChipWolf/dotfiles/commit/16b5fc54f4bd5097bc547a97d08fc237e89c8aba))
+
 ## [1.3.1](https://github.com/ChipWolf/dotfiles/compare/v1.3.0...v1.3.1) (2026-03-23)
 
 
