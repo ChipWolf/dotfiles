@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/ChipWolf/dotfiles/compare/v1.2.1...v1.3.0) (2026-03-23)
+
+
+### Features
+
+* **container:** push delta-only overlay image to GHCR ([f8dfebd](https://github.com/ChipWolf/dotfiles/commit/f8dfebdeed436529104423e7025c86ddb52b686b))
+* **install:** simplify overlay fast path for delta images ([e41aec3](https://github.com/ChipWolf/dotfiles/commit/e41aec3679b24643bf6e03a0736063275ce72b8b))
+* **install:** trust and install mise tools for workspace after overlay apply ([f2b3115](https://github.com/ChipWolf/dotfiles/commit/f2b31156bfe937e56f4d31901b13edee0ebca72e))
+
+
+### Bug Fixes
+
+* **container:** add layer size cleanup to Dockerfile ([e0dcfca](https://github.com/ChipWolf/dotfiles/commit/e0dcfca348def3680f489128908750e67f02a517))
+* **install:** kill stale terminal sessions after overlay apply ([32dd97b](https://github.com/ChipWolf/dotfiles/commit/32dd97b9b17e0aafb7019ec7235e11eb755fead7))
+
 ## [1.2.1](https://github.com/ChipWolf/dotfiles/compare/v1.2.0...v1.2.1) (2026-03-23)
 
 
