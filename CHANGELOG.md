@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/ChipWolf/dotfiles/compare/v1.2.0...v1.2.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* **install:** preserve file ownership from overlay layers ([5adb9e1](https://github.com/ChipWolf/dotfiles/commit/5adb9e165b134af77a0f85b9df0f5343c14c5749))
+
 ## [1.2.0](https://github.com/ChipWolf/dotfiles/compare/v1.1.1...v1.2.0) (2026-03-23)
 
 

@@ -1,12 +1,12 @@
 # install.ps1 — Bootstrap chezmoi dotfiles on Windows.
 # Forks: update $repoUrl below to point at your fork.
 # Usage (elevated PowerShell not required — script self-elevates):
-#   irm https://github.com/chipwolf/dotfiles/releases/download/v1.2.0/install.ps1 | iex # x-release-please-version
+#   irm https://github.com/chipwolf/dotfiles/releases/download/v1.2.1/install.ps1 | iex # x-release-please-version
 # Or clone the repo and run:
 #   .\install.ps1
 
 $repoUrl = "https://github.com/chipwolf/dotfiles"
-$rawBase = "https://github.com/chipwolf/dotfiles/releases/download/v1.2.0" # x-release-please-version
+$rawBase = "https://github.com/chipwolf/dotfiles/releases/download/v1.2.1" # x-release-please-version
 
 $ErrorActionPreference = "Stop"
 
