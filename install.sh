@@ -18,7 +18,7 @@ if [ -n "${CODESPACES:-}" ] && [ -z "${DOTFILES_NO_OVERLAY:-}" ]; then
       | tar -xz -C /tmp/_crane crane
     CRANE=/tmp/_crane/crane
 
-    OUR_IMAGE="ghcr.io/chipwolf/dotfiles:v1.1.1" # x-release-please-version
+    OUR_IMAGE="ghcr.io/chipwolf/dotfiles:v1.2.0" # x-release-please-version
     BASE_IMAGE="mcr.microsoft.com/devcontainers/universal:latest"
 
     OUR_MANIFEST=$("$CRANE" manifest "$OUR_IMAGE")

@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/ChipWolf/dotfiles/compare/v1.1.1...v1.2.0) (2026-03-23)
+
+
+### Features
+
+* **release:** switch all provenance to GitHub artifact attestations ([2ceb30d](https://github.com/ChipWolf/dotfiles/commit/2ceb30def6d0df6c7d92d6bcda8731b7eb786532))
+* **release:** use reusable workflows for SLSA Build L3 provenance ([7dab58a](https://github.com/ChipWolf/dotfiles/commit/7dab58aaef1049ac8284d3ba807356947e56f67a))
+
+
+### Miscellaneous
+
+* **ci:** pin runners to ubuntu-24.04 ([054f063](https://github.com/ChipWolf/dotfiles/commit/054f0633e7351e8627212eabf5cd94c84c04ec6a))
+
 ## [1.1.1](https://github.com/ChipWolf/dotfiles/compare/v1.1.0...v1.1.1) (2026-03-23)
 
 
