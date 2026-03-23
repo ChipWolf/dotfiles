@@ -11,7 +11,7 @@ if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
     $ompTheme = Join-Path $env:USERPROFILE ".config\oh-my-posh\theme.omp.json"
     if (Test-Path $ompTheme) {
         $ompInitScript = oh-my-posh init pwsh --config $ompTheme | Out-String
-        & ([ScriptBlock]::Create($ompInitScript))
+        . ([ScriptBlock]::Create($ompInitScript))
     }
 }
 
@@ -20,5 +20,5 @@ Set-Alias -Name ll -Value Get-ChildItem
 
 if (Get-Command mise -ErrorAction SilentlyContinue) {
     $miseInitScript = mise activate pwsh | Out-String
-    & ([ScriptBlock]::Create($miseInitScript))
+    . ([ScriptBlock]::Create($miseInitScript))
 }
