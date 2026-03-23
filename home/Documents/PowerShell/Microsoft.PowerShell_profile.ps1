@@ -10,7 +10,8 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
     $ompTheme = Join-Path $env:USERPROFILE ".config\oh-my-posh\theme.omp.json"
     if (Test-Path $ompTheme) {
-        oh-my-posh init pwsh --config $ompTheme | Invoke-Expression
+        $ompInitScript = oh-my-posh init pwsh --config $ompTheme | Out-String
+        & ([ScriptBlock]::Create($ompInitScript))
     }
 }
 
@@ -18,5 +19,6 @@ Set-Alias -Name which -Value Get-Command
 Set-Alias -Name ll -Value Get-ChildItem
 
 if (Get-Command mise -ErrorAction SilentlyContinue) {
-    mise activate pwsh | Out-String | Invoke-Expression
+    $miseInitScript = mise activate pwsh | Out-String
+    & ([ScriptBlock]::Create($miseInitScript))
 }

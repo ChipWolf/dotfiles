@@ -10,6 +10,10 @@ on:
       - reopened
       - closed
 
+permissions:
+  contents: read
+  security-events: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,21 +23,18 @@ jobs:
     name: MegaLinter
     runs-on: ubuntu-latest
     if: github.event.action != 'closed'
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Run MegaLinter
-        uses: oxsecurity/megalinter@v9.4.0
+        uses: oxsecurity/megalinter@8fbdead70d1409964ab3d5afa885e18ee85388bb # v9.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF report
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@480db559a14342288b67e54bd959dd52dc3ee68f # v3
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif

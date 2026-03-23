@@ -181,8 +181,16 @@ if [ ${#extras[@]} -gt 0 ]; then
       printf "  %s" "$key"
       if [ -n "$tap_formulae" ] || [ -n "$tap_casks" ]; then
         echo " (contains installed packages:"
-        [ -n "$tap_formulae" ] && echo "$tap_formulae" | sed 's/^/     formula: /'
-        [ -n "$tap_casks" ] && echo "$tap_casks" | sed 's/^/     cask: /'
+        if [ -n "$tap_formulae" ]; then
+          while IFS= read -r formula; do
+            printf "     formula: %s\n" "$formula"
+          done <<< "$tap_formulae"
+        fi
+        if [ -n "$tap_casks" ]; then
+          while IFS= read -r cask; do
+            printf "     cask: %s\n" "$cask"
+          done <<< "$tap_casks"
+        fi
         printf "  )"
       fi
       echo ""

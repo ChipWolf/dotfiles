@@ -31,9 +31,20 @@ if (-not $isAdmin) {
 # Install Chocolatey if not present
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     Write-Host "Installing Chocolatey..." -ForegroundColor Cyan
-    Set-ExecutionPolicy Bypass -Scope Process -Force
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    $chocoBootstrapPath = Join-Path $env:TEMP "chocolatey-install.ps1"
+    Invoke-WebRequest -Uri "https://community.chocolatey.org/install.ps1" -OutFile $chocoBootstrapPath
+    # Run Chocolatey's bootstrap in an isolated PowerShell process with per-process policy bypass.
+    # This avoids mutating execution policy from inside this installer script.
+    $chocoResult = Start-Process powershell -ArgumentList @(
+        "-NoProfile",
+        "-ExecutionPolicy", "Bypass",
+        "-File", $chocoBootstrapPath
+    ) -Wait -PassThru
+    Remove-Item $chocoBootstrapPath -ErrorAction SilentlyContinue
+    if ($chocoResult.ExitCode -ne 0) {
+        throw "Chocolatey installation failed with exit code $($chocoResult.ExitCode)."
+    }
     $env:PATH = "$env:ALLUSERSPROFILE\chocolatey\bin;$env:PATH"
 }
 
