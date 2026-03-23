@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/ChipWolf/dotfiles/compare/v1.3.0...v1.3.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* **container:** use hardcoded layer count instead of docker inspect on base image ([486c087](https://github.com/ChipWolf/dotfiles/commit/486c08795b70f971f491d09e974025849d9c3193))
+
 ## [1.3.0](https://github.com/ChipWolf/dotfiles/compare/v1.2.1...v1.3.0) (2026-03-23)
 
 
