@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.3](https://github.com/ChipWolf/dotfiles/compare/v1.3.2...v1.3.3) (2026-03-24)
+
+
+### Bug Fixes
+
+* **security:** remediate code scanning findings across workflows and scripts ([#12](https://github.com/ChipWolf/dotfiles/issues/12)) ([c22b4de](https://github.com/ChipWolf/dotfiles/commit/c22b4de6f55f40b7e6ae4f02cb3d183141d4b24e))
+
+
+### Miscellaneous
+
+* **deps:** pin dependencies ([#5](https://github.com/ChipWolf/dotfiles/issues/5)) ([3673974](https://github.com/ChipWolf/dotfiles/commit/367397418e97ed6f781adceabaed4d1d98a19410))
+* **deps:** update actions/checkout action to v6 ([#6](https://github.com/ChipWolf/dotfiles/issues/6)) ([75fdeee](https://github.com/ChipWolf/dotfiles/commit/75fdeee927a879f7dd54fb09dd2aeb8099dc2dba))
+* **deps:** update github/codeql-action action to v4 ([#9](https://github.com/ChipWolf/dotfiles/issues/9)) ([6c6dfef](https://github.com/ChipWolf/dotfiles/commit/6c6dfefe366038c114cf11889c0340f33b56c19a))
+
 ## [1.3.2](https://github.com/ChipWolf/dotfiles/compare/v1.3.1...v1.3.2) (2026-03-23)
 
 
