@@ -23,7 +23,7 @@ if [ -n "${CODESPACES:-}" ] && [ -z "${DOTFILES_NO_OVERLAY:-}" ]; then
     tar -xzf "/tmp/_crane/${CRANE_TAR}" -C /tmp/_crane crane
     CRANE=/tmp/_crane/crane
 
-    OUR_IMAGE="ghcr.io/chipwolf/dotfiles:v1.3.3" # x-release-please-version
+    OUR_IMAGE="ghcr.io/chipwolf/dotfiles:v1.4.0" # x-release-please-version
 
     OUR_MANIFEST=$("$CRANE" manifest "$OUR_IMAGE")
     OUR_DIGEST=$("$CRANE" digest "$OUR_IMAGE")

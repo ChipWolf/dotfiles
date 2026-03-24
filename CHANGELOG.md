@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0](https://github.com/ChipWolf/dotfiles/compare/v1.3.3...v1.4.0) (2026-03-24)
+
+
+### Features
+
+* **tests:** add bats test suite for source and container validation ([d5db99e](https://github.com/ChipWolf/dotfiles/commit/d5db99e78191aad0dd19a4cf9b3f473d7288a3e9))
+
+
+### Bug Fixes
+
+* **bootstrap:** preserve --require-sha during brew bundle ([a29f777](https://github.com/ChipWolf/dotfiles/commit/a29f77713a2739ca643b894990079df3f4edf81b))
+* **bootstrap:** quote eval $(brew shellenv) to prevent word splitting ([21209bb](https://github.com/ChipWolf/dotfiles/commit/21209bb97df53f789097508d60dc2416f52e3279))
+* **brewfile:** gate tmux formula to macOS only ([028801c](https://github.com/ChipWolf/dotfiles/commit/028801c87a3a446d07628552f21e9f45011c8719))
+* gate tmux and ghostty configs to macOS only ([f7281cf](https://github.com/ChipWolf/dotfiles/commit/f7281cfb3bb35c97eacab8c301ea1c4d6d08b2dc))
+* **git:** set core.editor to nvim instead of vim ([3918e25](https://github.com/ChipWolf/dotfiles/commit/3918e25e9491781414b15a4205b84a88cb6b7c66))
+* **install:** use random temp filename to prevent TOCTOU in install.ps1 ([1388010](https://github.com/ChipWolf/dotfiles/commit/138801091601b85ac8225d9351a5b487cece7a3a))
+* **install:** verify crane tarball checksum before extraction ([b91841e](https://github.com/ChipWolf/dotfiles/commit/b91841e653e342cfa61d44f449df1083b509ccda))
+* **readme:** correct git config path in Forking section ([98a2aab](https://github.com/ChipWolf/dotfiles/commit/98a2aabbd8c9ffdeec521935baa34f18ce6468e0))
+
+
+### Miscellaneous
+
+* **renovate:** track crane version in install.sh via regex manager ([14a986e](https://github.com/ChipWolf/dotfiles/commit/14a986ea67ec1d0aba844cd573106f55319693b6))
+
 ## [1.3.3](https://github.com/ChipWolf/dotfiles/compare/v1.3.2...v1.3.3) (2026-03-24)
 
 
