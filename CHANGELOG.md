@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.5.0](https://github.com/ChipWolf/dotfiles/compare/v1.4.0...v1.5.0) (2026-03-27)
+
+
+### Features
+
+* **powertoys:** manage settings and keyboard remap (caps-to-ctrl) ([754265e](https://github.com/ChipWolf/dotfiles/commit/754265e6c284db528013fea39927d5a12ac334a2))
+* **windows:** add discord to chocolatey packages ([542ff79](https://github.com/ChipWolf/dotfiles/commit/542ff79d53e9e2c17393d0908e129612ef12d286))
+* **windows:** add obsidian to chocolatey packages ([33dd2fe](https://github.com/ChipWolf/dotfiles/commit/33dd2fecb1538fe12512f90cddff81c7b3b4d4ae))
+
+
+### Bug Fixes
+
+* **lint:** remediate all MegaLinter failures and warnings ([1cfa932](https://github.com/ChipWolf/dotfiles/commit/1cfa932c77678fddecd0f40fd9d08f85799b531c))
+* **windows:** set XDG_CONFIG_HOME and fix Lazy sync syntax ([ea857e5](https://github.com/ChipWolf/dotfiles/commit/ea857e5b1a57550b8f2e79f0d3aa9232384de48f))
+* **windows:** use pwsh for ps1 scripts to bypass execution policy ([200d75f](https://github.com/ChipWolf/dotfiles/commit/200d75fb714afdbdd1e2d3bbb477979681187e94))
+
+
+### Miscellaneous
+
+* **opencode:** allow gh run view * in bash permissions ([c3b8e53](https://github.com/ChipWolf/dotfiles/commit/c3b8e536b74619fee880b50b1a7e789f3243b025))
+
 ## [1.4.0](https://github.com/ChipWolf/dotfiles/compare/v1.3.3...v1.4.0) (2026-03-24)
 
 
