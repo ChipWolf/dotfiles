@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.5.0](https://github.com/ChipWolf/dotfiles/compare/v1.4.0...v1.5.0) (2026-03-30)
+
+
+### Features
+
+* **powertoys:** manage settings and keyboard remap (caps-to-ctrl) ([754265e](https://github.com/ChipWolf/dotfiles/commit/754265e6c284db528013fea39927d5a12ac334a2))
+* **windows:** add discord to chocolatey packages ([542ff79](https://github.com/ChipWolf/dotfiles/commit/542ff79d53e9e2c17393d0908e129612ef12d286))
+* **windows:** add obsidian to chocolatey packages ([33dd2fe](https://github.com/ChipWolf/dotfiles/commit/33dd2fecb1538fe12512f90cddff81c7b3b4d4ae))
+
+
+### Bug Fixes
+
+* **ci:** satisfy megalinter (stylua, ts-standard, shfmt, docker pin, markdown) ([581309a](https://github.com/ChipWolf/dotfiles/commit/581309ad55bbb7135bee86a0db63a5fe7c1b6d5d))
+* **docs:** align markdown tables for markdown-table-formatter ([cb00674](https://github.com/ChipWolf/dotfiles/commit/cb006747846f5a32da86c4bb6f93f41d0d0ffa4d))
+* **lint:** remediate all MegaLinter failures and warnings ([1cfa932](https://github.com/ChipWolf/dotfiles/commit/1cfa932c77678fddecd0f40fd9d08f85799b531c))
+* **lint:** remediate remaining MegaLinter failures and warnings ([accd1a1](https://github.com/ChipWolf/dotfiles/commit/accd1a19a077fa20a35c904a9b4c5124b955d470))
+* **lint:** replace markdownlint-cli2 config with markdownlint-cli format ([f8df0a7](https://github.com/ChipWolf/dotfiles/commit/f8df0a7c47780fed61f240e4a430647af284ecee))
+* **windows:** set XDG_CONFIG_HOME and fix Lazy sync syntax ([ea857e5](https://github.com/ChipWolf/dotfiles/commit/ea857e5b1a57550b8f2e79f0d3aa9232384de48f))
+* **windows:** use pwsh for ps1 scripts to bypass execution policy ([200d75f](https://github.com/ChipWolf/dotfiles/commit/200d75fb714afdbdd1e2d3bbb477979681187e94))
+
+
+### Miscellaneous
+
+* **deps:** update dependency gh to v2.89.0 ([#25](https://github.com/ChipWolf/dotfiles/issues/25)) ([a2349f1](https://github.com/ChipWolf/dotfiles/commit/a2349f1d91a5cd6add7c85355b35d3b2b245f5d9))
+* **deps:** update github/codeql-action digest to c10b806 ([#22](https://github.com/ChipWolf/dotfiles/issues/22)) ([a9aca9b](https://github.com/ChipWolf/dotfiles/commit/a9aca9be39cc49c55eef64b03ba355979f1beff0))
+* **opencode:** allow gh run view * in bash permissions ([c3b8e53](https://github.com/ChipWolf/dotfiles/commit/c3b8e536b74619fee880b50b1a7e789f3243b025))
+* update badges ([3311fc8](https://github.com/ChipWolf/dotfiles/commit/3311fc8432ef10fb56a436004891855bde1d17da))
+
 ## [1.4.0](https://github.com/ChipWolf/dotfiles/compare/v1.3.3...v1.4.0) (2026-03-24)
 
 
