@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.1](https://github.com/ChipWolf/dotfiles/compare/v1.5.0...v1.5.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* **ci:** login-shell PATH for brew tools; install Neovim in Codespaces ([cc74a8e](https://github.com/ChipWolf/dotfiles/commit/cc74a8e8c6b51069cd8efd8f2ca357cd35c28a13))
+
+
+### Miscellaneous
+
+* **deps:** update docker/login-action digest to 4907a6d ([#28](https://github.com/ChipWolf/dotfiles/issues/28)) ([aef8da0](https://github.com/ChipWolf/dotfiles/commit/aef8da0a5591d32d2702af4c3c3cd84fd3c3b6ef))
+
 ## [1.5.0](https://github.com/ChipWolf/dotfiles/compare/v1.4.0...v1.5.0) (2026-03-30)
 
 
