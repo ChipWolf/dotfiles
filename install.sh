@@ -13,7 +13,7 @@ repo_url="https://github.com/chipwolf/dotfiles"
 # brew bundle. Falls back silently on any failure.
 if [ -n "${CODESPACES:-}" ] && [ -z "${DOTFILES_NO_OVERLAY:-}" ]; then
 	_dotfiles_fast_path() {
-		CRANE_VERSION="v0.21.3"
+		CRANE_VERSION="v0.21.4"
 		CRANE_BASE="https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}"
 		CRANE_TAR="go-containerregistry_Linux_x86_64.tar.gz"
 		mkdir -p /tmp/_crane
