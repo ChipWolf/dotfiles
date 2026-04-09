@@ -25,7 +25,7 @@ mcpServers:
       command: "bash"
       args:
         - "-c"
-        - "set -a; source ~/.config/opencode/mcp-atlassian.env; set +a; exec mise x python -- uvx mcp-atlassian==0.20.1"
+        - "set -a; source ~/.config/opencode/mcp-atlassian.env; set +a; exec mise x python -- uvx mcp-atlassian==0.21.0"
       env: {}
 
   - id: obsidian
