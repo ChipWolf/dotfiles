@@ -1,5 +1,56 @@
 # Changelog
 
+## [1.6.0](https://github.com/ChipWolf/dotfiles/compare/v1.5.1...v1.6.0) (2026-04-09)
+
+
+### Features
+
+* **config:** canonicalize MCP server definitions for Cursor and OpenCode ([614a85a](https://github.com/ChipWolf/dotfiles/commit/614a85a06abc46fecf4f662ccb29f610aa6b3e47))
+* **ghostty:** set macos-option-as-alt = left for tmux M- chords ([5a18011](https://github.com/ChipWolf/dotfiles/commit/5a18011f707ae041127a9f3af3ae6419fbb8f92a))
+* **mcp:** canonicalize shared server schema ([fd25d04](https://github.com/ChipWolf/dotfiles/commit/fd25d045a8bb675ce0943f12f5ff3e2724d894dc))
+* **opencode:** add reusable git and skill-authoring workflows ([5857704](https://github.com/ChipWolf/dotfiles/commit/58577040ed80557070f37e34ded675ebbbb817e3))
+* **powertoys:** persist keyboard manager launch mapping for wezterm ([3e1208f](https://github.com/ChipWolf/dotfiles/commit/3e1208f103a1f570b50dd9660415ee7acab62ea4))
+* **wakatime:** configure bitwarden-backed api key ([5cdc9b2](https://github.com/ChipWolf/dotfiles/commit/5cdc9b2f4344c56b9b9693ac4bc0aba1f3faddd0))
+* **wakatime:** standardize WAKATIME_HOME across shells ([826d2c4](https://github.com/ChipWolf/dotfiles/commit/826d2c482e659baceb101d9eb81ba346503a5d45))
+* **windows:** add treesizefree to bootstrap packages ([9c9b078](https://github.com/ChipWolf/dotfiles/commit/9c9b0784050f8c255efdae4004048bf6182b8020))
+* **windows:** include sysinternals in bootstrap packages ([bf133f7](https://github.com/ChipWolf/dotfiles/commit/bf133f767ba18ae8278047f920fd7c0693388367))
+* **windows:** install treesitter requirements for nvim ([7a2d1d2](https://github.com/ChipWolf/dotfiles/commit/7a2d1d27eaaa79cf8761d108dc82e854aab673ef))
+* **zsh:** bind e in vicmd to edit-command-line; add keybinds doc ([2fca0bd](https://github.com/ChipWolf/dotfiles/commit/2fca0bdc238728aaad29ac283a4d62456b23368f))
+
+
+### Bug Fixes
+
+* **ci:** use head_ref in MegaLinter concurrency group to prevent self-cancellation ([ba25815](https://github.com/ChipWolf/dotfiles/commit/ba2581528ffebb352648056bdd21d4fb8b7d63d1))
+* **git:** configure gh as default credential helper ([eb7515a](https://github.com/ChipWolf/dotfiles/commit/eb7515a3c7032ce606867406a676fb10a4984ebe))
+
+
+### Miscellaneous
+
+* **ci:** remove self-hosted renovate workflow ([14b53d0](https://github.com/ChipWolf/dotfiles/commit/14b53d0e6ef3e7dbc4cc7fb665eaca47535602b5))
+* **cursor:** make terminal settings cross-platform in template ([590f05a](https://github.com/ChipWolf/dotfiles/commit/590f05a108d1cfa1956bf960863ee38287bf9f68))
+* **deps:** update dependency [@mauricio](https://github.com/mauricio).wolff/mcp-obsidian to v0.8.2 ([#33](https://github.com/ChipWolf/dotfiles/issues/33)) ([d26bad2](https://github.com/ChipWolf/dotfiles/commit/d26bad2df6fb41a38ba4b26a187065c5b772a499))
+* **deps:** update dependency chrome-devtools-mcp to v0.21.0 ([#34](https://github.com/ChipWolf/dotfiles/issues/34)) ([f2b664a](https://github.com/ChipWolf/dotfiles/commit/f2b664a8d31f4c8f4d9737bdc69f9a6bc4c08561))
+* **deps:** update dependency mcp-atlassian to v0.21.0 ([#35](https://github.com/ChipWolf/dotfiles/issues/35)) ([e6293cc](https://github.com/ChipWolf/dotfiles/commit/e6293ccc7aa1e14e639502d7ddb192fa9e6ccd00))
+* **deps:** update dependency pre-commit to v4.5.1 ([#31](https://github.com/ChipWolf/dotfiles/issues/31)) ([ffe832a](https://github.com/ChipWolf/dotfiles/commit/ffe832a6930965bd5e3374ce854c66f651a79431))
+* **docs:** remove keybind explorer section ([756c082](https://github.com/ChipWolf/dotfiles/commit/756c0826c6ab9791ca2dd5a6277f8a70169c932c))
+* **dotfiles:** automate renovate and validate MCP servers ([16d43d8](https://github.com/ChipWolf/dotfiles/commit/16d43d80df43390c657233133c4e5f2282dc0de9))
+* **dotfiles:** batch dangling workspace updates ([a221fd5](https://github.com/ChipWolf/dotfiles/commit/a221fd5f91bf0a1b4a26d7cbb6a8f6ef16e125cb))
+* ignore CHANGELOG.md from ripgrep searches ([24f43fc](https://github.com/ChipWolf/dotfiles/commit/24f43fc1d07d57e4620beb76e6a5149a0f3734ca))
+* **mcp:** down-bump pinned server versions ([68edba8](https://github.com/ChipWolf/dotfiles/commit/68edba85fe71d55d4e996dfd47f366622727b656))
+* **mcp:** simplify server rendering and document wiki sync ([90f66e0](https://github.com/ChipWolf/dotfiles/commit/90f66e0ed81dbdf41b81fce824954b71e5f355a5))
+* **mcp:** support inline data interpolation in args ([37ff874](https://github.com/ChipWolf/dotfiles/commit/37ff87434e1ab570b45012a16e3d0809b25a23b7))
+* remove beads directory from source state and add chezmoiremove entry ([642055b](https://github.com/ChipWolf/dotfiles/commit/642055b2dd187c4b50b0704fc7f91b84ff1301ec))
+* remove k9s entry from chezmoiremove file ([e59dff4](https://github.com/ChipWolf/dotfiles/commit/e59dff470ef89aa0724108a2e4b0851db7ffd11a))
+* **renovate:** uncap hourly PRs and ignore node runtime ([1d188e2](https://github.com/ChipWolf/dotfiles/commit/1d188e2a9b04759202a9d951b5697442067fb60c))
+
+
+### Documentation
+
+* **agents:** add repo skills for mcp and homebrew ([24ecfa0](https://github.com/ChipWolf/dotfiles/commit/24ecfa082b0990227e3f4af5f91b9405200572af))
+* **agents:** require clean worktree at session end ([2a20a4d](https://github.com/ChipWolf/dotfiles/commit/2a20a4dacc0264e05b3d5f35e3b256c30782b9b5))
+* **keybinds:** expand tmux and zsh sections; add how-to for listing and modifying binds ([db158f8](https://github.com/ChipWolf/dotfiles/commit/db158f8aabef16d478f3a076642710e13f65c722))
+* **keybinds:** note KEYTIMEOUT caveat for vv binding ([9675e90](https://github.com/ChipWolf/dotfiles/commit/9675e907ab2fd60ae5c4fdd9bb04c00137925fd2))
+
 ## [1.5.1](https://github.com/ChipWolf/dotfiles/compare/v1.5.0...v1.5.1) (2026-04-07)
 
 
