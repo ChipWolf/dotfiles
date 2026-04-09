@@ -1,6 +1,6 @@
 [tools]
 gh = "2.89.0"
-pre-commit = "4.4.0"
+pre-commit = "4.5.1"
 
 [tasks.pre-commit-install]
 run = "pre-commit install"
