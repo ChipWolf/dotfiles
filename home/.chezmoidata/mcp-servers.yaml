@@ -39,7 +39,7 @@ mcpServers:
       command: "mise"
       args:
         - "x"
-        - "node@22"
+        - "node@25"
         - "--"
         - "npx"
         - "-y"
@@ -58,7 +58,7 @@ mcpServers:
       command: "mise"
       args:
         - "x"
-        - "node@22"
+        - "node@25"
         - "--"
         - "npx"
         - "-y"
