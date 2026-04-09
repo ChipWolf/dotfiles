@@ -43,7 +43,7 @@ mcpServers:
         - "--"
         - "npx"
         - "-y"
-        - "@mauricio.wolff/mcp-obsidian@0.8.1"
+        - "@mauricio.wolff/mcp-obsidian@0.8.2"
       appendVaultPath: true
       env: {}
 
