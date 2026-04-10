@@ -19,5 +19,5 @@ mcp:
         command: "bash"
         args:
           - "-c"
-          - "set -a; source ~/.config/opencode/mcp-atlassian.env; set +a; exec mise x python -- uvx mcp-atlassian==0.21.0"
+          - "set -a; source ~/.config/opencode/mcp-atlassian.env; set +a; exec mise x python -- uvx mcp-atlassian==0.21.1"
         env: {}
