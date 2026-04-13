@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.2](https://github.com/ChipWolf/dotfiles/compare/v1.6.1...v1.6.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **install:** split elevation so errors are visible and bw login runs in user context ([30a2f67](https://github.com/ChipWolf/dotfiles/commit/30a2f677498ad543a83d65a15de6610980da4ed2))
+* **tests:** make bats tests work on Windows (Git Bash + native Ruby) ([0fafbac](https://github.com/ChipWolf/dotfiles/commit/0fafbacb5a3a591b16dc2da9d9cdf172480277c0))
+
 ## [1.6.1](https://github.com/ChipWolf/dotfiles/compare/v1.6.0...v1.6.1) (2026-04-13)
 
 
