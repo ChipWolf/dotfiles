@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.6.1](https://github.com/ChipWolf/dotfiles/compare/v1.6.0...v1.6.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* **agent-permissions:** remove trailing blank line for yamllint ([5175421](https://github.com/ChipWolf/dotfiles/commit/5175421a82f533584d6b45f91e8d49cc3be0b713))
+* **agent-permissions:** satisfy yamllint indentation for merged rulesets ([2c45a82](https://github.com/ChipWolf/dotfiles/commit/2c45a820478fd82c0e4d19e1b8c37c036be5f2ab))
+* **bootstrap:** use compatible chezmoi execute-template --file syntax ([b6b683a](https://github.com/ChipWolf/dotfiles/commit/b6b683aa2ccf72f1b8d1246554758430712273c1))
+* **devskim:** use inline ignores for hash command patterns ([22cddd5](https://github.com/ChipWolf/dotfiles/commit/22cddd5154bf0414daca9d8ca37f3edebd2f5d5f))
+* **install:** install and authenticate Bitwarden CLI before chezmoi init ([368d308](https://github.com/ChipWolf/dotfiles/commit/368d308556af1a631d83b45d14233603fba93e21))
+* **opencode:** preserve merged permissions and test full config rendering ([77db44b](https://github.com/ChipWolf/dotfiles/commit/77db44bcdd16c61b2b69d3e5fc5e77e499ac1955))
+* **tests:** make template rendering deterministic in CI ([8c938f5](https://github.com/ChipWolf/dotfiles/commit/8c938f5fe97e7da2a447246a19746755373fcfa8))
+* **tests:** pin chezmoi sourceDir in bats setup ([a6fbd04](https://github.com/ChipWolf/dotfiles/commit/a6fbd0479870b29bba0519eafe0333737efadb41))
+* **tests:** render templates with --file in chezmoi bats ([3ae07c6](https://github.com/ChipWolf/dotfiles/commit/3ae07c6f88ebd31e8d86d89e2dcc76290b58d9d8))
+
+
+### Miscellaneous
+
+* **bootstrap:** add apply-time package maintenance updates ([ab5548f](https://github.com/ChipWolf/dotfiles/commit/ab5548fe6092f483dd26355c9d582971be7e9502))
+* **brew:** add template-data hash sentinels to Brewfile ([b110762](https://github.com/ChipWolf/dotfiles/commit/b110762a76bdb7f9f1a2683fa1edf75466cd8e8c))
+* **brew:** move to template-only bundle workflow ([e2cc62e](https://github.com/ChipWolf/dotfiles/commit/e2cc62e51c4ccc3f18390f343f38cbb3c47fb66f))
+* **brew:** use anomalyco tap for opencode formula ([012c743](https://github.com/ChipWolf/dotfiles/commit/012c7437345ae65bc178156cf2f7a5e93ecdcd35))
+* **chezmoi:** bootstrap Obsidian vault external on Windows ([4c8ed6a](https://github.com/ChipWolf/dotfiles/commit/4c8ed6ade3760bd21e282a17b8cc0791e44028da))
+* **chezmoi:** migrate profile-driven overlays for brew, MCP, and agent permissions ([5f658de](https://github.com/ChipWolf/dotfiles/commit/5f658deb175396b17f13badb866166a6bb0a2e79))
+* **ci:** pin runner image and move test deps into mise ([5ce7147](https://github.com/ChipWolf/dotfiles/commit/5ce714775e284adc134c2eec278aaab5667198da))
+* **ci:** use uv-backed pre-commit task across platforms ([f59837f](https://github.com/ChipWolf/dotfiles/commit/f59837f83c31e40ef1a93ac774c638455c61b5d1))
+* **deps:** pin jdx/mise-action action to 1648a78 ([#38](https://github.com/ChipWolf/dotfiles/issues/38)) ([9163c95](https://github.com/ChipWolf/dotfiles/commit/9163c95ae976497d0f10b6914a7d86cb9de30024))
+* **deps:** update dependency @tarquinen/opencode-dcp to v3.1.9 ([#41](https://github.com/ChipWolf/dotfiles/issues/41)) ([0eed64e](https://github.com/ChipWolf/dotfiles/commit/0eed64ee0789fc891b03641b0b67bd240ff3dbb0))
+* **deps:** update dependency google/go-containerregistry to v0.21.5 ([#42](https://github.com/ChipWolf/dotfiles/issues/42)) ([34bd863](https://github.com/ChipWolf/dotfiles/commit/34bd863903fe50680bdf26ec0c26d4ad8f5ffe03))
+* **deps:** update dependency mcp-atlassian to v0.21.1 ([#40](https://github.com/ChipWolf/dotfiles/issues/40)) ([29afbd1](https://github.com/ChipWolf/dotfiles/commit/29afbd1f3d71ebea6f5783b025781d9937ca462f))
+* **deps:** update dependency uv to v0.11.6 ([#39](https://github.com/ChipWolf/dotfiles/issues/39)) ([c84caf7](https://github.com/ChipWolf/dotfiles/commit/c84caf7355a4a8fac49debeb7226547d8cc24f1f))
+* **git:** route GitHub credential helper through mise ([21cf1fb](https://github.com/ChipWolf/dotfiles/commit/21cf1fb65ff3ebd5392bf5f254ac4b7fb135b69c))
+* **installer:** move release scripts to template-only source ([727e085](https://github.com/ChipWolf/dotfiles/commit/727e08530cd3f0e5bb166f4ea55f3625e5212f2b))
+* **lint:** apply MegaLinter autofixes and local report ignore ([3484d23](https://github.com/ChipWolf/dotfiles/commit/3484d23f18d1fbbc6e91a4ce6ce7c0d2d26f0cc5))
+* **opencode:** pin plugin versions and streamline brew drift review ([384124a](https://github.com/ChipWolf/dotfiles/commit/384124a9b0d20a4ddf0504f2bc18cfafff35d3da))
+* **powertoys:** simplify template caveat comment ([e1968f5](https://github.com/ChipWolf/dotfiles/commit/e1968f52f68ec28920cdc49ba30ce35196ed8011))
+* **powertoys:** sync settings data with current app output ([60dd87a](https://github.com/ChipWolf/dotfiles/commit/60dd87a7722b1bbe0d9d402f85aa0304d14e005b))
+* **powertoys:** template settings from chezmoidata ([610038f](https://github.com/ChipWolf/dotfiles/commit/610038f41eab3c9de3ad6e7765d4a5823f064944))
+* **readme:** link referenced repo files ([f3edd84](https://github.com/ChipWolf/dotfiles/commit/f3edd84d1373823917dfa099f14a8e9e627f0adb))
+* **schema:** update brew overlays schema id ([0035b68](https://github.com/ChipWolf/dotfiles/commit/0035b68df9f1cae481fd4eaf00084ae4b4e2b657))
+* **skills:** harden git-commit-push for Windows shells ([558d808](https://github.com/ChipWolf/dotfiles/commit/558d808f6a6938f61c84f0b06a5b1b33b8b4b48c))
+* **windows:** elevate apply-time package updates ([d87bca7](https://github.com/ChipWolf/dotfiles/commit/d87bca73884abf0de25b3b815b1ad3147e1e58f7))
+
 ## [1.6.0](https://github.com/ChipWolf/dotfiles/compare/v1.5.1...v1.6.0) (2026-04-09)
 
 
