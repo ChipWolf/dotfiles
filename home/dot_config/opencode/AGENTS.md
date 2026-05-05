@@ -39,7 +39,7 @@ When delegating to subagents at session close, run them in sequence: one at a ti
 
 After every non-trivial task, load the `retrospective` skill and follow it before closing out.
 
-Ask the user before logging to the daily note. Never log proactively.
+Ask the user before logging to the daily note. Never log proactively. Once the user has consented to logging, do not also ask them to approve the draft content; dispatch the subagent to append directly.
 
 ---
 
