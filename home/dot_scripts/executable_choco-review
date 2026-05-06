@@ -184,6 +184,7 @@ for pkg in "${extras[@]}"; do
       break
       ;;
     i | I)
+      # shellcheck disable=SC2094
       {
         [ -f "$IGNOREFILE" ] || echo "# Chocofile.ignore — managed by chezmoi"
         echo "$pkg"
