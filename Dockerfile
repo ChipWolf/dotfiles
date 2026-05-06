@@ -11,7 +11,7 @@
 # Pin a concrete universal image tag (not :latest) for reproducible builds and static analysis (Trivy DS-0001 / Checkov).
 # kics-scan ignore-line
 # hadolint ignore=DL3007
-FROM mcr.microsoft.com/devcontainers/universal:5.1.5-linux
+FROM mcr.microsoft.com/devcontainers/universal:6.0.3-linux
 
 USER codespace
 # kics-scan ignore-line
