@@ -13,7 +13,7 @@ set -uo pipefail
 
 # Skip entirely when not interactive
 if [ ! -t 0 ]; then
-  exit 0
+	exit 0
 fi
 
 CHEZMOI_SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi/home")}"
@@ -21,50 +21,50 @@ CHOCO_DATA_DIR="$CHEZMOI_SOURCE_DIR/.chezmoidata/chocolatey"
 IGNOREFILE="${1:-$CHEZMOI_SOURCE_DIR/Chocofile.ignore}"
 
 if [ ! -d "$CHOCO_DATA_DIR" ]; then
-  echo "choco-review: Chocolatey overlay data not found under $CHOCO_DATA_DIR" >&2
-  exit 1
+	echo "choco-review: Chocolatey overlay data not found under $CHOCO_DATA_DIR" >&2
+	exit 1
 fi
 
 CHOCO_BACKEND=""
 CHOCO_BIN=""
 
 if command -v choco >/dev/null 2>&1; then
-  CHOCO_BACKEND="direct"
-  CHOCO_BIN="$(command -v choco)"
+	CHOCO_BACKEND="direct"
+	CHOCO_BIN="$(command -v choco)"
 elif command -v choco.exe >/dev/null 2>&1; then
-  CHOCO_BACKEND="direct"
-  CHOCO_BIN="$(command -v choco.exe)"
+	CHOCO_BACKEND="direct"
+	CHOCO_BIN="$(command -v choco.exe)"
 elif command -v cmd.exe >/dev/null 2>&1; then
-  CHOCO_BACKEND="cmd.exe"
+	CHOCO_BACKEND="cmd.exe"
 else
-  echo "choco-review: could not find choco, choco.exe, or cmd.exe" >&2
-  exit 1
+	echo "choco-review: could not find choco, choco.exe, or cmd.exe" >&2
+	exit 1
 fi
 
 _choco() {
-  if [ "$CHOCO_BACKEND" = "direct" ]; then
-    "$CHOCO_BIN" "$@"
-    return $?
-  fi
+	if [ "$CHOCO_BACKEND" = "direct" ]; then
+		"$CHOCO_BIN" "$@"
+		return $?
+	fi
 
-  local cmdline="choco"
-  local arg
-  for arg in "$@"; do
-    cmdline="$cmdline $arg"
-  done
-  cmd.exe /d /s /c "$cmdline"
+	local cmdline="choco"
+	local arg
+	for arg in "$@"; do
+		cmdline="$cmdline $arg"
+	done
+	cmd.exe /d /s /c "$cmdline"
 }
 
 _declared_packages() {
-  local -a files=()
-  shopt -s nullglob
-  files=("$CHOCO_DATA_DIR"/*.yaml)
-  shopt -u nullglob
-  if [ ${#files[@]} -eq 0 ]; then
-    return 0
-  fi
+	local -a files=()
+	shopt -s nullglob
+	files=("$CHOCO_DATA_DIR"/*.yaml)
+	shopt -u nullglob
+	if [ ${#files[@]} -eq 0 ]; then
+		return 0
+	fi
 
-  awk '
+	awk '
     /^[[:space:]]*-[[:space:]]+/ {
       pkg = $0
       sub(/^[[:space:]]*-[[:space:]]+/, "", pkg)
@@ -75,9 +75,9 @@ _declared_packages() {
 }
 
 _installed_packages() {
-  _choco list --local-only --limit-output --no-color 2>/dev/null |
-    tr -d '\r' |
-    awk -F'|' '
+	_choco list --local-only --limit-output --no-color 2>/dev/null |
+		tr -d '\r' |
+		awk -F'|' '
       /\|/ {
         pkg = tolower($1)
         if (pkg != "") print pkg
@@ -86,11 +86,11 @@ _installed_packages() {
 }
 
 _ignore_packages() {
-  if [ ! -f "$IGNOREFILE" ]; then
-    return 0
-  fi
+	if [ ! -f "$IGNOREFILE" ]; then
+		return 0
+	fi
 
-  awk '
+	awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*$/ { next }
     {
@@ -101,34 +101,34 @@ _ignore_packages() {
 }
 
 _default_overlay_file() {
-  local -a files=()
-  shopt -s nullglob
-  files=("$CHOCO_DATA_DIR"/*.yaml)
-  shopt -u nullglob
-  if [ ${#files[@]} -eq 0 ]; then
-    return 1
-  fi
+	local -a files=()
+	shopt -s nullglob
+	files=("$CHOCO_DATA_DIR"/*.yaml)
+	shopt -u nullglob
+	if [ ${#files[@]} -eq 0 ]; then
+		return 1
+	fi
 
-  local file
-  for file in "${files[@]}"; do
-    if awk '
+	local file
+	for file in "${files[@]}"; do
+		if awk '
       /^[[:space:]]{4}base:[[:space:]]*$/ { found = 1 }
       END { exit(found ? 0 : 1) }
     ' "$file"; then
-      printf '%s\n' "$file"
-      return 0
-    fi
-  done
+			printf '%s\n' "$file"
+			return 0
+		fi
+	done
 
-  printf '%s\n' "${files[0]}"
-  return 0
+	printf '%s\n' "${files[0]}"
+	return 0
 }
 
 _append_package_to_overlay() {
-  local pkg="$1"
-  local overlay_file
-  overlay_file="$(_default_overlay_file)" || return 1
-  printf '        - %s\n' "$pkg" >>"$overlay_file"
+	local pkg="$1"
+	local overlay_file
+	overlay_file="$(_default_overlay_file)" || return 1
+	printf '        - %s\n' "$pkg" >>"$overlay_file"
 }
 
 declared_packages="$(_declared_packages)"
@@ -137,16 +137,16 @@ ignore_packages="$(_ignore_packages)"
 
 extras=()
 while IFS= read -r pkg; do
-  [ -z "$pkg" ] && continue
-  if ! echo "$declared_packages" | grep -qxF "$pkg"; then
-    if ! echo "$ignore_packages" | grep -qxF "$pkg"; then
-      extras+=("$pkg")
-    fi
-  fi
+	[ -z "$pkg" ] && continue
+	if ! echo "$declared_packages" | grep -qxF "$pkg"; then
+		if ! echo "$ignore_packages" | grep -qxF "$pkg"; then
+			extras+=("$pkg")
+		fi
+	fi
 done <<<"$installed_packages"
 
 if [ ${#extras[@]} -eq 0 ]; then
-  exit 0
+	exit 0
 fi
 
 echo ""
@@ -156,50 +156,50 @@ echo "The following packages are installed but not declared:"
 echo ""
 
 for pkg in "${extras[@]}"; do
-  if ! _choco list --local-only --exact "$pkg" --limit-output --no-color >/dev/null 2>&1; then
-    echo "  (skipping $pkg — already removed)"
-    echo ""
-    continue
-  fi
+	if ! _choco list --local-only --exact "$pkg" --limit-output --no-color >/dev/null 2>&1; then
+		echo "  (skipping $pkg — already removed)"
+		echo ""
+		continue
+	fi
 
-  printf "  %s\n" "$pkg"
-  while true; do
-    printf "  [a]dd to chocolatey overlays / [r]emove / [i]gnore permanently / [s]kip: "
-    read -r reply </dev/tty
-    case "$reply" in
-    a | A)
-      if _append_package_to_overlay "$pkg"; then
-        echo "  -> Added $pkg to chocolatey overlay data"
-      else
-        echo "  -> Failed to add $pkg to chocolatey overlay data" >&2
-      fi
-      break
-      ;;
-    r | R)
-      if _choco uninstall "$pkg" -y --no-progress --limit-output --no-color; then
-        echo "  -> Removed $pkg"
-      else
-        echo "  -> Failed to remove $pkg" >&2
-      fi
-      break
-      ;;
-    i | I)
-      # shellcheck disable=SC2094
-      {
-        [ -f "$IGNOREFILE" ] || echo "# Chocofile.ignore — managed by chezmoi"
-        echo "$pkg"
-      } >>"$IGNOREFILE"
-      echo "  -> Added to $IGNOREFILE"
-      break
-      ;;
-    s | S | "")
-      echo "  -> Skipped"
-      break
-      ;;
-    *)
-      echo "  Please enter a, r, i, or s."
-      ;;
-    esac
-  done
-  echo ""
+	printf "  %s\n" "$pkg"
+	while true; do
+		printf "  [a]dd to chocolatey overlays / [r]emove / [i]gnore permanently / [s]kip: "
+		read -r reply </dev/tty
+		case "$reply" in
+		a | A)
+			if _append_package_to_overlay "$pkg"; then
+				echo "  -> Added $pkg to chocolatey overlay data"
+			else
+				echo "  -> Failed to add $pkg to chocolatey overlay data" >&2
+			fi
+			break
+			;;
+		r | R)
+			if _choco uninstall "$pkg" -y --no-progress --limit-output --no-color; then
+				echo "  -> Removed $pkg"
+			else
+				echo "  -> Failed to remove $pkg" >&2
+			fi
+			break
+			;;
+		i | I)
+			# shellcheck disable=SC2094
+			{
+				[ -f "$IGNOREFILE" ] || echo "# Chocofile.ignore — managed by chezmoi"
+				echo "$pkg"
+			} >>"$IGNOREFILE"
+			echo "  -> Added to $IGNOREFILE"
+			break
+			;;
+		s | S | "")
+			echo "  -> Skipped"
+			break
+			;;
+		*)
+			echo "  Please enter a, r, i, or s."
+			;;
+		esac
+	done
+	echo ""
 done

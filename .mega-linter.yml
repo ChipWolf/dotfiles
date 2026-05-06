@@ -14,5 +14,3 @@ LUA_LUACHECK_ARGUMENTS: "--globals vim"
 CSS_STYLELINT_FILTER_REGEX_EXCLUDE: "(yasb/styles\\.css)"
 
 REPOSITORY_KICS_ARGUMENTS: "--exclude-paths .github/workflows/e2e-install.yml"
-
-POWERSHELL_POWERSHELL_DISABLE_ERRORS: true

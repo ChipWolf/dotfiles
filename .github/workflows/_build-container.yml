@@ -1,7 +1,7 @@
 ---
 name: Build and attest container image
 
-'on':
+"on":
   workflow_call:
     inputs:
       image_registry:

@@ -56,7 +56,7 @@ brew:
           conditions:
             - { kind: os, op: is, value: mac }
         - type: cask
-          name: lookaway  # screen breaks
+          name: lookaway # screen breaks
           conditions:
             - { kind: os, op: is, value: mac }
 

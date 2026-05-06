@@ -1,7 +1,7 @@
 ---
 name: E2E install
 
-'on':
+"on":
   pull_request:
     branches: [main]
     paths:

@@ -1,7 +1,7 @@
 ---
 name: Upload and attest install scripts
 
-'on':
+"on":
   workflow_call:
     inputs:
       image_registry:

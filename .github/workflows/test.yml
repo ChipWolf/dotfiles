@@ -1,7 +1,7 @@
 ---
 name: Source tests
 
-'on':
+"on":
   push:
     branches: [main]
   pull_request:

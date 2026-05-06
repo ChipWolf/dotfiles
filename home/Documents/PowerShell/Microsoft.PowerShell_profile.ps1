@@ -26,7 +26,9 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
     . ([ScriptBlock]::Create($miseInitScript))
 }
 
-function bw-unlock {
+function Unlock-Bitwarden {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+    param()
     if (-not (Get-Command bw -ErrorAction SilentlyContinue)) {
         Write-Error "Bitwarden CLI (bw) not found in PATH."
         return
@@ -35,7 +37,7 @@ function bw-unlock {
     if (-not [string]::IsNullOrWhiteSpace($env:BW_SESSION)) {
         bw sync --session $env:BW_SESSION --quiet 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "Bitwarden is already unlocked for this shell."
+            Write-Host "Bitwarden is already unlocked for this shell." # PSScriptAnalyzer: interactive feedback
             return
         }
 
@@ -49,10 +51,10 @@ function bw-unlock {
     }
 
     $env:BW_SESSION = $session.Trim()
-    Write-Host "Bitwarden unlocked for this shell session."
+    Write-Host "Bitwarden unlocked for this shell session." # PSScriptAnalyzer: interactive feedback
 }
 
-function Ensure-BitwardenForChezmoi {
+function Assert-BitwardenForChezmoi {
     param(
         [Parameter(Mandatory = $true)]
         [object[]]$Arguments
@@ -73,7 +75,7 @@ function Ensure-BitwardenForChezmoi {
         return
     }
 
-    bw-unlock
+    Unlock-Bitwarden
     if ([string]::IsNullOrWhiteSpace($env:BW_SESSION)) {
         throw "Bitwarden unlock is required to run chezmoi apply."
     }
@@ -91,6 +93,6 @@ function chezmoi {
         return
     }
 
-    Ensure-BitwardenForChezmoi -Arguments $Arguments
+    Assert-BitwardenForChezmoi -Arguments $Arguments
     & $chezmoiCmd.Source @Arguments
 }
