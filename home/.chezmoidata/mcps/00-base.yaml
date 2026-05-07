@@ -41,12 +41,12 @@ mcp:
 
     context-mode:
       enabled: true
-      # Context-mode is a context-saving proxy; only expose to pi.
+      # context-mode hooks/plugins are wired up separately for cursor and
+      # opencode (see home/dot_cursor/hooks.json and the opencode plugin
+      # array). Only mcpproxy is excluded since context-mode is itself
+      # a context-saving proxy and routing it through mcpproxy is
+      # redundant.
       targets:
-        cursor:
-          enabled: false
-        opencode:
-          enabled: false
         mcpproxy:
           enabled: false
         pi:
