@@ -189,6 +189,12 @@ brew:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: cask
+          name: smart-mcp-proxy/mcpproxy/mcpproxy # MCPProxy.app GUI
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: CODESPACES, op: unset }
+            - { kind: env, name: CI, op: unset }
+        - type: cask
           name: obsidian
           conditions:
             - { kind: os, op: is, value: mac }
