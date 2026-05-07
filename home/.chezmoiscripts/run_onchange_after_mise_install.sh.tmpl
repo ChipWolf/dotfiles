@@ -1,0 +1,23 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/usr/bin/env bash
+# Re-run `mise install` whenever the global mise config changes.
+# Hash-pin to the templated config so this only fires on actual changes.
+# {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+set -euo pipefail
+
+# Ensure brew-installed mise is on PATH for non-interactive shells.
+for prefix in /opt/homebrew /usr/local /home/linuxbrew/.linuxbrew "$HOME/.linuxbrew"; do
+  if [ -x "$prefix/bin/mise" ]; then
+    export PATH="$prefix/bin:$PATH"
+    break
+  fi
+done
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise not found on PATH; bootstrap script must run first" >&2
+  exit 1
+fi
+
+mise trust "$HOME/.config/mise/config.toml" >/dev/null 2>&1 || true
+mise install
+{{ end -}}
