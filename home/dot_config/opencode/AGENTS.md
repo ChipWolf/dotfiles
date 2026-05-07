@@ -87,3 +87,4 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 
 - When a CLI can be managed by `mise`, run it through `mise x -- <command>`. Do not invoke managed tools directly.
 - When `chezmoi apply` triggers a brew bundle run (via an onchange script), treat it as fire-and-forget once the apply succeeds.
+- If `chezmoi apply` fails because an unrelated template needs a secret (e.g. Bitwarden locked), apply only the file you need with `chezmoi apply <target-path>` to bypass the failing template.
