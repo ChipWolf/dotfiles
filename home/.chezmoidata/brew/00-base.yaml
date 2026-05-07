@@ -90,6 +90,11 @@ brew:
         - type: brew
           name: ripgrep
         - type: brew
+          name: rtk # token-saving CLI proxy used by opencode plugin
+          conditions:
+            - { kind: env, name: CODESPACES, op: unset }
+            - { kind: env, name: CI, op: unset }
+        - type: brew
           name: sevenzip
           conditions:
             - { kind: env, name: CODESPACES, op: unset }

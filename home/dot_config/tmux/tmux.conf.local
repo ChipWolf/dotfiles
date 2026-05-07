@@ -414,6 +414,7 @@ bind-key e command-prompt "split-window -h 'exec nvim %%'"
 # move status line to top
 set -g status-position top
 
+set -g extended-keys-format csi-u
 set -g allow-passthrough on
 set -ga update-environment "GHOSTTY_RESOURCES_DIR"
 set -ga update-environment "KITTY_WINDOW_ID"
