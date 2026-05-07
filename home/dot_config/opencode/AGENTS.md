@@ -33,6 +33,8 @@ Load skills on-demand via the `skill` tool. Use subagents for delegated async wo
 
 When delegating to subagents at session close, run them in sequence: one at a time, wait for each to complete.
 
+If an MCP-backed subagent fails with "file not found" but the user confirms the file exists, suspect the MCP server's root or vault config before retrying. Verify the underlying MCP can resolve the path (e.g., a stats or list-directory call) before re-dispatching. If the MCP is broken, fall back to direct filesystem tools.
+
 ---
 
 ## Session close: mandatory
