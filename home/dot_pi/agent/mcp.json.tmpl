@@ -1,0 +1,64 @@
+{
+  "mcpServers": {
+{{- /* Load MCP servers from merged chezmoidata */ -}}
+{{- $serversById := dict -}}
+{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
+  {{- $serversById = .mcp.serversById -}}
+{{- end -}}
+
+{{- /* Render pi MCP entries (Claude-Desktop / Cursor-style mcpServers map) */ -}}
+{{- $first := true -}}
+{{- range $serverId := (keys $serversById | sortAlpha) -}}
+  {{- $server := index $serversById $serverId -}}
+
+  {{- $conditionsMatch := true -}}
+  {{- if hasKey $server "conditions" -}}
+    {{- range $conditionKey, $expected := $server.conditions -}}
+      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
+      {{- else -}}
+        {{- $conditionsMatch = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $piEnabled := false -}}
+  {{- if and (hasKey $server "targets") (hasKey $server.targets "pi") (hasKey $server.targets.pi "enabled") -}}
+    {{- $piEnabled = $server.targets.pi.enabled -}}
+  {{- end -}}
+
+  {{- if and $server.enabled $piEnabled $conditionsMatch -}}
+    {{- if hasKey $server "local" -}}
+      {{- $piCommand := $server.local.command -}}
+      {{- $piArgs := list -}}
+      {{- range $arg := $server.local.args -}}
+        {{- $resolvedArg := $arg -}}
+        {{- if hasPrefix "$data." $arg -}}
+          {{- $dataKey := trimPrefix "$data." $arg -}}
+          {{- if hasKey $ $dataKey -}}
+            {{- $resolvedArg = (index $ $dataKey) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $piArgs = append $piArgs $resolvedArg -}}
+      {{- end -}}
+      {{- $entry := dict "command" $piCommand -}}
+      {{- if gt (len $piArgs) 0 -}}{{- $_ := set $entry "args" $piArgs -}}{{- end -}}
+      {{- if and (hasKey $server.local "env") $server.local.env -}}
+        {{- $_ := set $entry "env" $server.local.env -}}
+      {{- end -}}
+      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+    "{{ $serverId }}": {{ $entry | toPrettyJson | indent 4 | trim }}
+    {{- else if hasKey $server "remote" -}}
+      {{- $entry := dict "url" $server.remote.url -}}
+      {{- if hasKey $server.remote "transport" -}}
+        {{- $_ := set $entry "transport" $server.remote.transport -}}
+      {{- end -}}
+      {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
+        {{- $_ := set $entry "headers" $server.remote.headers -}}
+      {{- end -}}
+      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+    "{{ $serverId }}": {{ $entry | toPrettyJson | indent 4 | trim }}
+    {{- end -}}
+  {{- end -}}
+{{- end }}
+  }
+}

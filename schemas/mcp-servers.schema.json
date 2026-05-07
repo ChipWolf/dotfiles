@@ -81,7 +81,8 @@
           "properties": {
             "opencode": { "$ref": "#/$defs/targetConfig" },
             "cursor": { "$ref": "#/$defs/targetConfig" },
-            "mcpproxy": { "$ref": "#/$defs/targetConfig" }
+            "mcpproxy": { "$ref": "#/$defs/targetConfig" },
+            "pi": { "$ref": "#/$defs/targetConfig" }
           }
         },
         "local": { "$ref": "#/$defs/localConfig" },

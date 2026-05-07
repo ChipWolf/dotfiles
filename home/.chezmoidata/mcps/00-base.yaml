@@ -38,3 +38,20 @@ mcp:
       enabled: true
       remote:
         url: "https://mcp.grep.app"
+
+    context-mode:
+      enabled: true
+      # Context-mode is a context-saving proxy; only expose to pi.
+      targets:
+        cursor:
+          enabled: false
+        opencode:
+          enabled: false
+        mcpproxy:
+          enabled: false
+        pi:
+          enabled: true
+      local:
+        command: "context-mode"
+        args: []
+        env: {}
