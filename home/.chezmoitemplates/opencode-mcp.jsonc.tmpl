@@ -19,7 +19,7 @@
     {{- end -}}
   {{- end -}}
 
-  {{- $opencodeEnabled := true -}}
+  {{- $opencodeEnabled := false -}}
   {{- if and (hasKey $server "targets") (hasKey $server.targets "opencode") (hasKey $server.targets.opencode "enabled") -}}
     {{- $opencodeEnabled = $server.targets.opencode.enabled -}}
   {{- end -}}

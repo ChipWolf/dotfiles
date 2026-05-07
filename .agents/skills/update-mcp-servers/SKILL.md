@@ -23,10 +23,12 @@ Each entry in `mcp.serversById.<id>` should follow this shape:
 
 - `enabled`
 - optional `conditions` object, each key/value is matched against global chezmoi data
-- optional `targets.opencode.enabled` (defaults to `true`)
-- optional `targets.cursor.enabled` (defaults to `true`)
-- optional `targets.mcpproxy.enabled` (defaults to `true`)
-- optional `targets.pi.enabled` (defaults to **`false`** — pi has no built-in MCP support, so it is opt-in per server)
+- optional `targets.opencode.enabled` (defaults to **`false`** — opt-in)
+- optional `targets.cursor.enabled` (defaults to **`false`** — opt-in)
+- optional `targets.mcpproxy.enabled` (defaults to **`false`** — opt-in)
+- optional `targets.pi.enabled` (defaults to **`false`** — opt-in)
+
+Every server must explicitly list each target it should render to. Targets not listed render to nothing for that server. This avoids hidden defaults and makes intent obvious in the YAML.
 - either `local` or `remote`
 
 Local shape:

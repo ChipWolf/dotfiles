@@ -38,7 +38,7 @@ managed = json.loads(r"""
     {{- end -}}
   {{- end -}}
 
-  {{- $proxyEnabled := true -}}
+  {{- $proxyEnabled := false -}}
   {{- if and (hasKey $server "targets") (hasKey $server.targets "mcpproxy") (hasKey $server.targets.mcpproxy "enabled") -}}
     {{- $proxyEnabled = $server.targets.mcpproxy.enabled -}}
   {{- end -}}

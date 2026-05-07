@@ -21,7 +21,7 @@
     {{- end -}}
   {{- end -}}
 
-  {{- $cursorEnabled := true -}}
+  {{- $cursorEnabled := false -}}
   {{- if and (hasKey $server "targets") (hasKey $server.targets "cursor") (hasKey $server.targets.cursor "enabled") -}}
     {{- $cursorEnabled = $server.targets.cursor.enabled -}}
   {{- end -}}

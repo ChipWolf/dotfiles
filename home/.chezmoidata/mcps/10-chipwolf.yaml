@@ -1,11 +1,19 @@
 ---
 # yaml-language-server: $schema=../../../schemas/mcp-servers.schema.json
+#
+# Profile-private overlay (rendered only when private == false).
+# All targets are opt-in; see 00-base.yaml for full target list.
 mcp:
   serversById:
+
+    # Atlassian — exposed via mcpproxy.
     atlassian:
       enabled: true
       conditions:
         private: false
+      targets:
+        mcpproxy:
+          enabled: true
       remote:
         url: "https://mcp.atlassian.com/v1/mcp"
 
@@ -14,8 +22,8 @@ mcp:
       conditions:
         private: false
       targets:
-        cursor:
-          enabled: false
+        mcpproxy:
+          enabled: true
       local:
         command: "bash"
         args:

@@ -1,9 +1,27 @@
 ---
 # yaml-language-server: $schema=../../../schemas/mcp-servers.schema.json
+#
+# All targets are opt-in. Each server must list every target it should
+# render to under `targets.<target>.enabled: true`. Targets not listed
+# render to nothing for that server.
+#
+# Targets:
+#   cursor    -> ~/.cursor/mcp.json
+#   opencode  -> ~/.config/opencode/opencode.jsonc (mcp block)
+#   mcpproxy  -> ~/.mcpproxy/mcp_config.json (smart-mcp-proxy upstreams)
+#   pi        -> ~/.pi/agent/mcp.json
 mcp:
   serversById:
+
+    # --- Servers proxied by mcpproxy ---------------------------------
+    # These render only into mcpproxy's upstream list. Clients reach
+    # them via the mcpproxy entry below.
+
     obsidian:
       enabled: true
+      targets:
+        mcpproxy:
+          enabled: true
       local:
         command: "mise"
         args:
@@ -18,6 +36,9 @@ mcp:
 
     chrome-devtools:
       enabled: true
+      targets:
+        mcpproxy:
+          enabled: true
       local:
         command: "mise"
         args:
@@ -31,27 +52,57 @@ mcp:
 
     context7:
       enabled: true
+      targets:
+        mcpproxy:
+          enabled: true
       remote:
         url: "https://mcp.context7.com/mcp"
 
     grep:
       enabled: true
+      targets:
+        mcpproxy:
+          enabled: true
       remote:
         url: "https://mcp.grep.app"
 
+    # --- Client-side servers -----------------------------------------
+    # context-mode is wired DIRECTLY into hook-capable clients
+    # (cursor, opencode) so the client-side hooks/plugin can intercept
+    # native tool calls (Shell/Read/Grep/curl) and redirect them to
+    # the ctx_execute sandbox. Routing through mcpproxy would bypass
+    # those hooks since they live in the client, not in MCP transport.
+
     context-mode:
       enabled: true
-      # context-mode hooks/plugins are wired up separately for cursor and
-      # opencode (see home/dot_cursor/hooks.json and the opencode plugin
-      # array). Only mcpproxy is excluded since context-mode is itself
-      # a context-saving proxy and routing it through mcpproxy is
-      # redundant.
       targets:
-        mcpproxy:
-          enabled: false
+        cursor:
+          enabled: true
+        opencode:
+          enabled: true
         pi:
           enabled: true
       local:
         command: "context-mode"
         args: []
         env: {}
+
+    # --- Aggregator entry --------------------------------------------
+    # Smart MCP proxy aggregates the upstream MCP servers above and
+    # exposes them via a single endpoint with retrieve_tools-based
+    # discovery. Clients connect to the proxy instead of registering
+    # each upstream directly. mcpproxy.app or the brew-installed
+    # mcpproxy CLI must be running.
+
+    mcpproxy:
+      enabled: true
+      targets:
+        cursor:
+          enabled: true
+        opencode:
+          enabled: true
+        pi:
+          enabled: true
+      remote:
+        url: "http://127.0.0.1:8080/mcp"
+        transport: "streamableHttp"
