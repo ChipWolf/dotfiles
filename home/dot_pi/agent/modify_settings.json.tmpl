@@ -12,6 +12,7 @@ import json, sys
 
 declared_packages = {{ list
   "npm:context-mode"
+  "npm:pi-mcp-adapter"
 | toJson }}
 
 raw = sys.stdin.read().strip()
