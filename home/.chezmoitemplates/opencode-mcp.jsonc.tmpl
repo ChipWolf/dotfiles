@@ -32,7 +32,7 @@
         {{- $openCodeCommandArgs := list -}}
         {{- range $arg := $server.local.args -}}
           {{- $resolvedArg := $arg -}}
-          {{- if hasPrefix $arg "$data." -}}
+          {{- if hasPrefix "$data." $arg -}}
             {{- $dataKey := trimPrefix "$data." $arg -}}
             {{- if hasKey $ $dataKey -}}
               {{- $resolvedArg = (index $ $dataKey) -}}

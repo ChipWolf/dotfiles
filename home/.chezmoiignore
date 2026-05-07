@@ -11,6 +11,7 @@ Chocofile.ignore
 .gnupg
 .scripts
 .local/share/opencode-shims
+.mcpproxy
 {{ end }}
 
 {{ if ne .chezmoi.os "windows" }}

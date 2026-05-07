@@ -83,6 +83,11 @@ brew:
             - { kind: env, name: CODESPACES, op: unset }
             - { kind: env, name: CI, op: unset }
         - type: brew
+          name: smart-mcp-proxy/mcpproxy/mcpproxy # MCP routing proxy
+          conditions:
+            - { kind: env, name: CODESPACES, op: unset }
+            - { kind: env, name: CI, op: unset }
+        - type: brew
           name: parallel
           conditions:
             - { kind: env, name: CODESPACES, op: unset }
@@ -218,6 +223,11 @@ brew:
             - { kind: tty, op: is, value: true }
         - type: tap
           name: anomalyco/tap
+          conditions:
+            - { kind: env, name: CODESPACES, op: unset }
+            - { kind: env, name: CI, op: unset }
+        - type: tap
+          name: smart-mcp-proxy/mcpproxy
           conditions:
             - { kind: env, name: CODESPACES, op: unset }
             - { kind: env, name: CI, op: unset }

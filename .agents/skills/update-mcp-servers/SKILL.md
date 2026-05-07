@@ -11,7 +11,8 @@ Use this skill when changing MCP server configuration in this repo.
 
 - Canonical layered data: `home/.chezmoidata/mcps/*.yaml`
 - Cursor render template: `home/dot_cursor/mcp.json.tmpl`
-- OpenCode render template: `home/dot_config/opencode/opencode.jsonc.tmpl`
+- OpenCode render template: `home/dot_config/opencode/opencode.jsonc.tmpl` (via `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
+- mcpproxy render template: `home/private_dot_mcpproxy/mcp_config.json.tmpl`
 
 Treat `home/.chezmoidata/mcps/*.yaml` as the single source of truth.
 
@@ -23,6 +24,7 @@ Each entry in `mcp.serversById.<id>` should follow this shape:
 - optional `conditions` object, each key/value is matched against global chezmoi data
 - optional `targets.opencode.enabled` (defaults to `true`)
 - optional `targets.cursor.enabled` (defaults to `true`)
+- optional `targets.mcpproxy.enabled` (defaults to `true`)
 - either `local` or `remote`
 
 Local shape:
@@ -52,7 +54,10 @@ After MCP changes:
 
 1. Render `home/dot_cursor/mcp.json.tmpl` with current chezmoi data.
 2. Render `home/dot_config/opencode/opencode.jsonc.tmpl` with current chezmoi data.
-3. Validate the rendered Cursor MCP output is valid JSON.
-4. Confirm expected server entries and args in rendered output.
+3. Render `home/private_dot_mcpproxy/mcp_config.json.tmpl` with current chezmoi data.
+4. Validate the rendered Cursor and mcpproxy outputs are valid JSON.
+5. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
+
+Note: sprig `hasPrefix` signature is `hasPrefix prefix str`. The `$data.<key>` interpolation must be written as `hasPrefix "$data." $arg`, not the reverse.
 
 Templates should trust schema-required fields. Use `hasKey` checks only for optional fields.

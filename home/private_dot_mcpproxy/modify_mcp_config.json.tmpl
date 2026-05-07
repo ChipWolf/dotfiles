@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+# chezmoi modify_ script: declaratively manage MCPProxy server config in
+# ~/.mcpproxy/mcp_config.json without clobbering runtime fields like
+# `api_key` (auto-generated on first run by `mcpproxy serve`).
+#
+# Stdin: current contents of ~/.mcpproxy/mcp_config.json (empty on first apply).
+# Stdout: merged JSON written back to the target.
+#
+# Source of truth: home/.chezmoidata/mcps/*.yaml (rendered via chezmoi
+# templating below). See .agents/skills/update-mcp-servers/SKILL.md.
+import json, sys
+
+# --- Managed (declarative) fields, rendered from chezmoidata --------------
+managed = json.loads(r"""
+{
+  "listen": "127.0.0.1:8080",
+  "data_dir": "{{ .chezmoi.homeDir }}/.mcpproxy",
+  "tools_limit": 15,
+  "tool_response_limit": 20000,
+  "mcpServers": [
+{{- /* Load MCP servers from merged chezmoidata */ -}}
+{{- $serversById := dict -}}
+{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
+  {{- $serversById = .mcp.serversById -}}
+{{- end -}}
+
+{{- $first := true -}}
+{{- range $serverId := (keys $serversById | sortAlpha) -}}
+  {{- $server := index $serversById $serverId -}}
+
+  {{- $conditionsMatch := true -}}
+  {{- if hasKey $server "conditions" -}}
+    {{- range $conditionKey, $expected := $server.conditions -}}
+      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
+      {{- else -}}
+        {{- $conditionsMatch = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $proxyEnabled := true -}}
+  {{- if and (hasKey $server "targets") (hasKey $server.targets "mcpproxy") (hasKey $server.targets.mcpproxy "enabled") -}}
+    {{- $proxyEnabled = $server.targets.mcpproxy.enabled -}}
+  {{- end -}}
+
+  {{- if and $server.enabled $proxyEnabled $conditionsMatch -}}
+    {{- if hasKey $server "local" -}}
+      {{- $proxyArgs := list -}}
+      {{- range $arg := $server.local.args -}}
+        {{- $resolvedArg := $arg -}}
+        {{- if hasPrefix "$data." $arg -}}
+          {{- $dataKey := trimPrefix "$data." $arg -}}
+          {{- if hasKey $ $dataKey -}}
+            {{- $resolvedArg = (index $ $dataKey) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $proxyArgs = append $proxyArgs $resolvedArg -}}
+      {{- end -}}
+      {{- $entry := dict
+            "name" $serverId
+            "protocol" "stdio"
+            "command" $server.local.command
+            "args" $proxyArgs
+            "enabled" $server.enabled -}}
+      {{- if and (hasKey $server.local "env") $server.local.env -}}
+        {{- $_ := set $entry "env" $server.local.env -}}
+      {{- end -}}
+      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+    {{ $entry | toPrettyJson | indent 4 | trim }}
+    {{- else if hasKey $server "remote" -}}
+      {{- $proxyProtocol := "streamable-http" -}}
+      {{- if hasKey $server.remote "transport" -}}
+        {{- $t := $server.remote.transport -}}
+        {{- if eq $t "streamableHttp" -}}{{- $proxyProtocol = "streamable-http" -}}
+        {{- else if eq $t "http" -}}{{- $proxyProtocol = "http" -}}
+        {{- else if eq $t "sse" -}}{{- $proxyProtocol = "sse" -}}
+        {{- else -}}{{- $proxyProtocol = $t -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $entry := dict
+            "name" $serverId
+            "protocol" $proxyProtocol
+            "url" $server.remote.url
+            "enabled" $server.enabled -}}
+      {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
+        {{- $_ := set $entry "headers" $server.remote.headers -}}
+      {{- end -}}
+      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+    {{ $entry | toPrettyJson | indent 4 | trim }}
+    {{- end -}}
+  {{- end -}}
+{{- end }}
+  ]
+}
+""")
+
+# --- Merge with existing target ------------------------------------------
+raw = sys.stdin.read().strip()
+try:
+    data = json.loads(raw) if raw else {}
+except json.JSONDecodeError:
+    data = {}
+
+if not isinstance(data, dict):
+    data = {}
+
+# Drop deprecated fields that mcpproxy 0.29+ removes on first run.
+for deprecated in ("top_k", "enable_tray", "features"):
+    data.pop(deprecated, None)
+
+# Apply declarative fields, preserving any other runtime-managed keys
+# (e.g. `api_key`, `tls`, `docker_isolation`, `secrets`, `oauth`).
+data.update(managed)
+
+json.dump(data, sys.stdout, indent=2)
+sys.stdout.write("\n")
