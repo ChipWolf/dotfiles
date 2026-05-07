@@ -14,6 +14,8 @@ mcp:
       targets:
         mcpproxy:
           enabled: true
+        pi:
+          enabled: true
       remote:
         url: "https://mcp.atlassian.com/v1/mcp"
 
@@ -23,6 +25,8 @@ mcp:
         private: false
       targets:
         mcpproxy:
+          enabled: true
+        pi:
           enabled: true
       local:
         command: "bash"

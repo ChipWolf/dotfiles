@@ -13,14 +13,19 @@
 mcp:
   serversById:
 
-    # --- Servers proxied by mcpproxy ---------------------------------
-    # These render only into mcpproxy's upstream list. Clients reach
-    # them via the mcpproxy entry below.
+    # --- Upstream servers --------------------------------------------
+    # These render into mcpproxy (for cursor/opencode, which benefit
+    # from retrieve_tools-style discovery) and directly into pi (which
+    # already has pi-mcp-adapter providing its own lazy mcp() proxy;
+    # stacking another tool-discovery layer on top adds friction
+    # without saving context).
 
     obsidian:
       enabled: true
       targets:
         mcpproxy:
+          enabled: true
+        pi:
           enabled: true
       local:
         command: "mise"
@@ -39,6 +44,8 @@ mcp:
       targets:
         mcpproxy:
           enabled: true
+        pi:
+          enabled: true
       local:
         command: "mise"
         args:
@@ -55,6 +62,8 @@ mcp:
       targets:
         mcpproxy:
           enabled: true
+        pi:
+          enabled: true
       remote:
         url: "https://mcp.context7.com/mcp"
 
@@ -62,6 +71,8 @@ mcp:
       enabled: true
       targets:
         mcpproxy:
+          enabled: true
+        pi:
           enabled: true
       remote:
         url: "https://mcp.grep.app"
@@ -89,10 +100,11 @@ mcp:
 
     # --- Aggregator entry --------------------------------------------
     # Smart MCP proxy aggregates the upstream MCP servers above and
-    # exposes them via a single endpoint with retrieve_tools-based
-    # discovery. Clients connect to the proxy instead of registering
-    # each upstream directly. mcpproxy.app or the brew-installed
-    # mcpproxy CLI must be running.
+    # exposes them via retrieve_tools-style discovery. Used by cursor
+    # (40-tool limit) and opencode (token cost per registered tool).
+    # Pi connects to upstream servers directly (see above) since
+    # pi-mcp-adapter already provides lazy/discovery semantics.
+    # mcpproxy.app or the brew-installed mcpproxy CLI must be running.
 
     mcpproxy:
       enabled: true
@@ -100,8 +112,6 @@ mcp:
         cursor:
           enabled: true
         opencode:
-          enabled: true
-        pi:
           enabled: true
       remote:
         url: "http://127.0.0.1:8080/mcp"
