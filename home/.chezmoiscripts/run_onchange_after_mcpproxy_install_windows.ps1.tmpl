@@ -1,0 +1,61 @@
+{{- $mcpproxyVersion := "v0.29.3" -}}
+{{- if and (eq .chezmoi.os "windows") .private -}}
+# Install/upgrade mcpproxy from a pinned GitHub release on private Windows systems.
+# renovate: datasource=github-releases depName=smart-mcp-proxy/mcpproxy-go
+$MCPPROXY_VERSION = "{{ $mcpproxyVersion }}"
+
+$ErrorActionPreference = "Stop"
+{{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
+
+$currentVersion = ""
+$mcpproxyCmd = Get-Command mcpproxy -ErrorAction SilentlyContinue
+if ($mcpproxyCmd) {
+    $versionOutput = & $mcpproxyCmd.Source --version 2>$null | Out-String
+    if ($LASTEXITCODE -eq 0 -and $versionOutput -match "v\d+\.\d+\.\d+") {
+        $currentVersion = $Matches[0]
+    }
+}
+
+if ($currentVersion -eq $MCPPROXY_VERSION) {
+    Write-Host "mcpproxy $MCPPROXY_VERSION is already installed."
+    exit 0
+}
+
+$elevatedScript = {
+    $ErrorActionPreference = "Stop"
+    $version = "{{ $mcpproxyVersion }}"
+    $architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
+    switch ($architecture) {
+        ([System.Runtime.InteropServices.Architecture]::X64) { $assetName = "mcpproxy-setup-$version-amd64.exe" }
+        ([System.Runtime.InteropServices.Architecture]::Arm64) { $assetName = "mcpproxy-setup-$version-arm64.exe" }
+        default { throw "Unsupported Windows architecture for mcpproxy installer: $architecture" }
+    }
+
+    $installerUrl = "https://github.com/smart-mcp-proxy/mcpproxy-go/releases/download/$version/$assetName"
+    $installerPath = Join-Path $env:TEMP $assetName
+
+    Write-Host "Downloading mcpproxy $version ($architecture)..."
+    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+
+    try {
+        Write-Host "Installing mcpproxy $version..."
+        $proc = Start-Process -FilePath $installerPath -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-" -Wait -PassThru
+        if ($proc.ExitCode -ne 0) {
+            throw "mcpproxy installer failed with exit code $($proc.ExitCode)."
+        }
+    } finally {
+        Remove-Item $installerPath -ErrorAction SilentlyContinue
+    }
+}
+
+Invoke-ElevatedWithLog `
+    -Name "mcpproxy-install" `
+    -ScriptBlock $elevatedScript `
+    -StatusMessage "Elevating to install mcpproxy $MCPPROXY_VERSION..."
+
+$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
+$mcpproxyCmd = Get-Command mcpproxy -ErrorAction SilentlyContinue
+if (-not $mcpproxyCmd) {
+    throw "mcpproxy was installed but is not on PATH yet. Restart your shell and run 'mcpproxy --version'."
+}
+{{- end }}

@@ -1,0 +1,58 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Ensure mcpproxy is managed as a user service in WSL.
+# Re-run when MCP proxy config source changes.
+# {{ include "private_dot_mcpproxy/modify_mcp_config.json" | sha256sum }}
+set -euo pipefail
+
+is_wsl=0
+if [ -n "${WSL_DISTRO_NAME:-}" ] || [ -n "${WSL_INTEROP:-}" ] || grep -qi microsoft /proc/version 2>/dev/null; then
+  is_wsl=1
+fi
+if [ "$is_wsl" -ne 1 ]; then
+  exit 0
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+  exit 0
+fi
+if ! command -v mcpproxy >/dev/null 2>&1; then
+  exit 0
+fi
+
+if [ ! -d /run/systemd/system ] || ! systemctl --user show-environment >/dev/null 2>&1; then
+  cat >&2 <<'EOF'
+mcpproxy service auto-start skipped: systemd user session is unavailable in WSL.
+Enable systemd in /etc/wsl.conf, run `wsl --shutdown` from Windows, then `chezmoi apply` in WSL.
+EOF
+  exit 0
+fi
+
+unit_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+unit_file="$unit_dir/mcpproxy.service"
+mkdir -p "$unit_dir"
+
+mcpproxy_bin="$(command -v mcpproxy)"
+cat >"$unit_file" <<EOF
+[Unit]
+Description=MCPProxy service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=$mcpproxy_bin serve --config %h/.mcpproxy/mcp_config.json
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now mcpproxy.service
+if ! systemctl --user is-active --quiet mcpproxy.service; then
+  echo "mcpproxy.service failed to start; check 'systemctl --user status mcpproxy.service'." >&2
+  exit 1
+fi
+{{- end }}

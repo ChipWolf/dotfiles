@@ -13,9 +13,10 @@
         "CursorWrap": false,
         "EnvironmentVariables": true,
         "FancyZones": true,
-        "File Explorer Preview": true,
+        "File Explorer": true,
         "File Locksmith": true,
         "FindMyMouse": true,
+        "GrabAndMove": false,
         "Hosts": true,
         "Image Resizer": true,
         "Keyboard Manager": true,
@@ -27,7 +28,7 @@
         "MouseWithoutBorders": false,
         "NewPlus": false,
         "Peek": true,
-        "PowerDisplay": false,
+        "PowerDisplay": true,
         "PowerRename": true,
         "PowerToys Run": false,
         "QuickAccent": false,
@@ -59,8 +60,7 @@
       },
       "theme": "system",
       "system_theme": "dark",
-      "powertoys_version": "v0.98.1",
-      "action_name": "",
+      "powertoys_version": "v0.99.1",
       "ignored_conflict_properties": {
         "ignored_shortcuts": []
       }

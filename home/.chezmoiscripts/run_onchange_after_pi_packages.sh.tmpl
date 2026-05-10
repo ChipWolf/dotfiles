@@ -1,7 +1,7 @@
 {{ if ne .chezmoi.os "windows" -}}
 #!/usr/bin/env bash
 # Re-run when declared pi packages change.
-# {{ include "dot_pi/agent/modify_settings.json.tmpl" | sha256sum }}
+# {{ include "dot_pi/agent/modify_settings.json" | sha256sum }}
 set -euo pipefail
 
 # Use mise shims so pi (installed via npm: backend) is on PATH for

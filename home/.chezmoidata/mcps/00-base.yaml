@@ -92,7 +92,8 @@ mcp:
     # exposes them via a single endpoint with retrieve_tools-based
     # discovery. Clients connect to the proxy instead of registering
     # each upstream directly. mcpproxy.app or the brew-installed
-    # mcpproxy CLI must be running.
+    # mcpproxy CLI must be running (WSL auto-start is managed via
+    # run_onchange_after_mcpproxy_service_wsl.sh.tmpl when systemd is enabled).
 
     mcpproxy:
       enabled: true

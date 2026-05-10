@@ -12,7 +12,7 @@ Use this skill when changing MCP server configuration in this repo.
 - Canonical layered data: `home/.chezmoidata/mcps/*.yaml`
 - Cursor render template: `home/dot_cursor/mcp.json.tmpl`
 - OpenCode render template: `home/dot_config/opencode/opencode.jsonc.tmpl` (via `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
-- mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json.tmpl`
+- mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`
 - pi render template: `home/dot_pi/agent/mcp.json.tmpl`
 
 Treat `home/.chezmoidata/mcps/*.yaml` as the single source of truth.
@@ -58,7 +58,7 @@ After MCP changes:
 
 1. Render `home/dot_cursor/mcp.json.tmpl` with current chezmoi data.
 2. Render `home/dot_config/opencode/opencode.jsonc.tmpl` with current chezmoi data.
-3. Render `home/private_dot_mcpproxy/modify_mcp_config.json.tmpl` with current chezmoi data.
+3. Render `home/private_dot_mcpproxy/modify_mcp_config.json` with current chezmoi data.
 4. Render `home/dot_pi/agent/mcp.json.tmpl` with current chezmoi data.
 5. Validate the rendered Cursor, mcpproxy, and pi outputs are valid JSON.
 6. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.

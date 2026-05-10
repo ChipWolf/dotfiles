@@ -172,7 +172,7 @@ EOF
     "serversById": {
       "shape-op-remote-base": {
         "enabled": true,
-        "targets": { "opencode": {} },
+        "targets": { "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/op-base" }
       }
     }
@@ -224,7 +224,7 @@ EOF
     "serversById": {
       "shape-local-base": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "local": {
           "command": "mise",
           "args": ["x", "node", "--", "npx", "-y", "pkg-local-base@latest"],
@@ -233,7 +233,7 @@ EOF
       },
       "shape-remote-base": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/base" }
       }
     }
@@ -263,12 +263,12 @@ EOF
       "shape-private-blocked": {
         "enabled": true,
         "conditions": { "private": false },
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/private-blocked" }
       },
       "shape-private-allowed": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/private-allowed" }
       }
     }
@@ -285,7 +285,7 @@ EOF
   '
 }
 
-@test "Cursor MCP template defaults targets to enabled when omitted" {
+@test "Cursor MCP template skips servers with no targets" {
   local data_file="$BATS_TEST_TMPDIR/mcp-no-targets-cursor.json"
   cat >"$data_file" <<'EOF'
 {
@@ -305,7 +305,7 @@ EOF
   echo "$output" | ruby -rjson -e '
     j = JSON.parse(STDIN.read)
     s = j.fetch("mcpServers")
-    raise "server with omitted targets missing" unless s.key?("shape-no-targets")
+    raise "server with omitted targets unexpectedly rendered" if s.key?("shape-no-targets")
   '
 }
 
@@ -318,12 +318,12 @@ EOF
     "serversById": {
       "shape-disabled": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/disabled" }
       },
       "shape-disabled-explicit": {
         "enabled": false,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/enabled" }
       }
     }
@@ -349,7 +349,7 @@ EOF
     "serversById": {
       "shape-op-local-base": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "local": {
           "command": "mise",
           "args": ["x", "node", "--", "npx", "-y", "pkg-op-local-base@latest"],
@@ -358,7 +358,7 @@ EOF
       },
       "shape-op-remote-base": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/op-base" }
       }
     }
@@ -373,7 +373,7 @@ EOF
   echo "$output" | grep -q 'https://example.com/op-base'
 }
 
-@test "OpenCode MCP template defaults targets to enabled when omitted" {
+@test "OpenCode MCP template skips servers with no targets" {
   local data_file="$BATS_TEST_TMPDIR/mcp-no-targets-opencode.json"
   cat >"$data_file" <<'EOF'
 {
@@ -390,7 +390,7 @@ EOF
 EOF
 
   output=$(render_template_with_override_data "$SOURCE_DIR/.chezmoitemplates/opencode-mcp.jsonc.tmpl" "$data_file")
-  echo "$output" | grep -q '"shape-op-no-targets"'
+  ! echo "$output" | grep -q '"shape-op-no-targets"'
 }
 
 @test "OpenCode MCP template respects enabled false" {
@@ -402,12 +402,12 @@ EOF
     "serversById": {
       "shape-op-disabled": {
         "enabled": true,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/op-disabled" }
       },
       "shape-op-disabled-explicit": {
         "enabled": false,
-        "targets": { "cursor": {}, "opencode": {} },
+        "targets": { "cursor": { "enabled": true }, "opencode": { "enabled": true } },
         "remote": { "url": "https://example.com/op-enabled" }
       }
     }
@@ -416,7 +416,7 @@ EOF
 EOF
 
   output=$(render_template_with_override_data "$SOURCE_DIR/.chezmoitemplates/opencode-mcp.jsonc.tmpl" "$data_file")
-  ! echo "$output" | grep -q '"shape-op-disabled"'
+  echo "$output" | grep -q '"shape-op-disabled"'
   ! echo "$output" | grep -q '"shape-op-disabled-explicit"'
 }
 
@@ -457,7 +457,7 @@ EOF
     is_private = data.fetch("private", false)
     expected_ids = data.fetch("mcp").fetch("serversById")
       .select { |_id, s| s.fetch("enabled", true) }
-      .reject { |_id, s| s.dig("targets", "cursor", "enabled") == false }
+      .select { |_id, s| s.dig("targets", "cursor", "enabled") == true }
       .select do |_id, s|
         conditions = s.fetch("conditions", {})
         conditions.all? { |k, v| data.key?(k) && data[k] == v }
@@ -517,7 +517,7 @@ EOF
     is_private = data.fetch("private", false)
     expected_ids = data.fetch("mcp").fetch("serversById")
       .select { |_id, s| s.fetch("enabled", true) }
-      .reject { |_id, s| s.dig("targets", "opencode", "enabled") == false }
+      .select { |_id, s| s.dig("targets", "opencode", "enabled") == true }
       .select do |_id, s|
         conditions = s.fetch("conditions", {})
         conditions.all? { |k, v| data.key?(k) && data[k] == v }

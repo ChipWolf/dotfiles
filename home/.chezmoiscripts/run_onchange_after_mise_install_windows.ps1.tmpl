@@ -1,0 +1,29 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Re-run `mise install` whenever the global mise config changes.
+# Hash-pin to the templated config so this only fires on actual changes.
+# {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+$ErrorActionPreference = "Stop"
+
+$miseCmd = Get-Command mise -ErrorAction SilentlyContinue
+if (-not $miseCmd) {
+    $miseCandidates = @(
+        "$env:ProgramData\chocolatey\bin\mise.exe",
+        "$env:LOCALAPPDATA\mise\bin\mise.exe"
+    ) | Where-Object { $_ -and (Test-Path $_) }
+
+    if ($miseCandidates.Count -gt 0) {
+        $miseCmd = @{ Source = $miseCandidates[0] }
+    }
+}
+
+if (-not $miseCmd) {
+    Write-Warning "mise not found on PATH; bootstrap script must run first."
+    exit 0
+}
+
+& $miseCmd.Source trust "$env:USERPROFILE\.config\mise\config.toml" *> $null
+& $miseCmd.Source install
+if ($LASTEXITCODE -ne 0) {
+    throw "mise install failed (exit code $LASTEXITCODE)."
+}
+{{- end }}

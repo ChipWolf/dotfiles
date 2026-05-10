@@ -5,6 +5,9 @@ node = "latest"
 ruby = "latest"
 "npm:@mariozechner/pi-coding-agent" = "latest"
 "npm:context-mode" = "latest"
+{{ if .private -}}
+"npm:@anthropic-ai/claude-code" = "latest"
+{{ end -}}
 {{ end -}}
 
 [settings]

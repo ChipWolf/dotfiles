@@ -4,7 +4,9 @@ winget:
   overlays:
     base:
       packages:
+        - Anthropic.Claude
         - Wakatime.CLIWakatime
         - Wakatime.DesktopWakatime
         - WinSCP.WinSCP
         - Yubico.Authenticator
+        - ZedIndustries.Zed

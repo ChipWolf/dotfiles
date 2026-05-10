@@ -44,6 +44,15 @@
       depNameTemplate: "{{package}}",
       datasourceTemplate: "npm",
     },
+    {
+      customType: "regex",
+      managerFilePatterns: ["/home\\/\\.chezmoiscripts\\/run_onchange_after_mcpproxy_install_windows\\.ps1\\.tmpl$/"],
+      matchStrings: [
+        "\\$mcpproxyVersion := \"(?<currentValue>v[^\"]+)\"",
+      ],
+      depNameTemplate: "smart-mcp-proxy/mcpproxy-go",
+      datasourceTemplate: "github-releases",
+    },
   ],
   packageRules: [
     {
