@@ -7,3 +7,4 @@ winget:
         - Wakatime.CLIWakatime
         - Wakatime.DesktopWakatime
         - WinSCP.WinSCP
+        - Yubico.Authenticator

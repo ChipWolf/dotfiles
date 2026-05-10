@@ -32,6 +32,7 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 | **Git**                 | Version control config                   |   x   |   x   |    x    |     x      |
 | **GnuPG**               | Encryption and signing                   |   x   |   x   |         |            |
 | **Tailscale**           | VPN mesh and secure remote access        |       |       |    x    |            |
+| **Yubico Authenticator** | YubiKey OATH, PIV, and FIDO management  |       |       |    x    |            |
 | **Homebrew**            | Package manager                          |   x   |   x   |         |     x      |
 | **mise**                | Runtime manager (node, python, go, etc.) |   x   |   x   |    x    |     x      |
 | **Finicky**             | Default browser router                   |   x   |       |         |            |
