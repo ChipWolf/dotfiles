@@ -1,0 +1,12 @@
+# Windows registry patches applied by `run_onchange_before_registry_windows.ps1.tmpl`.
+# Same overlay pattern as chocolatey/winget: add `10-*.yaml` files to extend.
+# HKLM entries require elevation (UAC prompt). HKCU entries are applied directly.
+registry:
+  overlays:
+    base:
+      entries:
+        - hive: HKLM
+          key: SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock
+          name: AllowDevelopmentWithoutDevLicense
+          type: DWord
+          value: 1

@@ -1,0 +1,58 @@
+{{- $entries := list -}}
+{{- if and (hasKey . "registry") (hasKey .registry "overlays") -}}
+  {{- range $name := keys .registry.overlays | sortAlpha -}}
+    {{- $ov := index $.registry.overlays $name -}}
+    {{- $entries = concat $entries (default (list) $ov.entries) -}}
+  {{- end -}}
+{{- end -}}
+{{- $hklmEntries := list -}}
+{{- $hkcuEntries := list -}}
+{{- range $entries -}}
+  {{- if eq .hive "HKLM" -}}
+    {{- $hklmEntries = append $hklmEntries . -}}
+  {{- else -}}
+    {{- $hkcuEntries = append $hkcuEntries . -}}
+  {{- end -}}
+{{- end -}}
+{{- if eq .chezmoi.os "windows" -}}
+# Registry entries hash: {{ $entries | toJson | sha256sum }}
+
+$ErrorActionPreference = "Stop"
+{{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
+{{ if $hklmEntries }}
+$elevatedScript = {
+    $ErrorActionPreference = "Stop"
+{{ range $hklmEntries }}
+    $regPath = "HKLM:\{{ .key }}"
+    if (-not (Test-Path $regPath)) {
+        New-Item -Path $regPath -Force | Out-Null
+    }
+    $current = (Get-ItemProperty -Path $regPath -Name "{{ .name }}" -ErrorAction SilentlyContinue)."{{ .name }}"
+    if ($current -ne {{ if eq .type "DWord" }}{{ .value }}{{ else if eq .type "QWord" }}{{ .value }}{{ else }}"{{ .value }}"{{ end }}) {
+        Set-ItemProperty -Path $regPath -Name "{{ .name }}" -Value {{ if eq .type "DWord" }}{{ .value }}{{ else if eq .type "QWord" }}{{ .value }}{{ else }}"{{ .value }}"{{ end }} -Type {{ .type }}
+        Write-Host "Registry set: HKLM\{{ .key }}\{{ .name }} = {{ .value }}"
+    } else {
+        Write-Host "Registry already set: HKLM\{{ .key }}\{{ .name }} = {{ .value }}"
+    }
+{{ end }}
+}
+
+Invoke-ElevatedWithLog `
+    -Name "registry" `
+    -ScriptBlock $elevatedScript `
+    -StatusMessage "Elevating for HKLM registry patches..."
+{{ end }}
+{{- range $hkcuEntries }}
+$regPath = "HKCU:\{{ .key }}"
+if (-not (Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+$current = (Get-ItemProperty -Path $regPath -Name "{{ .name }}" -ErrorAction SilentlyContinue)."{{ .name }}"
+if ($current -ne {{ if eq .type "DWord" }}{{ .value }}{{ else if eq .type "QWord" }}{{ .value }}{{ else }}"{{ .value }}"{{ end }}) {
+    Set-ItemProperty -Path $regPath -Name "{{ .name }}" -Value {{ if eq .type "DWord" }}{{ .value }}{{ else if eq .type "QWord" }}{{ .value }}{{ else }}"{{ .value }}"{{ end }} -Type {{ .type }}
+    Write-Host "Registry set: HKCU\{{ .key }}\{{ .name }} = {{ .value }}"
+} else {
+    Write-Host "Registry already set: HKCU\{{ .key }}\{{ .name }} = {{ .value }}"
+}
+{{ end }}
+{{- end }}
