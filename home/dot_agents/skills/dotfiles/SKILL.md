@@ -31,8 +31,10 @@ Use this skill as a dispatcher:
 
 - **Zsh:** `home/dot_config/zsh/` — `dot_zshrc`, `dot_zshenv`, `dot_zprofile`, `dot_zplugins`, `dot_zshrc.d/`, `dot_zfunctions/`, `dot_p10k.zsh`. Top-level `home/dot_zshenv` and `home/dot_profile` set `ZDOTDIR`/`XDG_CONFIG_HOME`.
 - **Neovim:** `home/dot_config/nvim/` (LazyVim-style).
+- **Universal agent rules:** `home/dot_agents/AGENTS.md` — edit here, not at `~/.agents/AGENTS.md`.
+- **Universal agent skills:** `home/dot_agents/skills/` — shared across all coding agents.
 - **OpenCode config:** `home/dot_config/opencode/opencode.jsonc.tmpl`.
-- **OpenCode global rules:** `home/dot_config/opencode/AGENTS.md` — edit here, not at `~/.config/opencode/AGENTS.md`.
+- **OpenCode-specific rules:** `home/dot_config/opencode/AGENTS.md` — OpenCode-only rules and context-mode routing.
 - **OpenCode data overlays:** `home/.chezmoidata/agent-permissions/` and `home/.chezmoidata/mcps/`.
 - **WezTerm:** `home/dot_config/wezterm/wezterm.lua` — Windows only (ignored on non-Windows).
 - **Scripts:** `home/dot_scripts/` — deployed to `~/.scripts/` which is on PATH.

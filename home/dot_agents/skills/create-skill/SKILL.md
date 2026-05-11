@@ -1,18 +1,18 @@
 ---
-name: create-opencode-skill
-description: Author and maintain OpenCode skills with valid frontmatter, correct placement, and global-memory integration. Use when asked to create, update, or document a skill workflow.
+name: create-skill
+description: Author and maintain agent skills with valid frontmatter, correct placement, and global-memory integration. Use when asked to create, update, or document a skill workflow.
 ---
 
 ## Purpose
 
-Create high-quality OpenCode skills that are discoverable, accurate, and maintainable.
+Create high-quality agent skills that are discoverable, accurate, and maintainable.
 
 ## Canonical references
 
 Before writing or changing a skill, verify format and behavior from official docs:
 
 - <https://opencode.ai/docs/skills/>
-- Use existing local skills in `~/.config/opencode/skills/*/SKILL.md` as style references.
+- Use existing skills in `~/.agents/skills/*/SKILL.md` as style references.
 
 Do not invent frontmatter fields or naming rules.
 
@@ -40,14 +40,13 @@ Description constraints:
 ## Authoring workflow
 
 1. Identify target location:
-   - Global skills: `~/.local/share/chezmoi/home/dot_config/opencode/skills/`
+   - Universal skills (shared across all coding agents): `~/.local/share/chezmoi/home/dot_agents/skills/`
+   - Tool-specific skills (e.g. OpenCode-only): `~/.local/share/chezmoi/home/dot_config/<tool>/skills/`
 2. Create skill directory and `SKILL.md`.
 3. Write concise instructions with concrete command patterns and guardrails.
 4. Include a self-improvement loop section so the skill is updated when better steps are found.
-5. If introducing a new recurring workflow skill, update global memory in `~/.local/share/chezmoi/home/dot_config/opencode/AGENTS.md`:
-   - Add row in the skills table.
-   - Add a short trigger line in the relevant section.
-6. Verify deployed files under `~/.config/opencode/...` after `chezmoi apply`.
+5. If the skill introduces rules that belong in global memory, update `~/.local/share/chezmoi/home/dot_agents/AGENTS.md`.
+6. Verify deployed files after `chezmoi apply`.
 
 ## Content quality checklist
 
@@ -60,9 +59,9 @@ Description constraints:
 ## Guardrails
 
 - For AGENTS.md edits, load and follow the `memory` skill first.
-- Do not edit `~/.config/opencode/AGENTS.md` directly, update chezmoi source and apply.
+- Do not edit deployed files directly, update chezmoi source and apply.
 - Do not remove existing memory rules unless explicitly requested.
 
 ## Self-improvement loop
 
-After each skill-authoring task, capture any improvements in structure, validation, or memory-integration steps by updating this file: `home/dot_config/opencode/skills/create-opencode-skill/SKILL.md`.
+After each skill-authoring task, capture any improvements in structure, validation, or memory-integration steps by updating this file: `home/dot_agents/skills/create-skill/SKILL.md`.
