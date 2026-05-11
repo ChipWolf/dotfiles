@@ -1,0 +1,57 @@
+{{ if eq .chezmoi.os "windows" -}}
+# Komorebi config hashes (trigger re-run when configs change):
+# komorebi.json: {{ include "dot_config/komorebi/komorebi.json" | sha256sum }}
+# whkdrc:       {{ include "dot_config/whkdrc" | sha256sum }}
+
+$ErrorActionPreference = "Stop"
+
+function Resolve-KomorebicPath {
+    $cmd = Get-Command komorebic.exe -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        $cmd = Get-Command komorebic -ErrorAction SilentlyContinue
+    }
+    if ($cmd -and -not [string]::IsNullOrWhiteSpace($cmd.Source)) {
+        return $cmd.Source
+    }
+
+    $candidates = @(
+        "$env:USERPROFILE\scoop\shims\komorebic.exe",
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Links\komorebic.exe",
+        "$env:ProgramFiles\komorebi\bin\komorebic.exe"
+    )
+    return ($candidates | Where-Object {
+        -not [string]::IsNullOrWhiteSpace($_) -and (Test-Path $_)
+    } | Select-Object -First 1)
+}
+
+$komorebic = Resolve-KomorebicPath
+
+if (Get-Process -Name "komorebi" -ErrorAction SilentlyContinue) {
+    if (-not $komorebic) {
+        Write-Host "Komorebi process found but komorebic could not be resolved; skipping reload." -ForegroundColor DarkGray
+        return
+    }
+    Write-Host "Reloading Komorebi configuration..."
+    & $komorebic reload-configuration
+    if ($LASTEXITCODE -ne 0) {
+        throw "Komorebi reload failed (exit code $LASTEXITCODE)."
+    }
+
+    # whkd has no live-reload — restart it so new whkdrc takes effect.
+    if (Get-Process -Name "whkd" -ErrorAction SilentlyContinue) {
+        Write-Host "Restarting whkd to pick up new keybindings..."
+        Stop-Process -Name "whkd" -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 500
+        $whkdCmd = Get-Command whkd.exe -ErrorAction SilentlyContinue
+        if ($whkdCmd) {
+            Start-Process -FilePath $whkdCmd.Source -WindowStyle Hidden
+        }
+    }
+} else {
+    if (-not $komorebic) {
+        Write-Host "Komorebi not found; skipping reload." -ForegroundColor DarkGray
+        return
+    }
+    Write-Host "Komorebi is installed but not running; skipping reload." -ForegroundColor DarkGray
+}
+{{- end }}

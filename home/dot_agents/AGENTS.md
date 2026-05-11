@@ -19,7 +19,7 @@ These constraints are unconditional. Apply them without being asked.
 
 ## Session close: mandatory
 
-After every non-trivial task, load the `retrospective` skill and follow it before closing out.
+After every non-trivial task, run a retrospective before closing out.
 
 ---
 
@@ -28,7 +28,7 @@ After every non-trivial task, load the `retrospective` skill and follow it befor
 Global memory is `~/.agents/AGENTS.md` (source: `~/.local/share/chezmoi/home/dot_agents/AGENTS.md`).
 Local memory is the `AGENTS.md` in the current project root (or nearest ancestor).
 
-Never edit `~/.agents/AGENTS.md` directly; it is chezmoi-managed. Load the `memory` skill for all writes.
+Never edit `~/.agents/AGENTS.md` directly; it is chezmoi-managed.
 
 For rules specific to the chezmoi dotfiles repo itself, the target is `~/.local/share/chezmoi/AGENTS.md`.
 
@@ -38,9 +38,11 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 
 ## Git and commits
 
-- Load `git-commit-push` for commit or push operations.
 - Before committing, run `git diff --staged` and confirm the change is atomic and in-scope. Do not commit unrelated modifications.
 - Commit message format: `type(scope): description`. Types: `feat`, `fix`, `chore`. Check `git log --oneline` to match repo style.
+- After any branch switch (including `gh pr checkout`), immediately verify with `git branch --show-current`. `gh pr checkout` can silently leave you on the wrong branch when the local tracking branch has diverged; if it fails or the branch is wrong, use `git checkout <branch-name>` directly.
+- A stale `.git/index.lock` blocks all git operations. Remove it with `rm -f .git/index.lock` before retrying the blocked command.
+- **Worktree context.** When the cwd is inside a Claude Code worktree (e.g. `.claude/worktrees/<id>`), git and gh commands operate on the worktree branch, not the main repo. To check out a PR or named branch in the main repo, use an explicit path: `git -C /path/to/main-repo checkout <branch>`. Always confirm the active branch with `git branch --show-current` before reading or editing files.
 
 ---
 
