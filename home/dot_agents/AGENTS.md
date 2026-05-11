@@ -42,7 +42,9 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 - Commit message format: `type(scope): description`. Types: `feat`, `fix`, `chore`. Check `git log --oneline` to match repo style.
 - After any branch switch (including `gh pr checkout`), immediately verify with `git branch --show-current`. `gh pr checkout` can silently leave you on the wrong branch when the local tracking branch has diverged; if it fails or the branch is wrong, use `git checkout <branch-name>` directly.
 - A stale `.git/index.lock` blocks all git operations. Remove it with `rm -f .git/index.lock` before retrying the blocked command.
-- **Worktree context.** When the cwd is inside a Claude Code worktree (e.g. `.claude/worktrees/<id>`), git and gh commands operate on the worktree branch, not the main repo. To check out a PR or named branch in the main repo, use an explicit path: `git -C /path/to/main-repo checkout <branch>`. Always confirm the active branch with `git branch --show-current` before reading or editing files.
+- **Worktree context.** When the cwd is inside a Claude Code worktree (e.g. `.claude/worktrees/<id>`), git and gh commands operate on the worktree branch, not the main repo. The main repo's working tree may be locked by another agent; do not attempt `git checkout` or `gh pr checkout` against it. Instead, materialize a PR branch into a new isolated worktree: `git -C /path/to/main-repo fetch origin <branch> && git -C /path/to/main-repo worktree add <path> origin/<branch>`. Then work from that worktree path using `git -C <worktree-path>` for every subsequent git command. Never rely on `cd` + bare `git` across separate Bash calls: shell state resets between calls, so the cwd silently reverts and commands run against the wrong worktree. Always confirm the active branch with `git -C <path> branch --show-current` before reading or editing files.
+- **Cloning for tag comparison.** `--depth=1 --no-single-branch` does not fetch tags. When you need to compare specific tags, either clone without `--depth`, or run `git fetch --tags` after the shallow clone.
+- **Inspecting a PR's diff.** Always diff the remote PR branch against `origin/main` (e.g. `git diff origin/main...origin/<pr-branch>`), not local HEAD. Local HEAD may be on an unrelated branch, so a diff against it is meaningless and returns empty output without any error.
 
 ---
 
@@ -53,6 +55,7 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 - Destructive or policy-sensitive actions should be isolated so intent is easy to inspect.
 - Do not check whether a directory exists before using it. Attempt the operation; create the directory if it fails.
 - On Windows, when admin rights are required, launch elevated commands with `Start-Process -Verb RunAs` instead of failing back to manual instructions.
+- On Windows, use the Bash tool (not PowerShell) for POSIX-style commands like `grep`, `find`, `head`, `tail`, and path operations that use forward slashes. Use PowerShell only when you need Windows-native cmdlets, `$env:` variables, or paths with backslashes that POSIX tools cannot handle.
 
 ---
 
