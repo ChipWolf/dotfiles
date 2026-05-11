@@ -37,8 +37,8 @@ jobs:
           DOTFILES_RELEASE_TAG: ${{ inputs.tag_name }}
         run: |
           IMAGE_NAME_LC="${IMAGE_NAME,,}"
-          DOTFILES_IMAGE_NAME="${IMAGE_NAME_LC}" mise x -- chezmoi execute-template --file install.sh.tmpl > install.sh
-          DOTFILES_IMAGE_NAME="${IMAGE_NAME_LC}" mise x -- chezmoi execute-template --file install.ps1.tmpl > install.ps1
+          DOTFILES_IMAGE_NAME="${IMAGE_NAME_LC}" mise x -- chezmoi execute-template --source ./home --file install.sh.tmpl > install.sh
+          DOTFILES_IMAGE_NAME="${IMAGE_NAME_LC}" mise x -- chezmoi execute-template --source ./home --file install.ps1.tmpl > install.ps1
           chmod +x install.sh
 
       - name: Upload install scripts to release
