@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.8.0](https://github.com/ChipWolf/dotfiles/compare/v1.7.0...v1.8.0) (2026-05-11)
+
+
+### Features
+
+* **brew:** add mcpproxy.app cask for menubar GUI ([87da5c6](https://github.com/ChipWolf/dotfiles/commit/87da5c6955d1afbb26d9b915115af3af817d5fbd))
+* **brew:** add rtk CLI proxy to brew configuration and update tmux settings ([393c984](https://github.com/ChipWolf/dotfiles/commit/393c9845e284bfb69320e294609b19fdbd37b965))
+* **claude:** add AGENTS.md shim rule and repo-root CLAUDE.md ([#64](https://github.com/ChipWolf/dotfiles/issues/64)) ([c493214](https://github.com/ChipWolf/dotfiles/commit/c4932148e73469218f84552ba082fe2ac766ce62))
+* **claude:** symlink ~/.claude/skills to ~/.agents/skills ([341f147](https://github.com/ChipWolf/dotfiles/commit/341f147367f33817a7eb058caf1721ce146d3c47))
+* **claude:** symlink ~/.claude/skills to ~/.agents/skills ([297026e](https://github.com/ChipWolf/dotfiles/commit/297026e9a6b4906332e6e6a40b9623768b50e1e2))
+* **context-mode:** wire hooks, plugin, and rules for cursor + opencode ([aceff17](https://github.com/ChipWolf/dotfiles/commit/aceff17e185a502d17e2ae0523d27656f7ab866e))
+* **cursor:** enable git.autofetch ([7898cc4](https://github.com/ChipWolf/dotfiles/commit/7898cc4bcb2cc3a51c448e819c2cbe0e20758ecc))
+* **dotfiles:** finalize mcpproxy and Windows tooling updates ([093705c](https://github.com/ChipWolf/dotfiles/commit/093705c7630ea0c55935b81ac1373d86812ba64c))
+* **mcp:** add mcpproxy as MCP render target ([6deb9fe](https://github.com/ChipWolf/dotfiles/commit/6deb9fea915c53d0f1d98542e460f793e56fa5ac))
+* **mcp:** scaffold pi as MCP render target, add context-mode server ([0987c2e](https://github.com/ChipWolf/dotfiles/commit/0987c2e65a884ffa0b3274d42ed98799bef46a65))
+* **mise:** manage context-mode declaratively via mise npm backend ([6abdc69](https://github.com/ChipWolf/dotfiles/commit/6abdc6976a372104164d95d1d2d9178100a100ed))
+* **mise:** reconcile mise tools on config change via chezmoiscript ([fb08ed4](https://github.com/ChipWolf/dotfiles/commit/fb08ed43425c1321cf176e0a4c3c44f4851ae78f))
+* **pi:** add pi-lens for real-time code feedback ([624d4ab](https://github.com/ChipWolf/dotfiles/commit/624d4ab0dd4a65b0422cacbaf2e38ad97af025fa))
+* **pi:** add pi-mcp-adapter for MCP support ([049684c](https://github.com/ChipWolf/dotfiles/commit/049684c605aecda49dd5b5d9ce02522a4046f6fb))
+* **pi:** add pi-subagents for task delegation ([9dd454d](https://github.com/ChipWolf/dotfiles/commit/9dd454db24bdb9c8860fc1273010ed8bbd8e0e23))
+* **pi:** manage pi-coding-agent and packages declaratively ([aa4a9ea](https://github.com/ChipWolf/dotfiles/commit/aa4a9ead0e106004b43c143ae7c86d569d7ecd12))
+* **windows:** add registry overlay system for HKLM/HKCU patches ([7ead4ad](https://github.com/ChipWolf/dotfiles/commit/7ead4ade25003bb7f82e9abfbd603da3a181f999))
+* **windows:** add Yubico Authenticator package metadata ([de79991](https://github.com/ChipWolf/dotfiles/commit/de7999104dbe9dc4cfcea25ae173d0b87c03aaa5))
+
+
+### Bug Fixes
+
+* **claude:** remove template includes, keep symlink only ([1e8cecb](https://github.com/ChipWolf/dotfiles/commit/1e8cecb8a3660356ce28328e19817b10fdd5b626))
+
+
+### Miscellaneous
+
+* **deps:** update dependency cc-safety-net to v0.9.0 ([#57](https://github.com/ChipWolf/dotfiles/issues/57)) ([640842e](https://github.com/ChipWolf/dotfiles/commit/640842e5876390efa5e1567cdd86020b2a60bac5))
+* **deps:** update dependency uv to v0.11.11 ([#55](https://github.com/ChipWolf/dotfiles/issues/55)) ([136a6cb](https://github.com/ChipWolf/dotfiles/commit/136a6cb0bf63702274f57aa8c7a5b8faea2ebd38))
+* **opencode:** rule for diagnosing broken MCP subagents ([0fdbba9](https://github.com/ChipWolf/dotfiles/commit/0fdbba974eb169fe5ff7ad519f7a435a86accf93))
+
 ## [1.7.0](https://github.com/ChipWolf/dotfiles/compare/v1.6.2...v1.7.0) (2026-05-06)
 
 
