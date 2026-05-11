@@ -44,5 +44,11 @@
   helper = !mise x -- gh auth git-credential
 [include]
   path = ~/.gitconfig.overrides
+{{- if eq .chezmoi.os "windows" }}
+[core]
+  longpaths = true
+{{- end }}
+[core]
+  hooksPath = %(prefix)//dev/null
 [init]
   defaultBranch = main
