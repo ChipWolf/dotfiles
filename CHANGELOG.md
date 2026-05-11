@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/ChipWolf/dotfiles/compare/v1.8.0...v1.8.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* **ci:** pass --source ./home to chezmoi execute-template ([#65](https://github.com/ChipWolf/dotfiles/issues/65)) ([e9e1034](https://github.com/ChipWolf/dotfiles/commit/e9e1034d80fcdcecf0785b77adc8d7ecc5e8108b))
+
 ## [1.8.0](https://github.com/ChipWolf/dotfiles/compare/v1.7.0...v1.8.0) (2026-05-11)
 
 

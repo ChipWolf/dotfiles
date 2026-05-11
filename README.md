@@ -49,14 +49,14 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 > [!WARNING]
 > These scripts fetch and execute code from this repo in a single command. Review them first if that matters to you, or use the [inspect-first path](#inspect-first) below.
 >
-> The install scripts are published as [GitHub Release](https://github.com/chipwolf/dotfiles/releases/tag/v1.8.0) assets with [SLSA Build L3](https://slsa.dev/spec/v1.0/levels#build-l3) provenance, verified with: `gh attestation verify install.sh --repo chipwolf/dotfiles` <!-- x-release-please-version -->
+> The install scripts are published as [GitHub Release](https://github.com/chipwolf/dotfiles/releases/tag/v1.8.1) assets with [SLSA Build L3](https://slsa.dev/spec/v1.0/levels#build-l3) provenance, verified with: `gh attestation verify install.sh --repo chipwolf/dotfiles` <!-- x-release-please-version -->
 
 **macOS / Linux**
 
 <!-- x-release-please-start-version -->
 
 ```sh
-sh -c "$(curl -fsSL https://github.com/chipwolf/dotfiles/releases/download/v1.8.0/install.sh)"
+sh -c "$(curl -fsSL https://github.com/chipwolf/dotfiles/releases/download/v1.8.1/install.sh)"
 ```
 
 <!-- x-release-please-end -->
@@ -66,7 +66,7 @@ sh -c "$(curl -fsSL https://github.com/chipwolf/dotfiles/releases/download/v1.8.
 <!-- x-release-please-start-version -->
 
 ```powershell
-irm https://github.com/chipwolf/dotfiles/releases/download/v1.8.0/install.ps1 | iex
+irm https://github.com/chipwolf/dotfiles/releases/download/v1.8.1/install.ps1 | iex
 ```
 
 <!-- x-release-please-end -->
@@ -226,7 +226,7 @@ All release artifacts are built with [SLSA Build L3](https://slsa.dev/spec/v1.0/
 
 This covers:
 
-- **Install scripts** ([`install.sh.tmpl`](install.sh.tmpl), [`install.ps1.tmpl`](install.ps1.tmpl)): published as [GitHub Release](https://github.com/chipwolf/dotfiles/releases/tag/v1.8.0) assets after CI template rendering. <!-- x-release-please-version -->
+- **Install scripts** ([`install.sh.tmpl`](install.sh.tmpl), [`install.ps1.tmpl`](install.ps1.tmpl)): published as [GitHub Release](https://github.com/chipwolf/dotfiles/releases/tag/v1.8.1) assets after CI template rendering. <!-- x-release-please-version -->
 - **Codespaces overlay image** ([ghcr.io/chipwolf/dotfiles](https://ghcr.io/chipwolf/dotfiles)): published to GHCR.
 
 > [!NOTE]
@@ -241,7 +241,7 @@ Verify:
 gh attestation verify install.sh --repo chipwolf/dotfiles
 
 # Container image
-gh attestation verify oci://ghcr.io/chipwolf/dotfiles:v1.8.0 --repo chipwolf/dotfiles
+gh attestation verify oci://ghcr.io/chipwolf/dotfiles:v1.8.1 --repo chipwolf/dotfiles
 ```
 
 <!-- x-release-please-end -->
