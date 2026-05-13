@@ -1,0 +1,40 @@
+{{ if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = "Stop"
+{{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
+
+# Recovery for the Chocolatey mise package missing mise-shim.exe. The Windows
+# bootstrap places the shim on fresh install; this script catches the case
+# where run_after_90_package_updates_windows.ps1.tmpl upgraded mise via
+# `choco upgrade` and wiped the shim, then re-runs mise reshim so the per-tool
+# shims under ~/AppData/Local/mise/shims/ become binary shims again.
+# See https://github.com/jdx/mise/discussions/7998
+
+$miseToolsDir = Join-Path $env:ProgramData "chocolatey\lib\mise\tools\x64"
+$miseExePath = Join-Path $miseToolsDir "mise.exe"
+$miseShimPath = Join-Path $miseToolsDir "mise-shim.exe"
+
+if (-not (Test-Path $miseExePath)) {
+    return
+}
+if (Test-Path $miseShimPath) {
+    return
+}
+
+$elevatedScript = {
+    $ErrorActionPreference = "Stop"
+{{ includeTemplate ".chezmoitemplates/windows-mise-shim-placement.ps1.tmpl" . }}
+}
+
+Invoke-ElevatedWithLog `
+    -Name "mise-shim" `
+    -ScriptBlock $elevatedScript `
+    -StatusMessage "Elevating to place mise-shim.exe..."
+
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    Write-Host "Regenerating mise shims as binary shims..."
+    mise reshim
+    if ($LASTEXITCODE -ne 0) {
+        throw "mise reshim failed (exit code $LASTEXITCODE)."
+    }
+}
+{{- end }}

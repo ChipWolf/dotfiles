@@ -1,0 +1,59 @@
+# Place mise-shim.exe next to the Chocolatey-installed mise.exe when missing.
+#
+# The Chocolatey mise package ships without mise-shim.exe, so mise falls back
+# to "file" shim mode (cmd wrappers). Non-shell parent processes (MCP servers,
+# IDE integrations) cannot resolve a real binary path through file shims and
+# fail with "cannot find binary path". The maintainer's guidance is to drop
+# the shim into the package tools directory:
+#   https://github.com/jdx/mise/discussions/7998
+#
+# Caller must already be elevated; writing under ProgramData requires admin.
+$miseToolsDir = Join-Path $env:ProgramData "chocolatey\lib\mise\tools\x64"
+$miseExePath = Join-Path $miseToolsDir "mise.exe"
+$miseShimPath = Join-Path $miseToolsDir "mise-shim.exe"
+
+if ((Test-Path $miseExePath) -and -not (Test-Path $miseShimPath)) {
+    # Use ProcessStartInfo so the elevated Windows PowerShell 5.1 host doesn't
+    # promote mise's stderr "WARN ... version available" message into a
+    # terminating error under $ErrorActionPreference = 'Stop'.
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = $miseExePath
+    $psi.Arguments = '--version'
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $miseProc = [System.Diagnostics.Process]::Start($psi)
+    $miseVersionLine = $miseProc.StandardOutput.ReadToEnd()
+    $miseProc.StandardError.ReadToEnd() | Out-Null
+    $miseProc.WaitForExit()
+    $miseVersion = ($miseVersionLine.Trim() -split '\s+', 2)[0]
+    if ([string]::IsNullOrWhiteSpace($miseVersion)) {
+        throw "Unable to determine installed mise version from '$miseExePath --version'."
+    }
+
+    $zipUrl = "https://github.com/jdx/mise/releases/download/v$miseVersion/mise-v$miseVersion-windows-x64.zip"
+    $tempZip = Join-Path $env:TEMP "mise-shim-$miseVersion.zip"
+    $tempDir = Join-Path $env:TEMP "mise-shim-$miseVersion"
+
+    try {
+        Write-Host "Downloading mise-shim.exe from $zipUrl..."
+        $oldProgress = $ProgressPreference
+        $ProgressPreference = 'SilentlyContinue'
+        try {
+            Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+        } finally {
+            $ProgressPreference = $oldProgress
+        }
+        Expand-Archive -Path $tempZip -DestinationPath $tempDir -Force
+        $extractedShim = Get-ChildItem -Path $tempDir -Filter "mise-shim.exe" -Recurse | Select-Object -First 1
+        if (-not $extractedShim) {
+            throw "mise-shim.exe not found inside $zipUrl."
+        }
+        Copy-Item -Path $extractedShim.FullName -Destination $miseShimPath -Force
+        Write-Host "Placed mise-shim.exe at $miseShimPath (version $miseVersion)."
+    } finally {
+        Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
+        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}

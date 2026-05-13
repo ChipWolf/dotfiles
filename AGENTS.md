@@ -201,6 +201,33 @@ Finicky's built-in auto-reload does NOT work when the config is managed by chezm
 
 ---
 
+## Komorebi (Windows tiling)
+
+Komorebi is the Windows tiling WM (it replaced GlazeWM). Config is chezmoi-managed at `home/dot_config/komorebi/komorebi.json` (→ `~/.config/komorebi/komorebi.json`); keybindings at `home/dot_config/whkdrc` (→ `~/.config/whkdrc`); a launcher at `home/dot_config/komorebi/start.ps1` is wired into the HKCU Run key by the Windows bootstrap. Gotchas that have bitten us:
+
+- **`KOMOREBI_CONFIG_HOME` must be set.** Without it, komorebi looks for `komorebi.json` in `$USERPROFILE` and silently runs with built-in defaults. `start.ps1` sets it before launch; the bootstrap also sets it as a User env var so interactive `komorebic` works.
+- **Komorebi is default-ignore for many app categories**, unlike GlazeWM which was default-manage. For Discord/Vivaldi-style "obvious" windows komorebi tiles them out of the box, but terminals, MSIX/UWP apps, and Electron apps with layered rendering need explicit rules. The community rulebook is `komorebic fetch-asc` — fetches `applications.json` covering hundreds of common apps; point `komorebi.json`'s `app_specific_configuration_path` at it.
+- **Layered windows (`WS_EX_LAYERED`) are skipped before any `manage_rules` fires.** Electron apps like Claude Desktop have this style. Diagnose by checking the window's exstyle (PowerShell + `GetWindowLong`); fix by adding the exe to `layered_applications` *in addition to* `manage_rules`.
+- **Colour format in `komorebi.json` is `{r, g, b}` objects.** Hex strings (`"0xFFBC8D"`) and integer COLORREFs are both rejected by the `Colour` enum.
+- **Never `Stop-Process -Force` on komorebi.** It leaves a stuck `%LOCALAPPDATA%\komorebi\komorebi.sock` AF_UNIX file that Windows refuses to delete via *any* API (Remove-Item, fsutil reparsepoint delete, WSL rm, error 1920) and the file even survives reboots. Subsequent komorebi launches then fail with error 1920 at `window_manager.rs:143`. Always `komorebic stop` instead. If a stuck sock already exists, the only workaround is to `Rename-Item` the parent dir (`%LOCALAPPDATA%\komorebi` → `komorebi.stale.<N>`) so komorebi recreates a fresh one.
+- **`is_paused: true` silently no-ops every command.** Before deep debugging of "commands do nothing", check `komorebic state | ConvertFrom-Json | Select-Object is_paused`. `komorebic toggle-pause` flips it.
+- **`komorebic` IPC fails from non-interactive/background shells** with WSAEINVAL (error 10022) on the AF_UNIX socket — even when the same komorebi instance happily talks to commands from a real interactive PowerShell. Don't waste time debugging from agent shells; have the user run commands themselves.
+- **Komorebi can't launch from a non-interactive session** either — it fails with "failed call to AllowSetForegroundWindow after 5 retries". The Run key (logon-time) and a user-launched PowerShell window both work; agent-spawned PowerShell doesn't.
+- **whkd quirks:** key name is `return`, not `enter`. `.shell cmd` is more reliable than `.shell pwsh` because pwsh isn't always on the PATH whkd inherits from `start.ps1`. Under `.shell cmd`, chain commands with `&&` (or `&`) — cmd doesn't treat `;` as a separator, so PowerShell-style `cmd1; cmd2` silently parses `;` as a literal arg. whkd has no modal binding modes (GlazeWM's `alt+r` resize mode has no direct equivalent — use direct chords like `alt+ctrl+hjkl`).
+- **PowerToys FancyZones competes** with komorebi for foreground/window management and can prevent komorebi launching. Disable the FancyZones module in PowerToys before relying on komorebi.
+- **`komorebic reload-configuration` reloads `komorebi.json`. whkd has no live reload** — restart it (`Stop-Process whkd` then `Start-Process`) to pick up `whkdrc` changes. The chezmoi `run_onchange_after_komorebi_reload_windows.ps1.tmpl` script does both.
+
+---
+
+## mise on Windows
+
+- **Chocolatey `mise` package omits `mise-shim.exe`.** Without it, mise falls back to "file" shim mode (cmd wrappers under `~/AppData/Local/mise/shims/`). File shims work from a shell but cannot return a real binary path to non-shell parents (MCP servers, IDE integrations), which fail with `cannot find binary path`. Resolution rule: mise looks for `mise-shim.exe` next to `mise.exe` or on `PATH`; otherwise it falls back to file mode. See https://github.com/jdx/mise/discussions/7998.
+- **The fix is hash-pinned to the choco install layout.** `home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl` (elevated block, after `choco install`) downloads `mise-v<version>-windows-x64.zip` from the matching GitHub release and drops `mise-shim.exe` at `C:\ProgramData\chocolatey\lib\mise\tools\x64\`. Shared logic lives in `home/.chezmoitemplates/windows-mise-shim-placement.ps1.tmpl`.
+- **Recovery after choco upgrades:** `home/.chezmoiscripts/run_after_97_mise_shim_windows.ps1.tmpl` is an always-run guard that fires after `run_after_90_package_updates_windows.ps1.tmpl`. If a `choco upgrade` replaced `mise.exe` and dropped the shim, the guard re-places it and runs `mise reshim` so per-tool shims convert back to binary shims. Fast no-op when the shim is present.
+- **Elevated-block stderr gotcha (PS 5.1).** `Invoke-ElevatedWithLog` spawns `powershell.exe` (Windows PowerShell 5.1, not pwsh). Under `$ErrorActionPreference = 'Stop'`, PS 5.1 promotes native-command stderr into a terminating error. `mise --version` emits a `WARN ... version available` line to stderr when a newer release exists, so the placement template uses `[System.Diagnostics.ProcessStartInfo]` instead of `& mise --version 2>$null` to read stdout cleanly. Outer `mise reshim` calls run under `pwsh` (PS 7+) and are unaffected.
+
+---
+
 ## Continuous maintenance (meta-rule)
 
 - After every substantive conversation, review whether this file needs updating.
