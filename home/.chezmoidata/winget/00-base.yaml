@@ -5,7 +5,7 @@ winget:
     base:
       packages:
         - Anthropic.Claude
-        - 9PLM9XGG6VKS
+        - 9PLM9XGG6VKS # YASB (Yet Another Status Bar)
         - Wakatime.CLIWakatime
         - Wakatime.DesktopWakatime
         - WinSCP.WinSCP

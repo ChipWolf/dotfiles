@@ -15,6 +15,9 @@ Use this skill when changing MCP server configuration in this repo.
 - mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`
 - pi render template: `home/dot_pi/agent/mcp.json.tmpl`
 - Claude Code render template: `home/modify_dot_claude.json` (merges `mcpServers` into `~/.claude.json`)
+- Claude Desktop render template: `home/AppData/Roaming/Claude/modify_claude_desktop_config.json`
+- Zed render template (Unix): `home/dot_config/zed/settings.json.tmpl` (via `home/.chezmoitemplates/zed-context-servers.tmpl`)
+- Zed render template (Windows): `home/AppData/Roaming/Zed/modify_settings.json.tmpl`
 
 Treat `home/.chezmoidata/mcps/*.yaml` as the single source of truth.
 
@@ -30,6 +33,7 @@ Each entry in `mcp.serversById.<id>` should follow this shape:
 - optional `targets.pi.enabled` (defaults to **`false`** — opt-in)
 - optional `targets.claudeDesktop.enabled` (defaults to **`false`** — opt-in; Windows Claude desktop app)
 - optional `targets.claudeCode.enabled` (defaults to **`false`** — opt-in; Claude Code CLI `~/.claude.json`)
+- optional `targets.zed.enabled` (defaults to **`false`** — opt-in; Zed context servers)
 
 Every server must explicitly list each target it should render to. Targets not listed render to nothing for that server. This avoids hidden defaults and makes intent obvious in the YAML.
 
@@ -65,8 +69,11 @@ After MCP changes:
 3. Render `home/private_dot_mcpproxy/modify_mcp_config.json` with current chezmoi data.
 4. Render `home/dot_pi/agent/mcp.json.tmpl` with current chezmoi data.
 5. Render `home/modify_dot_claude.json` with stdin `{}` and current chezmoi data (merged JSON must parse).
-6. Validate the rendered Cursor, mcpproxy, pi, and Claude Code outputs are valid JSON.
-7. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
+6. Render `home/AppData/Roaming/Claude/modify_claude_desktop_config.json` with stdin `{}` and current chezmoi data.
+7. Render `home/dot_config/zed/settings.json.tmpl` with current chezmoi data.
+8. Render `home/AppData/Roaming/Zed/modify_settings.json.tmpl` with stdin `{}` and current chezmoi data.
+9. Validate the rendered Cursor, mcpproxy, pi, Claude Code, Claude Desktop, and Zed outputs are valid JSON.
+10. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
 
 Note: sprig `hasPrefix` signature is `hasPrefix prefix str`. The `$data.<key>` interpolation must be written as `hasPrefix "$data." $arg`, not the reverse.
 

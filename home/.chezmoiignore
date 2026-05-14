@@ -13,8 +13,15 @@ Chocofile.ignore
 .local/share/opencode-shims
 {{ end }}
 
+{{ if eq .chezmoi.os "windows" }}
+# Unix/macOS Zed config path — Windows Zed reads from AppData
+.config/zed
+{{ end }}
+
 {{ if ne .chezmoi.os "windows" }}
 # Windows-only targets — not applicable on Unix
+.config/komorebi
+.config/whkdrc
 .config/wezterm
 .config/yasb
 .config/oh-my-posh
