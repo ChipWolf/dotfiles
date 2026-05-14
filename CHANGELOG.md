@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.9.0](https://github.com/ChipWolf/dotfiles/compare/v1.8.1...v1.9.0) (2026-05-14)
+
+
+### Features
+
+* add Zed, Claude Code/Desktop, komorebi support and refactor choco management ([3785100](https://github.com/ChipWolf/dotfiles/commit/37851007f6c8f39f2168bc562b7a279c36b6e621))
+
+
+### Bug Fixes
+
+* add missing chezmoiignore entries and document Zed MCP target ([4429c77](https://github.com/ChipWolf/dotfiles/commit/4429c779b2d817ee7b12d6313946565279cd038a))
+* **git:** use cross-platform null hooks path on Windows ([#68](https://github.com/ChipWolf/dotfiles/issues/68)) ([5032e2f](https://github.com/ChipWolf/dotfiles/commit/5032e2f4f01e295671eb5ca954193acfce203dd2))
+* **windows:** place mise-shim.exe next to choco-installed mise.exe ([42529ba](https://github.com/ChipWolf/dotfiles/commit/42529ba6f6597833f1db65292a873f0c05cc0459))
+
+
+### Miscellaneous
+
+* **agents:** add rule for inspecting PR diffs against origin/main ([146de93](https://github.com/ChipWolf/dotfiles/commit/146de930ec94121d9a5e0af96a3d6d7f8d247c2a))
+* **agents:** add rules for branch verification and stale git lock files ([2611695](https://github.com/ChipWolf/dotfiles/commit/261169578f3991737e0fcf448b8be193f9148bb3))
+* **agents:** move Twilio IaC lessons to project-local memory ([29a4062](https://github.com/ChipWolf/dotfiles/commit/29a4062d7764a1befcec59376bea2d3199a47a48))
+* **agents:** verify IaC exporters and browser vs shell auth ([bc50ae5](https://github.com/ChipWolf/dotfiles/commit/bc50ae58aff81da6ea56b6dea40c4e079537422c))
+
 ## [1.8.1](https://github.com/ChipWolf/dotfiles/compare/v1.8.0...v1.8.1) (2026-05-11)
 
 
