@@ -5,6 +5,7 @@ winget:
     base:
       packages:
         - Anthropic.Claude
+        - 9PLM9XGG6VKS
         - Wakatime.CLIWakatime
         - Wakatime.DesktopWakatime
         - WinSCP.WinSCP

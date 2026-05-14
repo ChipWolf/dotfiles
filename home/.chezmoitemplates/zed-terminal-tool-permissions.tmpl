@@ -1,0 +1,80 @@
+{{- $permission := dict -}}
+{{- if hasKey . "agentPermissions" -}}
+  {{- $permission = .agentPermissions -}}
+{{- end -}}
+{{- $rules := list -}}
+{{- if hasKey $permission "rules" -}}
+  {{- $rules = concat $rules (default (list) (index $permission "rules")) -}}
+{{- end -}}
+{{- $ruleSets := default (dict) (index $permission "ruleSets") -}}
+{{- range $setName := (keys $ruleSets | sortAlpha) -}}
+  {{- $ruleSet := index $ruleSets $setName -}}
+  {{- $setEnabled := true -}}
+  {{- if hasKey $ruleSet "conditions" -}}
+    {{- range $ck, $cv := $ruleSet.conditions -}}
+      {{- if and (hasKey $ $ck) (ne (index $ $ck) $cv) -}}
+        {{- $setEnabled = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $setEnabled -}}
+    {{- $rules = concat $rules (default (list) (index $ruleSet "rules")) -}}
+  {{- end -}}
+{{- end -}}
+{{- $allow := list -}}
+{{- $deny := list -}}
+{{- $confirm := list -}}
+{{- range $rule := $rules -}}
+  {{- if and (eq $rule.kind "bash") (ne $rule.pattern "*") -}}
+    {{- $conditionsMatch := true -}}
+    {{- if hasKey $rule "conditions" -}}
+      {{- range $ck, $cv := $rule.conditions -}}
+        {{- if and (hasKey $ $ck) (ne (index $ $ck) $cv) -}}
+          {{- $conditionsMatch = false -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $conditionsMatch -}}
+      {{- $matchMode := "exact" -}}
+      {{- if hasKey $rule "bashMatchMode" -}}
+        {{- $matchMode = $rule.bashMatchMode -}}
+      {{- end -}}
+      {{- $quoted := regexQuoteMeta $rule.pattern -}}
+      {{- $ruleRegexes := list -}}
+      {{- if or (eq $matchMode "exact") (eq $matchMode "exactAndWithArgs") -}}
+        {{- $ruleRegexes = append $ruleRegexes (printf "^%s$" $quoted) -}}
+      {{- end -}}
+      {{- if or (eq $matchMode "withArgs") (eq $matchMode "exactAndWithArgs") -}}
+        {{- $ruleRegexes = append $ruleRegexes (printf "^%s\\s+.+$" $quoted) -}}
+      {{- end -}}
+      {{- range $regex := $ruleRegexes -}}
+        {{- if eq $rule.op "allow" -}}
+          {{- $allow = append $allow $regex -}}
+        {{- else if eq $rule.op "deny" -}}
+          {{- $deny = append $deny $regex -}}
+        {{- else if eq $rule.op "ask" -}}
+          {{- $confirm = append $confirm $regex -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+"default": "confirm",
+"always_allow": [
+{{- range $i, $regex := $allow }}
+  {{- if gt $i 0 }},{{ end }}
+  { "pattern": {{ $regex | toJson }} }
+{{- end }}
+],
+"always_deny": [
+{{- range $i, $regex := $deny }}
+  {{- if gt $i 0 }},{{ end }}
+  { "pattern": {{ $regex | toJson }} }
+{{- end }}
+],
+"always_confirm": [
+{{- range $i, $regex := $confirm }}
+  {{- if gt $i 0 }},{{ end }}
+  { "pattern": {{ $regex | toJson }} }
+{{- end }}
+]

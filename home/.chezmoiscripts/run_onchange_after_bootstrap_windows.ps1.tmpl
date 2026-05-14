@@ -1,10 +1,3 @@
-{{- $chocoPackages := list -}}
-{{- if and (hasKey . "chocolatey") (hasKey .chocolatey "overlays") -}}
-  {{- range $name := keys .chocolatey.overlays | sortAlpha -}}
-    {{- $ov := index $.chocolatey.overlays $name -}}
-    {{- $chocoPackages = concat $chocoPackages (default (list) $ov.packages) -}}
-  {{- end -}}
-{{- end -}}
 {{- $wingetPackages := list -}}
 {{- if and (hasKey . "winget") (hasKey .winget "overlays") -}}
   {{- range $name := keys .winget.overlays | sortAlpha -}}
@@ -17,7 +10,7 @@
   {{- $wslLinuxUser := index $wslWin "linuxUser" -}}
   {{- $wslChezmoiSource := index $wslWin "chezmoiSourceMount" -}}
 # Chocolatey package list hash (triggers re-run when this list changes):
-# {{ join " " $chocoPackages | sha256sum }}
+# {{ includeTemplate ".chezmoitemplates/choco-packages.config.tmpl" . | sha256sum }}
 # Winget package list hash (triggers re-run when this list changes):
 # {{ join " " $wingetPackages | sha256sum }}
 
@@ -46,7 +39,12 @@ $elevatedScript = {
     }
 
     Write-Host "Installing Chocolatey packages..."
-    choco install {{ join " " $chocoPackages }} -y --no-progress
+    $chocoPackagesConfig = Join-Path $env:TEMP "dotfiles-choco-packages.config"
+    $chocoPackagesConfigXml = @"
+{{ includeTemplate ".chezmoitemplates/choco-packages.config.tmpl" . }}
+"@
+    [System.IO.File]::WriteAllText($chocoPackagesConfig, $chocoPackagesConfigXml)
+    choco install "$chocoPackagesConfig" -y --no-progress
     Assert-LastExitCode "choco install"
 
 {{ includeTemplate ".chezmoitemplates/windows-mise-shim-placement.ps1.tmpl" . }}

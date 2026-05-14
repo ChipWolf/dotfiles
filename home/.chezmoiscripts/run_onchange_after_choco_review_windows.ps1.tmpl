@@ -2,8 +2,8 @@
 # Run interactive Chocolatey drift review after Chocolatey overlay updates.
 # Exits silently when no bash runtime is available.
 #
-# Chocolatey overlay hash (triggers re-run when overlay data changes):
-# {{ .chocolatey.overlays | toJson | sha256sum }}
+# Chocolatey declared packages config hash (triggers re-run when overlay/template changes):
+# {{ includeTemplate ".chezmoitemplates/choco-packages.config.tmpl" . | sha256sum }}
 # Ignore file hash:
 # {{ include "Chocofile.ignore" | sha256sum }}
 

@@ -1,0 +1,49 @@
+{{- /* Load MCP servers from merged chezmoidata */ -}}
+{{- $serversById := dict -}}
+{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
+  {{- $serversById = .mcp.serversById -}}
+{{- end -}}
+{{- $first := true -}}
+{{- range $serverId := (keys $serversById | sortAlpha) -}}
+  {{- $server := index $serversById $serverId -}}
+  {{- $conditionsMatch := true -}}
+  {{- if hasKey $server "conditions" -}}
+    {{- range $conditionKey, $expected := $server.conditions -}}
+      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
+      {{- else -}}
+        {{- $conditionsMatch = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $zedEnabled := false -}}
+  {{- if and (hasKey $server "targets") (hasKey $server.targets "zed") (hasKey $server.targets.zed "enabled") -}}
+    {{- $zedEnabled = $server.targets.zed.enabled -}}
+  {{- end -}}
+  {{- if and $server.enabled $zedEnabled $conditionsMatch -}}
+    {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+  "{{ $serverId }}": {
+    {{- if hasKey $server "local" -}}
+      {{- $zedCommandArgs := list -}}
+      {{- range $arg := $server.local.args -}}
+        {{- $resolvedArg := $arg -}}
+        {{- if hasPrefix "$data." $arg -}}
+          {{- $dataKey := trimPrefix "$data." $arg -}}
+          {{- if hasKey $ $dataKey -}}
+            {{- $resolvedArg = (index $ $dataKey) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $zedCommandArgs = append $zedCommandArgs $resolvedArg -}}
+      {{- end -}}
+    "enabled": true,
+    "remote": false,
+    "command": {{ $server.local.command | toJson }},
+    "args": {{ $zedCommandArgs | toPrettyJson | indent 4 | trim }},
+    "env": {{ default (dict) $server.local.env | toPrettyJson | indent 4 | trim }}
+    {{- else if hasKey $server "remote" -}}
+    "enabled": true,
+    "url": {{ $server.remote.url | toJson }}{{ if hasKey $server.remote "headers" }},
+    "headers": {{ $server.remote.headers | toPrettyJson | indent 4 | trim }}{{ end }}
+    {{- end -}}
+  }
+  {{- end -}}
+{{- end }}

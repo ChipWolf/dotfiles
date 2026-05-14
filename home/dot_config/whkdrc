@@ -1,0 +1,76 @@
+# whkd config — Komorebi keybindings mirroring the previous GlazeWM setup.
+# whkd lives at $Env:USERPROFILE\.config\whkdrc (or $Env:WHKD_CONFIG_HOME\whkdrc).
+
+# Shell used to execute the right-hand-side commands. cmd is always present;
+# pwsh isn't guaranteed on whkd's inherited PATH when launched from start.ps1.
+.shell cmd
+
+# --- Focus ---
+alt + h            : komorebic focus left
+alt + j            : komorebic focus down
+alt + k            : komorebic focus up
+alt + l            : komorebic focus right
+alt + left         : komorebic focus left
+alt + down         : komorebic focus down
+alt + up           : komorebic focus up
+alt + right        : komorebic focus right
+
+# --- Move container ---
+alt + shift + h    : komorebic move left
+alt + shift + j    : komorebic move down
+alt + shift + k    : komorebic move up
+alt + shift + l    : komorebic move right
+alt + shift + left : komorebic move left
+alt + shift + down : komorebic move down
+alt + shift + up   : komorebic move up
+alt + shift + right: komorebic move right
+
+# --- Resize ---
+# whkd has no modal binding modes (GlazeWM's alt+r resize mode has no
+# equivalent), so resize is exposed as direct chords instead.
+alt + ctrl + h     : komorebic resize-axis horizontal decrease
+alt + ctrl + l     : komorebic resize-axis horizontal increase
+alt + ctrl + k     : komorebic resize-axis vertical increase
+alt + ctrl + j     : komorebic resize-axis vertical decrease
+
+# --- Layout / state toggles ---
+alt + shift + p    : komorebic toggle-pause
+alt + ctrl + v     : komorebic flip-layout horizontal
+alt + ctrl + p     : komorebic cycle-layout previous
+alt + ctrl + n     : komorebic cycle-layout next
+alt + ctrl + b     : komorebic change-layout bsp
+alt + ctrl + g     : komorebic change-layout grid
+alt + ctrl + c     : komorebic change-layout columns
+alt + ctrl + x     : komorebic change-layout rows
+alt + space        : komorebic cycle-focus next
+alt + shift + space: komorebic toggle-float
+alt + t            : komorebic toggle-tiling
+alt + f            : komorebic toggle-monocle
+alt + m            : komorebic minimize
+alt + shift + q    : komorebic close
+alt + shift + e    : komorebic stop
+alt + shift + r    : komorebic reload-configuration
+alt + shift + w    : komorebic retile
+alt + return       : wt
+
+# --- Workspace focus (komorebi indices are 0-based) ---
+alt + 1            : komorebic focus-workspace 0
+alt + 2            : komorebic focus-workspace 1
+alt + 3            : komorebic focus-workspace 2
+alt + 4            : komorebic focus-workspace 3
+alt + 5            : komorebic focus-workspace 4
+alt + 6            : komorebic focus-workspace 5
+alt + 7            : komorebic focus-workspace 6
+alt + 8            : komorebic focus-workspace 7
+alt + 9            : komorebic focus-workspace 8
+
+# --- Move focused window to workspace and follow ---
+alt + shift + 1    : komorebic move-to-workspace 0 && komorebic focus-workspace 0
+alt + shift + 2    : komorebic move-to-workspace 1 && komorebic focus-workspace 1
+alt + shift + 3    : komorebic move-to-workspace 2 && komorebic focus-workspace 2
+alt + shift + 4    : komorebic move-to-workspace 3 && komorebic focus-workspace 3
+alt + shift + 5    : komorebic move-to-workspace 4 && komorebic focus-workspace 4
+alt + shift + 6    : komorebic move-to-workspace 5 && komorebic focus-workspace 5
+alt + shift + 7    : komorebic move-to-workspace 6 && komorebic focus-workspace 6
+alt + shift + 8    : komorebic move-to-workspace 7 && komorebic focus-workspace 7
+alt + shift + 9    : komorebic move-to-workspace 8 && komorebic focus-workspace 8

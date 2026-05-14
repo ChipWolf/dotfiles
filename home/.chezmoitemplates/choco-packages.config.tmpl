@@ -1,0 +1,13 @@
+{{- $chocoPackages := list -}}
+{{- if and (hasKey . "chocolatey") (hasKey .chocolatey "overlays") -}}
+  {{- range $name := keys .chocolatey.overlays | sortAlpha -}}
+    {{- $ov := index $.chocolatey.overlays $name -}}
+    {{- $chocoPackages = concat $chocoPackages (default (list) $ov.packages) -}}
+  {{- end -}}
+{{- end -}}
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+{{- range $pkg := uniq $chocoPackages }}
+  <package id="{{ $pkg }}" />
+{{- end }}
+</packages>

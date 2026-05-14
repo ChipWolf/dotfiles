@@ -1,0 +1,67 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Re-run when declared pi packages change.
+# {{ include "dot_pi/agent/modify_settings.json" | sha256sum }}
+$ErrorActionPreference = "Stop"
+
+function Get-PiCommand {
+    $piCmd = Get-Command pi -ErrorAction SilentlyContinue
+    if ($piCmd) {
+        return $piCmd.Source
+    }
+
+    $candidates = @(
+        "$env:LOCALAPPDATA\mise\shims\pi.cmd",
+        "$env:LOCALAPPDATA\mise\shims\pi"
+    ) | Where-Object { $_ -and (Test-Path $_) }
+
+    if ($candidates.Count -gt 0) {
+        return $candidates[0]
+    }
+
+    return $null
+}
+
+function Stop-ContextModeProcesses {
+    $patterns = @(
+        'node_modules\\context-mode\\cli\.bundle\.mjs',
+        'node_modules\\context-mode\\server\.bundle\.mjs'
+    )
+
+    $procs = Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
+        Where-Object {
+            if (-not $_.CommandLine) {
+                return $false
+            }
+            $commandLine = $_.CommandLine
+            return ($patterns | Where-Object { $commandLine -match $_ } | Select-Object -First 1)
+        }
+
+    foreach ($proc in $procs) {
+        Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+}
+
+$piPath = Get-PiCommand
+if (-not $piPath) {
+    throw "pi not found on PATH; run 'mise install' first."
+}
+
+# On Windows, native module files (for example better_sqlite3.node used by
+# context-mode) can be locked by running node processes. Stop those first.
+Stop-ContextModeProcesses
+
+$maxAttempts = 3
+for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    & $piPath update --extensions
+    if ($LASTEXITCODE -eq 0) {
+        break
+    }
+
+    if ($attempt -eq $maxAttempts) {
+        throw "pi update --extensions failed after $maxAttempts attempts (exit code $LASTEXITCODE)."
+    }
+
+    Start-Sleep -Seconds 2
+    Stop-ContextModeProcesses
+}
+{{- end }}

@@ -5,14 +5,21 @@ agentPermissions:
     bash:
       destinationType: namespaced
       destinationKey: bash
+      targets:
+        opencode: true
+        zed: true
       supportsMatchMode: true
       defaultMatchMode: exact
       wildcardSuffix: " *"
     external_directory:
       destinationType: namespaced
       destinationKey: external_directory
+      targets:
+        opencode: true
     permission_key:
       destinationType: top_level
+      targets:
+        opencode: true
   rules:
     - kind: bash
       pattern: "*"

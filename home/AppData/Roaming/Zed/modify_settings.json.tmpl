@@ -1,0 +1,31 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $merged := dict -}}
+{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
+  {{- $parsed := fromJson .chezmoi.stdin -}}
+  {{- if kindIs "map" $parsed -}}
+    {{- $merged = $parsed -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $contextServersJson := printf "{%s}" (includeTemplate ".chezmoitemplates/zed-context-servers.tmpl" . | trim) -}}
+{{- $contextServers := fromJson $contextServersJson -}}
+{{- $_ := set $merged "context_servers" $contextServers -}}
+
+{{- $agent := dict -}}
+{{- if and (hasKey $merged "agent") (kindIs "map" $merged.agent) -}}
+  {{- $agent = $merged.agent -}}
+{{- end -}}
+{{- $agentServers := dict -}}
+{{- if and (hasKey $merged "agent_servers") (kindIs "map" $merged.agent_servers) -}}
+  {{- $agentServers = $merged.agent_servers -}}
+{{- end -}}
+{{- $_ := set $agentServers "codex-acp" (dict "type" "registry") -}}
+{{- $_ := set $merged "agent_servers" $agentServers -}}
+{{- $toolPermissions := dict "default" "confirm" -}}
+{{- $terminalPermissionsJson := printf "{%s}" (includeTemplate ".chezmoitemplates/zed-terminal-tool-permissions.tmpl" . | trim) -}}
+{{- $terminalPermissions := fromJson $terminalPermissionsJson -}}
+{{- $_ := set $toolPermissions "tools" (dict "terminal" $terminalPermissions) -}}
+{{- $_ := set $agent "tool_permissions" $toolPermissions -}}
+{{- $_ := set $merged "agent" $agent -}}
+
+{{- $merged | toPrettyJson -}}

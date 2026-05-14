@@ -18,8 +18,13 @@ fi
 
 CHEZMOI_SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi/home")}"
 CHOCO_DATA_DIR="$CHEZMOI_SOURCE_DIR/.chezmoidata/chocolatey"
+CHOCO_PACKAGES_TMPL="$CHEZMOI_SOURCE_DIR/.chezmoitemplates/choco-packages.config.tmpl"
 IGNOREFILE="${1:-$CHEZMOI_SOURCE_DIR/Chocofile.ignore}"
 
+if [ ! -f "$CHOCO_PACKAGES_TMPL" ]; then
+	echo "choco-review: Chocolatey packages template not found at $CHOCO_PACKAGES_TMPL" >&2
+	exit 1
+fi
 if [ ! -d "$CHOCO_DATA_DIR" ]; then
 	echo "choco-review: Chocolatey overlay data not found under $CHOCO_DATA_DIR" >&2
 	exit 1
@@ -56,22 +61,29 @@ _choco() {
 }
 
 _declared_packages() {
-	local -a files=()
-	shopt -s nullglob
-	files=("$CHOCO_DATA_DIR"/*.yaml)
-	shopt -u nullglob
-	if [ ${#files[@]} -eq 0 ]; then
-		return 0
+	if ! command -v chezmoi >/dev/null 2>&1; then
+		echo "choco-review: chezmoi CLI is required to render declared packages" >&2
+		return 1
+	fi
+	if ! chezmoi execute-template --file "$CHOCO_PACKAGES_TMPL" >"$declared_config_tmp"; then
+		echo "choco-review: failed to render declared packages from $CHOCO_PACKAGES_TMPL" >&2
+		return 1
 	fi
 
 	awk '
-    /^[[:space:]]*-[[:space:]]+/ {
-      pkg = $0
-      sub(/^[[:space:]]*-[[:space:]]+/, "", pkg)
-      sub(/[[:space:]]+#.*/, "", pkg)
-      if (pkg != "") print tolower(pkg)
+    {
+      line = $0
+      while (match(line, /id="[^"]+"/)) {
+        pkg = substr(line, RSTART, RLENGTH)
+        sub(/^id="/, "", pkg)
+        sub(/"$/, "", pkg)
+        pkg = tolower(pkg)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", pkg)
+        if (pkg != "") print pkg
+        line = substr(line, RSTART + RLENGTH)
+      }
     }
-  ' "${files[@]}" | sort -u
+  ' "$declared_config_tmp" | sort -u
 }
 
 _installed_packages() {
@@ -80,9 +92,83 @@ _installed_packages() {
 		awk -F'|' '
       /\|/ {
         pkg = tolower($1)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", pkg)
         if (pkg != "") print pkg
       }
     ' | sort -u
+}
+
+_resolve_choco_lib_dir() {
+	local -a candidates=()
+	if [ -n "${ChocolateyInstall:-}" ]; then
+		candidates+=("$ChocolateyInstall/lib")
+		if command -v cygpath >/dev/null 2>&1; then
+			candidates+=("$(cygpath -u "$ChocolateyInstall")/lib")
+		fi
+	fi
+	candidates+=(
+		"/c/ProgramData/chocolatey/lib"
+		"/cygdrive/c/ProgramData/chocolatey/lib"
+		"/mnt/c/ProgramData/chocolatey/lib"
+	)
+
+	local dir
+	for dir in "${candidates[@]}"; do
+		[ -z "$dir" ] && continue
+		if [ -d "$dir" ]; then
+			printf '%s\n' "$dir"
+			return 0
+		fi
+	done
+	return 1
+}
+
+_dependency_packages() {
+	local lib_dir
+	lib_dir="$(_resolve_choco_lib_dir)" || return 0
+
+	local -a nuspecs=()
+	shopt -s nullglob
+	nuspecs=("$lib_dir"/*/*.nuspec)
+	shopt -u nullglob
+	if [ ${#nuspecs[@]} -eq 0 ]; then
+		return 0
+	fi
+
+	awk '
+    {
+      line = $0
+      while (match(line, /<dependency[^>]*id="[^"]+"/)) {
+        dep = substr(line, RSTART, RLENGTH)
+        sub(/^.*id="/, "", dep)
+        sub(/"$/, "", dep)
+        dep = tolower(dep)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", dep)
+        if (dep != "") print dep
+        line = substr(line, RSTART + RLENGTH)
+      }
+    }
+  ' "${nuspecs[@]}" | sort -u
+}
+
+_has_parent_package_installed() {
+	local pkg="$1"
+	local suffix=""
+	case "$pkg" in
+	*.install)
+		suffix=".install"
+		;;
+	*.portable)
+		suffix=".portable"
+		;;
+	*)
+		return 1
+		;;
+	esac
+
+	local parent="${pkg%$suffix}"
+	[ -n "$parent" ] || return 1
+	echo "$installed_packages" | grep -qxF "$parent"
 }
 
 _ignore_packages() {
@@ -95,6 +181,7 @@ _ignore_packages() {
     /^[[:space:]]*$/ { next }
     {
       pkg = tolower($1)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", pkg)
       if (pkg != "") print pkg
     }
   ' "$IGNOREFILE" | sort -u
@@ -131,13 +218,28 @@ _append_package_to_overlay() {
 	printf '        - %s\n' "$pkg" >>"$overlay_file"
 }
 
-declared_packages="$(_declared_packages)"
+declared_config_tmp="$(mktemp)"
+cleanup() {
+	rm -f "$declared_config_tmp"
+}
+trap cleanup EXIT INT TERM
+
+if ! declared_packages="$(_declared_packages)"; then
+	exit 1
+fi
 installed_packages="$(_installed_packages)"
+dependency_packages="$(_dependency_packages)"
 ignore_packages="$(_ignore_packages)"
 
 extras=()
 while IFS= read -r pkg; do
 	[ -z "$pkg" ] && continue
+	if echo "$dependency_packages" | grep -qxF "$pkg"; then
+		continue
+	fi
+	if _has_parent_package_installed "$pkg"; then
+		continue
+	fi
 	if ! echo "$declared_packages" | grep -qxF "$pkg"; then
 		if ! echo "$ignore_packages" | grep -qxF "$pkg"; then
 			extras+=("$pkg")

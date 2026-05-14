@@ -28,7 +28,13 @@
 {{- $firstField := true -}}
 {{- range $kindName := (keys $kinds | sortAlpha) -}}
   {{- $kindCfg := index $kinds $kindName -}}
-  {{- if eq $kindCfg.destinationType "namespaced" -}}
+  {{- $kindEnabledForOpenCode := true -}}
+  {{- if hasKey $kindCfg "targets" -}}
+    {{- if hasKey $kindCfg.targets "opencode" -}}
+      {{- $kindEnabledForOpenCode = $kindCfg.targets.opencode -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if and $kindEnabledForOpenCode (eq $kindCfg.destinationType "namespaced") -}}
     {{- if $firstField }}{{- $firstField = false }}{{ else }},{{ end }}
     "{{ $kindCfg.destinationKey }}": {
     {{- $firstEntry := true -}}
@@ -96,7 +102,13 @@
   {{- if hasKey $kinds $rule.kind -}}
     {{- $kindCfg = index $kinds $rule.kind -}}
   {{- end -}}
-  {{- if and $conditionsMatch (eq (default "" (index $kindCfg "destinationType")) "top_level") -}}
+  {{- $kindEnabledForOpenCode := true -}}
+  {{- if hasKey $kindCfg "targets" -}}
+    {{- if hasKey $kindCfg.targets "opencode" -}}
+      {{- $kindEnabledForOpenCode = $kindCfg.targets.opencode -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if and $conditionsMatch $kindEnabledForOpenCode (eq (default "" (index $kindCfg "destinationType")) "top_level") -}}
     {{- $pattern := replace "{{ .chezmoi.homeDir }}" $.chezmoi.homeDir $rule.pattern -}}
     {{- if $firstField }}{{- $firstField = false }}{{ else }},{{ end }}
     {{ $pattern | toJson }}: {{ $rule.op | toJson }}

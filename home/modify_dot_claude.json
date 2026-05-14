@@ -1,0 +1,71 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $root := . -}}
+{{- $merged := dict -}}
+{{- if .chezmoi.stdin -}}
+  {{- $parsed := fromJson .chezmoi.stdin -}}
+  {{- if kindIs "map" $parsed -}}
+    {{- $merged = $parsed -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Claude Code (~/.claude.json) user MCP: type "stdio" | "http" | "sse" per docs */ -}}
+{{- $mcpServers := dict -}}
+{{- $serversById := dict -}}
+{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
+  {{- $serversById = .mcp.serversById -}}
+{{- end -}}
+{{- range $serverId := (keys $serversById | sortAlpha) -}}
+  {{- $server := index $serversById $serverId -}}
+
+  {{- $conditionsMatch := true -}}
+  {{- if hasKey $server "conditions" -}}
+    {{- range $conditionKey, $expected := $server.conditions -}}
+      {{- if and (hasKey $root $conditionKey) (eq (index $root $conditionKey) $expected) -}}
+      {{- else -}}
+        {{- $conditionsMatch = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $targetEnabled := false -}}
+  {{- if and (hasKey $server "targets") (hasKey $server.targets "claudeCode") (hasKey $server.targets.claudeCode "enabled") -}}
+    {{- $targetEnabled = $server.targets.claudeCode.enabled -}}
+  {{- end -}}
+
+  {{- if and $server.enabled $targetEnabled $conditionsMatch -}}
+    {{- if hasKey $server "local" -}}
+      {{- $args := list -}}
+      {{- range $arg := $server.local.args -}}
+        {{- $resolvedArg := $arg -}}
+        {{- if hasPrefix "$data." $arg -}}
+          {{- $dataKey := trimPrefix "$data." $arg -}}
+          {{- if hasKey $root $dataKey -}}
+            {{- $resolvedArg = (index $root $dataKey) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $args = append $args $resolvedArg -}}
+      {{- end -}}
+      {{- $entry := dict "type" "stdio" "command" $server.local.command "args" $args -}}
+      {{- if and (hasKey $server.local "env") $server.local.env -}}
+        {{- $_ := set $entry "env" $server.local.env -}}
+      {{- end -}}
+      {{- $_ := set $mcpServers $serverId $entry -}}
+    {{- else if hasKey $server "remote" -}}
+      {{- $transport := "streamableHttp" -}}
+      {{- if hasKey $server.remote "transport" -}}
+        {{- $transport = $server.remote.transport -}}
+      {{- end -}}
+      {{- $remoteType := "http" -}}
+      {{- if eq (lower $transport) "sse" -}}
+        {{- $remoteType = "sse" -}}
+      {{- end -}}
+      {{- $entry := dict "type" $remoteType "url" $server.remote.url -}}
+      {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
+        {{- $_ := set $entry "headers" $server.remote.headers -}}
+      {{- end -}}
+      {{- $_ := set $mcpServers $serverId $entry -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $_ := set $merged "mcpServers" $mcpServers -}}
+{{ $merged | toPrettyJson }}

@@ -148,6 +148,9 @@ setup() {
 }
 
 @test "bootstrap_windows: elevated block installs Chocolatey packages and provisions WSL" {
+  grep -q 'choco-packages.config.tmpl' "$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl"
+  grep -q 'dotfiles-choco-packages.config' "$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl"
+  grep -q 'choco install "\$chocoPackagesConfig"' "$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl"
   grep -q 'choco install' "$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl"
   grep -q 'wsl --install' "$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl"
 }
@@ -159,6 +162,14 @@ setup() {
 
 @test "bootstrap_windows: Chocofile ignore is source-only" {
   grep -q 'Chocofile.ignore' "$REPO_ROOT/home/.chezmoiignore"
+}
+
+@test "bootstrap_windows: choco review filters genesis/dependency packages" {
+  grep -q 'choco-packages.config.tmpl' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
+  grep -q '_dependency_packages' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
+  grep -q '_resolve_choco_lib_dir' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
+  grep -q 'grep -qxF "\\$pkg"' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
+  grep -q '_has_parent_package_installed' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
 }
 
 @test "install.sh: skips bw setup when non-interactive unless forced" {

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LGUG2Z/komorebi/master/schema.json",
+  "app_specific_configuration_path": "$Env:USERPROFILE/.config/komorebi/applications.json",
+  "window_hiding_behaviour": "Cloak",
+  "cross_monitor_move_behaviour": "Insert",
+  "default_workspace_padding": 4,
+  "default_container_padding": 4,
+  "mouse_follows_focus": true,
+  "border": true,
+  "border_width": 2,
+  "border_offset": -1,
+  "border_style": "System",
+  "border_colours": {
+    "single":    { "r": 141, "g": 188, "b": 255 },
+    "stack":     { "r": 141, "g": 188, "b": 255 },
+    "monocle":   { "r": 141, "g": 188, "b": 255 },
+    "unfocused": { "r": 161, "g": 161, "b": 161 }
+  },
+  "monitors": [
+    {
+      "workspaces": [
+        { "name": "1", "tile": true },
+        { "name": "2", "tile": true },
+        { "name": "3", "tile": true },
+        { "name": "4", "tile": true },
+        { "name": "5", "tile": true },
+        { "name": "6", "tile": true },
+        { "name": "7", "tile": true },
+        { "name": "8", "tile": true },
+        { "name": "9", "tile": true }
+      ]
+    }
+  ],
+  "ignore_rules": [
+    { "kind": "Exe", "id": "yasb.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "zebar.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "PowerToys.exe", "matching_strategy": "Equals" },
+    { "kind": "Class", "id": "HwndWrapper\\[PowerToys\\.PowerAccent.*?\\]", "matching_strategy": "Regex" },
+    { "kind": "Title", "id": "[Pp]icture.in.[Pp]icture", "matching_strategy": "Regex" },
+    { "kind": "Title", "id": "Command Palette", "matching_strategy": "Equals" },
+    { "kind": "Class", "id": "WinUIDesktopWin32WindowClass", "matching_strategy": "Equals" },
+    { "kind": "Class", "id": "#32770", "matching_strategy": "Equals" }
+  ],
+  "manage_rules": [
+    { "kind": "Exe", "id": "claude.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "Claude.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "WindowsTerminal.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "pwsh.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "powershell.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "cmd.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "wezterm-gui.exe", "matching_strategy": "Equals" }
+  ],
+  "object_name_change_applications": [
+    { "kind": "Exe", "id": "claude.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "Claude.exe", "matching_strategy": "Equals" }
+  ]
+}

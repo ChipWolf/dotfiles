@@ -82,7 +82,10 @@
             "opencode": { "$ref": "#/$defs/targetConfig" },
             "cursor": { "$ref": "#/$defs/targetConfig" },
             "mcpproxy": { "$ref": "#/$defs/targetConfig" },
-            "pi": { "$ref": "#/$defs/targetConfig" }
+            "pi": { "$ref": "#/$defs/targetConfig" },
+            "zed": { "$ref": "#/$defs/targetConfig" },
+            "claudeDesktop": { "$ref": "#/$defs/targetConfig" },
+            "claudeCode": { "$ref": "#/$defs/targetConfig" }
           }
         },
         "local": { "$ref": "#/$defs/localConfig" },

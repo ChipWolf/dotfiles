@@ -77,6 +77,14 @@
       "properties": {
         "destinationType": { "$ref": "#/$defs/destinationType" },
         "destinationKey": { "type": "string", "minLength": 1 },
+        "targets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "opencode": { "type": "boolean" },
+            "zed": { "type": "boolean" }
+          }
+        },
         "supportsMatchMode": { "type": "boolean" },
         "defaultMatchMode": { "$ref": "#/$defs/bashMatchMode" },
         "wildcardSuffix": { "type": "string", "minLength": 1 }

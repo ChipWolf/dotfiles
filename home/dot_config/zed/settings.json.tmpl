@@ -1,0 +1,15 @@
+{
+  "context_servers": {
+{{- includeTemplate ".chezmoitemplates/zed-context-servers.tmpl" . | nindent 4 }}
+  },
+  "agent": {
+    "tool_permissions": {
+      "default": "confirm",
+      "tools": {
+        "terminal": {
+{{- includeTemplate ".chezmoitemplates/zed-terminal-tool-permissions.tmpl" . | nindent 10 }}
+        }
+      }
+    }
+  }
+}

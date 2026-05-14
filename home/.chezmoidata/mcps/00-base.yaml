@@ -6,10 +6,13 @@
 # render to nothing for that server.
 #
 # Targets:
-#   cursor    -> ~/.cursor/mcp.json
-#   opencode  -> ~/.config/opencode/opencode.jsonc (mcp block)
-#   mcpproxy  -> ~/.mcpproxy/mcp_config.json (smart-mcp-proxy upstreams)
-#   pi        -> ~/.pi/agent/mcp.json
+#   cursor         -> ~/.cursor/mcp.json
+#   opencode       -> ~/.config/opencode/opencode.jsonc (mcp block)
+#   mcpproxy       -> ~/.mcpproxy/mcp_config.json (smart-mcp-proxy upstreams)
+#   pi             -> ~/.pi/agent/mcp.json
+#   zed            -> ~/.config/zed/settings.json (context_servers)
+#   claudeDesktop  -> %APPDATA%/Claude/claude_desktop_config.json (Windows Claude app)
+#   claudeCode     -> ~/.claude.json (Claude Code CLI user-scope mcpServers)
 mcp:
   serversById:
 
@@ -82,6 +85,10 @@ mcp:
           enabled: true
         pi:
           enabled: true
+        zed:
+          enabled: true
+        claudeCode:
+          enabled: true
       local:
         command: "context-mode"
         args: []
@@ -103,6 +110,10 @@ mcp:
         opencode:
           enabled: true
         pi:
+          enabled: true
+        zed:
+          enabled: true
+        claudeCode:
           enabled: true
       remote:
         url: "http://127.0.0.1:8080/mcp"

@@ -14,6 +14,7 @@ Use this skill when changing MCP server configuration in this repo.
 - OpenCode render template: `home/dot_config/opencode/opencode.jsonc.tmpl` (via `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
 - mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`
 - pi render template: `home/dot_pi/agent/mcp.json.tmpl`
+- Claude Code render template: `home/modify_dot_claude.json` (merges `mcpServers` into `~/.claude.json`)
 
 Treat `home/.chezmoidata/mcps/*.yaml` as the single source of truth.
 
@@ -27,9 +28,12 @@ Each entry in `mcp.serversById.<id>` should follow this shape:
 - optional `targets.cursor.enabled` (defaults to **`false`** — opt-in)
 - optional `targets.mcpproxy.enabled` (defaults to **`false`** — opt-in)
 - optional `targets.pi.enabled` (defaults to **`false`** — opt-in)
+- optional `targets.claudeDesktop.enabled` (defaults to **`false`** — opt-in; Windows Claude desktop app)
+- optional `targets.claudeCode.enabled` (defaults to **`false`** — opt-in; Claude Code CLI `~/.claude.json`)
 
 Every server must explicitly list each target it should render to. Targets not listed render to nothing for that server. This avoids hidden defaults and makes intent obvious in the YAML.
-- either `local` or `remote`
+
+Each server must define either `local` or `remote` (not both).
 
 Local shape:
 
@@ -60,8 +64,9 @@ After MCP changes:
 2. Render `home/dot_config/opencode/opencode.jsonc.tmpl` with current chezmoi data.
 3. Render `home/private_dot_mcpproxy/modify_mcp_config.json` with current chezmoi data.
 4. Render `home/dot_pi/agent/mcp.json.tmpl` with current chezmoi data.
-5. Validate the rendered Cursor, mcpproxy, and pi outputs are valid JSON.
-6. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
+5. Render `home/modify_dot_claude.json` with stdin `{}` and current chezmoi data (merged JSON must parse).
+6. Validate the rendered Cursor, mcpproxy, pi, and Claude Code outputs are valid JSON.
+7. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
 
 Note: sprig `hasPrefix` signature is `hasPrefix prefix str`. The `$data.<key>` interpolation must be written as `hasPrefix "$data." $arg`, not the reverse.
 
