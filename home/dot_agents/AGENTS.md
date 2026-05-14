@@ -48,6 +48,13 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 
 ---
 
+## Third-party infra export tools
+
+- Before spending user time on Terraformer, Pulumi import codegen, or similar bulk exporters, verify the target provider is actually supported for the user's OS (run `terraformer` help or list, read release asset names, or read upstream docs). If it is not supported, say so in the first response and switch to a supported path (official SDK inventory, `import` blocks with the real provider, or hand-written modules).
+- A SaaS console logged in inside an embedded browser does not authenticate the workspace shell, Terraform, or local CLIs. Treat shell credentials as a separate step. If the user directs you to use keys visible in the browser, use controlled browser tooling and write secrets only to gitignored local files when they explicitly allow it. Do not paste secrets into chat or into tracked files.
+
+---
+
 ## Shell discipline
 
 - Prefer the smallest atomic command that completes the immediate next step. Do not chain concerns across policy boundaries.
