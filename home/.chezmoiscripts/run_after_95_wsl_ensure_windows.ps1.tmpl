@@ -72,7 +72,11 @@ $elevatedScript = {
     } while ($status -match "running")
 
     if ($status -match "error") {
-        throw "cloud-init finished with errors. Run 'wsl -d Ubuntu -- cat /var/log/cloud-init.log' for details."
+        Write-Host "---- /var/log/cloud-init-output.log (last 200 lines) ----" -ForegroundColor Yellow
+        wsl -d Ubuntu -- bash -c "tail -200 /var/log/cloud-init-output.log 2>/dev/null || true"
+        Write-Host "---- cloud-init status --long ----" -ForegroundColor Yellow
+        wsl -d Ubuntu -- bash -c "cloud-init status --long 2>/dev/null || true"
+        throw "cloud-init finished with errors. Output dumped above; full log at /var/log/cloud-init.log inside the Ubuntu distro."
     } else {
         Write-Host "WSL provisioning complete." -ForegroundColor Green
     }
