@@ -27,7 +27,7 @@ jobs:
 
       - name: Generate badges
         # kics-scan ignore-line
-        uses: docker://ghcr.io/chipwolf/badgesort@sha256:ddcd973f4509cb6e67ae2152127786376bb58a151663e000e71c1ccde22aee4a
+        uses: docker://ghcr.io/chipwolf/badgesort@sha256:e0542e4e4e951923dc141b6fcc20cb5d805023cd7af7593254e843ece2af8f75
         with:
           slugs: >-
             bitwarden
