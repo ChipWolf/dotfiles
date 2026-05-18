@@ -49,6 +49,7 @@ When updating any memory file: review nearby rules for contradictions, duplicati
     - Use `git -C <path>` for all subsequent commands. Confirm the active branch with `git -C <path> branch --show-current` before reading or editing files.
 - **Cloning for tag comparison.** `--depth=1 --no-single-branch` does not fetch tags. When you need to compare specific tags, either clone without `--depth`, or run `git fetch --tags` after the shallow clone.
 - **Inspecting a PR's diff.** Always diff the remote PR branch against `origin/main` (e.g. `git diff origin/main...origin/<pr-branch>`), not local HEAD. Local HEAD may be on an unrelated branch, so a diff against it is meaningless and returns empty output without any error.
+- **Once a PR is open, never amend or force-push.** Use followup commits so reviewers see exactly what changed between their review and your response. The pre-PR rule (squash dirty/AI-attributed history into a clean commit) is the opposite of the post-PR rule (preserve every change as a separate commit). The boundary is the moment `gh pr create` succeeds: from then on, the branch belongs to the reviewer, and rewriting it erases the diff they expect to see.
 
 ---
 
