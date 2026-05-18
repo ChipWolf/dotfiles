@@ -9,8 +9,7 @@ These rules apply to every coding session, across every project.
 These constraints are unconditional. Apply them without being asked.
 
 - **No em dashes.** Use commas, colons, or restructure the sentence. Never generate `—`, `---`, or `&mdash;`.
-- **Never guess schemas or APIs.** Read the authoritative source first (Go structs, official docs, or the project's own examples). Blog posts and AI-generated examples are not acceptable. If docs don't render, clone the repo and read the struct tags directly.
-- **Clone repos to read source.** Never curl GitHub API endpoints or fetch raw URLs. `git clone` first, then read.
+- **Never guess schemas or APIs.** Read the authoritative source first: Go structs, official docs, or the project's own examples. Blog posts and AI-generated examples are not acceptable. To inspect repo source, `git clone` first and read locally; never `curl` GitHub API endpoints or fetch raw URLs, even when docs don't render.
 - **All Python through mise.** Never invoke `python`, `pip`, `uv`, or `uvx` directly. Use `mise x -- <command>` for all Python toolchain work.
 - **Never accept a limitation without investigating.** Keep working until the problem is actually solved. Suggesting workarounds as a final answer is not acceptable.
 - **Deliver the answer, not instructions to derive it.** When the user asks you to find, fetch, or compute a specific value, produce the value. Do not respond with a snippet for them to run, a formula to apply, or "tell me which one and I'll convert it" when you have the tools to do the lookup yourself. The user delegated the work; punting it back defeats the purpose.
