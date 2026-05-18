@@ -57,9 +57,11 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 - Do not check whether a directory exists before using it. Attempt the operation; create the directory if it fails.
 - On Windows, when admin rights are required, launch elevated commands with `Start-Process -Verb RunAs` instead of failing back to manual instructions.
 - On Windows, use the Bash tool (not PowerShell) for POSIX-style commands like `grep`, `find`, `head`, `tail`, and path operations that use forward slashes. Use PowerShell only when you need Windows-native cmdlets, `$env:` variables, or paths with backslashes that POSIX tools cannot handle.
+- On Windows, POSIX-style paths like `/tmp/...` resolve only inside the Bash tool. `Read`, `Edit`, `Write`, `Grep`, and `Glob` use Windows file APIs and need Windows-style paths (`C:\...` or `C:/...`). When a Bash command reports a canonical path (e.g. `Cloning into 'C:/Users/.../Temp/repo'`), use that path for subsequent tool calls; do not reuse the `/tmp/` shortcut.
 
 ---
 
 ## Toolchain
 
 - When a CLI can be managed by `mise`, run it through `mise x -- <command>`. Do not invoke managed tools directly.
+- When entering a new worktree that has a `mise.toml`, run `mise trust <worktree-path>/mise.toml` before any `mise x --` call. Otherwise every mise invocation fails with `Config files in <path> are not trusted`.
