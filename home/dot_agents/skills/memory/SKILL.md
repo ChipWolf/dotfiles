@@ -17,7 +17,7 @@ For rules specific to the chezmoi dotfiles repo itself, use `~/.local/share/chez
 
 1. Read `~/.local/share/chezmoi/home/dot_agents/AGENTS.md`.
 2. Edit it with the Edit tool. Never write from scratch; always preserve existing content.
-3. Run `chezmoi apply` to deploy.
+3. Run `chezmoi apply ~/.agents/AGENTS.md` to deploy just that file. Never run a bare `chezmoi apply`: it sweeps unrelated changes elsewhere in the dotfiles tree and can apply work-in-progress edits you didn't intend.
 4. Commit and push:
 
    ```sh
