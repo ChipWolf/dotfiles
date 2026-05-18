@@ -180,7 +180,9 @@ EOF
 }
 EOF
 
-  output=$(render_template_with_override_data "$SOURCE_DIR/dot_config/opencode/opencode.jsonc.tmpl" "$data_file")
+  # OpenCode config is now a chezmoi modify_ template; supply stdin '{}' so
+  # the merge has an empty base to add the rendered permission and mcp blocks to.
+  output=$(echo '{}' | render_template_with_override_data "$SOURCE_DIR/dot_config/opencode/modify_opencode.json" "$data_file")
   echo "$output" | grep -Fq '"permission": {'
   echo "$output" | grep -Fq '"bash": {'
   echo "$output" | grep -Fq '"echo": "allow"'
