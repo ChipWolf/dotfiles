@@ -1,7 +1,7 @@
 {{- if and (eq .chezmoi.os "windows") (hasKey . "sshSigning") .sshSigning.enabled -}}
 {{- $version := .sshTpmAgent.version -}}
 {{- $expectedSha := .sshTpmAgent.sha256.windowsAmd64 -}}
-# {{ include "home/.chezmoidata/ssh-tpm-agent.yaml" | sha256sum }}
+# {{ include ".chezmoidata/ssh-tpm-agent.yaml" | sha256sum }}
 $ErrorActionPreference = "Stop"
 
 $version = "{{ $version }}"
