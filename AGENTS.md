@@ -113,6 +113,14 @@ Deleting a file from the chezmoi source does **not** remove it from the target (
 
 ---
 
+## Running `chezmoi apply`
+
+- Keep source edits, `chezmoi apply`, and git operations as separate commands unless a later step strictly depends on the previous one within the same concern.
+- When `chezmoi apply` triggers a brew bundle run (via an onchange script), treat it as fire-and-forget once the apply succeeds.
+- If `chezmoi apply` fails because an unrelated template needs a secret (e.g. Bitwarden locked), apply only the file you need with `chezmoi apply <target-path>` to bypass the failing template.
+
+---
+
 ## Repo-specific conventions
 
 - **Universal agent definitions** – `home/dot_agents/` (→ `~/.agents/`). Cross-tool agent rules and skills shared by OpenCode, Claude Code, Cursor, and pi. Universal rules live in `home/dot_agents/AGENTS.md`; universal skills in `home/dot_agents/skills/`. Edit the chezmoi source, not the deployed files.
