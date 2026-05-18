@@ -28,5 +28,36 @@ if ($LASTEXITCODE -ne 0) { throw "skills add {{ $spec }} -a {{ $target }} failed
 {{- end }}
 {{- end }}
 {{- end }}
+
+# Junction fill-in for agent dirs the vercel-labs/skills CLI doesn't auto-link.
+# The CLI installs every skill to ~/.agents/skills/ as canonical, then junctions
+# to some per-agent dirs (claude-code works, pi gets copies) but silently skips
+# codex, cursor, and opencode. We create junctions ourselves so those agents
+# see the same canonical install. Idempotent: skips existing entries.
+$canonicalSkillsDir = Join-Path $env:USERPROFILE ".agents\skills"
+$gapAgentDirs = @(
+    (Join-Path $env:USERPROFILE ".codex\skills"),
+    (Join-Path $env:USERPROFILE ".cursor\skills"),
+    (Join-Path $env:USERPROFILE ".config\opencode\skills")
+)
+if (Test-Path $canonicalSkillsDir) {
+    $canonicalSkills = Get-ChildItem $canonicalSkillsDir -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notlike ".*" }
+    foreach ($agentDir in $gapAgentDirs) {
+        if (-not (Test-Path $agentDir)) {
+            New-Item -ItemType Directory -Path $agentDir -Force | Out-Null
+        }
+        foreach ($skill in $canonicalSkills) {
+            $linkPath = Join-Path $agentDir $skill.Name
+            if (-not (Test-Path $linkPath)) {
+                try {
+                    New-Item -ItemType Junction -Path $linkPath -Target $skill.FullName -ErrorAction Stop | Out-Null
+                } catch {
+                    Write-Warning "Failed to junction $linkPath -> $($skill.FullName): $_"
+                }
+            }
+        }
+    }
+}
 {{ end -}}
 {{ end -}}

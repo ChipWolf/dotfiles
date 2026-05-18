@@ -39,9 +39,13 @@ Supported agent IDs: `claude-code`, `opencode`, `cursor`, `codex`, `pi`. Adding 
 
 ## Installation model
 
-- The Unix install script uses **symlink mode** (default for `npx skills`).
-- The Windows install script uses **`--copy` mode** (Windows symlinks require admin or developer mode).
-- On Unix, one canonical copy of each skill exists on disk; per-agent paths are symlinks back to it. No file duplication across agents.
+- The `vercel-labs/skills` CLI installs every skill to `~/.agents/skills/` as the **canonical on-disk location**, regardless of the `-a <agent>` flag. The flag controls metadata (which agents are registered as consumers), not the install path.
+- The CLI then creates per-agent links from each agent's expected discovery path back to the canonical:
+  - **claude-code** → junction at `~/.claude/skills/<name>` (Windows) / symlink (Unix) → `~/.agents/skills/<name>`. Works automatically.
+  - **pi** → real directory copies at `~/.pi/agent/skills/<name>`. Works automatically.
+  - **codex, cursor, opencode** → CLI silently skips these. Our install script creates the links itself in a "gap-fill" pass after the `npx skills add` invocations.
+- **Gap-fill pass:** at the end of each install script, we enumerate `~/.agents/skills/*` (excluding hidden dirs like Codex's `.system/`) and create junctions (Windows) / symlinks (Unix) at `~/.codex/skills/<name>`, `~/.cursor/skills/<name>`, and `${XDG_CONFIG_HOME:-~/.config}/opencode/skills/<name>`. The pass is idempotent — existing entries are skipped.
+- On Unix the canonical store + symlinks means each skill exists once on disk. On Windows junctions provide the same single-source-of-truth (NTFS junctions are not file copies).
 - The install scripts are **install-and-update only**. They NEVER remove. To remove, edit the manifest and run `~/.scripts/skills-review`.
 
 ## Editing rules

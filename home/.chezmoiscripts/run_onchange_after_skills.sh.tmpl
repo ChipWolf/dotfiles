@@ -33,5 +33,31 @@ mise x -- npx -y skills@latest add {{ $spec }} -a {{ $target }} -g -y -s '*'
 {{- end }}
 {{- end }}
 {{- end }}
+
+# Symlink fill-in for agent dirs the vercel-labs/skills CLI doesn't auto-link.
+# The CLI installs every skill to ~/.agents/skills/ as canonical, then links
+# to some per-agent dirs (claude-code works, pi gets copies) but silently skips
+# codex, cursor, and opencode. We create symlinks ourselves so those agents
+# see the same canonical install. Idempotent: skips existing entries.
+canonical_skills_dir="$HOME/.agents/skills"
+gap_agent_dirs=(
+    "$HOME/.codex/skills"
+    "$HOME/.cursor/skills"
+    "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills"
+)
+if [ -d "$canonical_skills_dir" ]; then
+    for agent_dir in "${gap_agent_dirs[@]}"; do
+        mkdir -p "$agent_dir"
+        for skill_path in "$canonical_skills_dir"/*; do
+            [ -d "$skill_path" ] || continue
+            skill_name=$(basename "$skill_path")
+            case "$skill_name" in .*) continue ;; esac
+            link_path="$agent_dir/$skill_name"
+            if [ ! -e "$link_path" ]; then
+                ln -s "$skill_path" "$link_path" 2>/dev/null || true
+            fi
+        done
+    done
+fi
 {{ end -}}
 {{ end -}}
