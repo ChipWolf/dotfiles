@@ -2,4 +2,8 @@
 sshSigning:
   enabled: false
   email: "hello@chipwolf.uk"
+  # Per-machine signing keys. Each entry:
+  #   - host: lowercase hostname
+  #     type: "tpm" | "yubikey" | "software"
+  #     pubkey: "<algorithm> <base64-key>" (no trailing comment)
   keys: []
