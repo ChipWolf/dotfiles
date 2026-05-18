@@ -39,6 +39,7 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 
 ## Git and commits
 
+- **Check for prior work before starting a fix.** When the task is to fix a specific CI failure, bug, or pre-described change, scan `gh pr list --state all --search <keywords>` and `git worktree list` before reading code or planning. Previous sessions or parallel agents may already have a branch, open PR, or merged PR matching the scope; duplicating that work wastes effort and risks conflicting changes.
 - Before committing, run `git diff --staged` and confirm the change is atomic and in-scope. Do not commit unrelated modifications.
 - Commit message format: `type(scope): description`. Types: `feat`, `fix`, `chore`. Check `git log --oneline` to match repo style.
 - After any branch switch (including `gh pr checkout`), verify with `git branch --show-current`. If `gh pr checkout` fails or lands on the wrong branch, use `git checkout <branch>` directly.
