@@ -35,7 +35,12 @@ $elevatedScript = {
 
         $packages = @()
         if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) { $packages += "chezmoi" }
-        if (-not (Get-Command gpg -ErrorAction SilentlyContinue)) { $packages += "gnupg" }
+        # Skip gnupg under CI: the chocolatey gnupg package runs the GnuPG
+        # Windows installer .exe (gnupg-w32-*) which hangs indefinitely waiting
+        # for a user to dismiss its setup dialog on a headless GitHub Actions
+        # windows-2025 runner. Confirmed via orphan-process termination on every
+        # cancelled run. The verify step doesn't need gpg on PATH.
+        if ((-not (Get-Command gpg -ErrorAction SilentlyContinue)) -and [string]::IsNullOrWhiteSpace($env:CI)) { $packages += "gnupg" }
         if (-not (Get-Command mise -ErrorAction SilentlyContinue)) { $packages += "mise" }
         if (-not (Get-Command pwsh -ErrorAction SilentlyContinue)) { $packages += "powershell-core" }
         if (-not (Get-Command bw -ErrorAction SilentlyContinue)) { $packages += "bitwarden-cli" }
