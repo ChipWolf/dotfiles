@@ -13,4 +13,8 @@ LUA_LUACHECK_ARGUMENTS: "--globals vim"
 
 CSS_STYLELINT_FILTER_REGEX_EXCLUDE: "(yasb/styles\\.css)"
 
+# rtk.ts is vendored from https://github.com/rtk-ai/rtk and must not be modified
+# locally (see header comment in the file). Exclude it from ts-standard.
+TYPESCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(home/dot_config/opencode/plugins/rtk\\.ts)"
+
 REPOSITORY_KICS_ARGUMENTS: "--exclude-paths .github/workflows/e2e-install.yml"
