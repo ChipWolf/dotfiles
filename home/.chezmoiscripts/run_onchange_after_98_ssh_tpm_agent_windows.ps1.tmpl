@@ -1,0 +1,118 @@
+{{- if and (eq .chezmoi.os "windows") (hasKey . "sshSigning") .sshSigning.enabled -}}
+{{- $version := .sshTpmAgent.version -}}
+{{- $expectedSha := .sshTpmAgent.sha256.windowsAmd64 -}}
+# {{ include "home/.chezmoidata/ssh-tpm-agent.yaml" | sha256sum }}
+$ErrorActionPreference = "Stop"
+
+$version = "{{ $version }}"
+$expectedSha = "{{ $expectedSha }}"
+
+$installDir = Join-Path $env:LOCALAPPDATA "Programs\ssh-tpm-agent"
+$agentExe = Join-Path $installDir "ssh-tpm-agent.exe"
+$keygenExe = Join-Path $installDir "ssh-tpm-keygen.exe"
+
+# Check whether the installed version already matches the target version.
+$installedVersion = ""
+if (Test-Path $agentExe) {
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = $agentExe
+    $psi.Arguments = "--version"
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $versionLine = $proc.StandardOutput.ReadToEnd()
+    $proc.StandardError.ReadToEnd() | Out-Null
+    $proc.WaitForExit()
+    # ssh-tpm-agent emits "ssh-tpm-agent version X.Y.Z" or just "X.Y.Z"
+    if ($versionLine -match '(\d+\.\d+\.\d+)') {
+        $installedVersion = $Matches[1]
+    }
+}
+
+if ($installedVersion -eq $version) {
+    Write-Host "ssh-tpm-agent $version already installed."
+} else {
+    if ($expectedSha -eq "REPLACE_WITH_RELEASE_SHA256") {
+        Write-Host "ssh-tpm-agent sha256 placeholder not yet set in home/.chezmoidata/ssh-tpm-agent.yaml; skipping install."
+        return
+    }
+
+    $zipName = "ssh-tpm-agent_${version}_windows_amd64.zip"
+    $downloadUrl = "https://github.com/Foxboron/ssh-tpm-agent/releases/download/v$version/$zipName"
+    $tempZip = Join-Path $env:TEMP $zipName
+    $tempDir = Join-Path $env:TEMP "ssh-tpm-agent-$version"
+
+    try {
+        Write-Host "Downloading ssh-tpm-agent v$version..."
+        $oldProgress = $ProgressPreference
+        $ProgressPreference = 'SilentlyContinue'
+        try {
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZip -UseBasicParsing
+        } finally {
+            $ProgressPreference = $oldProgress
+        }
+
+        $actualSha = (Get-FileHash -Path $tempZip -Algorithm SHA256).Hash
+        if ($actualSha.ToLower() -ne $expectedSha.ToLower()) {
+            throw "SHA256 mismatch for $zipName. Expected: $expectedSha. Got: $actualSha."
+        }
+
+        if (-not (Test-Path $installDir)) {
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+        }
+
+        Expand-Archive -Path $tempZip -DestinationPath $tempDir -Force
+
+        foreach ($exeName in @("ssh-tpm-agent.exe", "ssh-tpm-keygen.exe")) {
+            $extracted = Get-ChildItem -Path $tempDir -Filter $exeName -Recurse | Select-Object -First 1
+            if ($extracted) {
+                Copy-Item -Path $extracted.FullName -Destination (Join-Path $installDir $exeName) -Force
+            }
+        }
+
+        Write-Host "Installed ssh-tpm-agent v$version to $installDir."
+    } finally {
+        Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
+        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# Add install dir to the user PATH if not already present.
+$currentPath = (Get-ItemProperty -Path "HKCU:\Environment" -Name Path -ErrorAction SilentlyContinue).Path
+$pathParts = if ($currentPath) {
+    $currentPath -split ';' | Where-Object { $_.Trim() -ne '' } | ForEach-Object { $_.TrimEnd('\') }
+} else {
+    @()
+}
+$installDirNorm = $installDir.TrimEnd('\')
+$alreadyInPath = $pathParts | Where-Object { $_.ToLower() -eq $installDirNorm.ToLower() }
+if (-not $alreadyInPath) {
+    $newPath = ($pathParts + $installDirNorm) -join ';'
+    [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+    Write-Host "Added $installDir to user PATH."
+} else {
+    Write-Host "$installDir is already in user PATH."
+}
+
+# Register ssh-tpm-agent in the HKCU Run key for autostart at login.
+$runKeyPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+if (-not (Test-Path $runKeyPath)) {
+    New-Item -Path $runKeyPath -Force | Out-Null
+}
+
+$runValue = "powershell.exe -WindowStyle Hidden -Command `"& '$agentExe'`""
+$currentRunValue = (Get-ItemProperty -Path $runKeyPath -Name "ssh-tpm-agent" -ErrorAction SilentlyContinue)."ssh-tpm-agent"
+if ($currentRunValue -ne $runValue) {
+    Set-ItemProperty -Path $runKeyPath -Name "ssh-tpm-agent" -Value $runValue
+    Write-Host "Configured ssh-tpm-agent autostart."
+} else {
+    Write-Host "ssh-tpm-agent autostart already configured."
+}
+
+# Best-effort: start ssh-tpm-agent in the current session if not already running.
+if (-not (Get-Process -Name "ssh-tpm-agent" -ErrorAction SilentlyContinue)) {
+    Start-Process -FilePath $agentExe -WindowStyle Hidden
+}
+{{- end -}}
