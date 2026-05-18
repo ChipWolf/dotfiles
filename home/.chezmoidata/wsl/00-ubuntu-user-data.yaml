@@ -1,5 +1,6 @@
 # cloud-init user-data for WSL Ubuntu first boot (written to %USERPROFILE%\.cloud-init\Ubuntu.user-data).
-# Placeholders: __WSL_USER__ (profile.windows.wslUser), __WSL_CHEZMOI_SOURCE__ (Windows chezmoi source as /mnt/<drive>/... path, baked in at apply).
+# Placeholders: __WSL_USER__ (profile.windows.wslUser), __WSL_CHEZMOI_SOURCE__ (Windows chezmoi source as /mnt/<drive>/... path, baked in at apply),
+# __CHEZMOI_ENV_PREFIX__ (extra env assignments for the cloud-init chezmoi invocation, e.g. `CI=1 ` in CI flows, baked in at apply).
 # Seeds WSL once from the Windows chezmoi source (cp from drvfs). If ~/.local/share/chezmoi already exists, skips copy and init.
 windowsWsl:
   ubuntuCloudInitUserData: |
@@ -32,7 +33,7 @@ windowsWsl:
           fi
 
           PATH="`$HOME/.local/bin:`$PATH"
-          WSL_DISTRO_NAME="${WSL_DISTRO_NAME:-Ubuntu}" DOTFILES_SKIP_BITWARDEN=1 \
+          WSL_DISTRO_NAME="${WSL_DISTRO_NAME:-Ubuntu}" DOTFILES_SKIP_BITWARDEN=1 __CHEZMOI_ENV_PREFIX__\
             "`$HOME/.local/bin/chezmoi" init --apply --guess-repo-url=false \
             --source="`$HOME/.local/share/chezmoi" --exclude=externals
         '
