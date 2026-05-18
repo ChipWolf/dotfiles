@@ -1,0 +1,6 @@
+{{- with .sshSigning -}}
+{{- $email := .email -}}
+{{- range .keys -}}
+{{ $email }} namespaces="git" {{ .pubkey }}
+{{ end -}}
+{{- end -}}

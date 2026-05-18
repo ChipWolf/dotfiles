@@ -1,0 +1,5 @@
+---
+sshSigning:
+  enabled: false
+  email: "hello@chipwolf.uk"
+  keys: []
