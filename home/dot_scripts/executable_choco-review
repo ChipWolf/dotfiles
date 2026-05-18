@@ -166,7 +166,7 @@ _has_parent_package_installed() {
 		;;
 	esac
 
-	local parent="${pkg%$suffix}"
+	local parent="${pkg%"$suffix"}"
 	[ -n "$parent" ] || return 1
 	echo "$installed_packages" | grep -qxF "$parent"
 }
