@@ -1,7 +1,15 @@
-{{ if ne .chezmoi.os "windows" -}}
+{{ if and (ne .chezmoi.os "windows") (not .ci) -}}
 #!/usr/bin/env bash
 # Re-run when declared pi packages change.
 # {{ include "dot_pi/agent/modify_settings.json" | sha256sum }}
+#
+# Skipped on CI (.ci=true): pi extensions are dev-loop tooling, not needed
+# for the Brewfile / chezmoi managed assertions the Windows E2E job checks.
+# Letting this run inside the fresh cloud-init Ubuntu user causes
+# 'npm install -g <pi-extensions>' to exit 127 from a postinstall script
+# that needs build deps the cloud-init context lacks. pi auto-installs
+# missing declared packages on first invocation anyway, so we lose nothing
+# user-facing by skipping the explicit apply-time reconcile in CI.
 set -euo pipefail
 
 # Use mise shims so pi (installed via npm: backend) is on PATH for
