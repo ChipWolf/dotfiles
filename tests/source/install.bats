@@ -168,7 +168,7 @@ setup() {
   grep -q 'choco-packages.config.tmpl' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
   grep -q '_dependency_packages' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
   grep -q '_resolve_choco_lib_dir' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
-  grep -q 'grep -qxF "\\$pkg"' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
+  grep -q 'grep -qxF "\$pkg"' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
   grep -q '_has_parent_package_installed' "$REPO_ROOT/home/dot_scripts/executable_choco-review"
 }
 
