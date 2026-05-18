@@ -77,7 +77,7 @@ ssh-add -L
 - **YubiKey FIDO2 SSH auth** (`docs/yubikey.md`): unchanged. Different key (`~/.ssh/id_ed25519_sk`), different purpose (SSH transport for git push). The TPM key is only for signing.
 - **Optional quieting:** ssh-tpm-agent loads the TPM key into the SSH agent, so `ssh` will offer it to remote hosts during auth, even though GitHub only accepts it as a signing key. This is harmless (auth falls through to the YubiKey) but produces "tried key X" lines on `git push`. Silence with this in `~/.ssh/config`:
 
-  ```
+  ```sshconfig
   Host github.com
     IdentitiesOnly yes
     IdentityFile ~/.ssh/id_ed25519_sk
