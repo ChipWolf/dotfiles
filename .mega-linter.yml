@@ -13,4 +13,9 @@ LUA_LUACHECK_ARGUMENTS: "--globals vim"
 
 CSS_STYLELINT_FILTER_REGEX_EXCLUDE: "(yasb/styles\\.css)"
 
+# chezmoi modify_* templates start with `{{- /* chezmoi:modify-template */ -}}`,
+# which is not valid JSON until rendered. Exclude them from JSON linters/formatters.
+JSON_JSONLINT_FILTER_REGEX_EXCLUDE: "(home/.*modify_[^/]*\\.json)"
+JSON_PRETTIER_FILTER_REGEX_EXCLUDE: "(home/.*modify_[^/]*\\.json)"
+
 REPOSITORY_KICS_ARGUMENTS: "--exclude-paths .github/workflows/e2e-install.yml"
