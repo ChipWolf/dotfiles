@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+# skills-review — interactive agent-skills drift review
+#
+# Compares the skills actually installed per agent (via `npx skills list -g
+# --agent <a> --json`) against the skills declared in the chezmoi manifest
+# under $CHEZMOI_WORKING_TREE/home/.chezmoidata/skills/*.yaml. For each agent,
+# prompts to remove any extras that aren't declared.
+#
+# Declared skill names are derived by enumerating `<workingTree>/<path>/*/SKILL.md`
+# for sources with a local `path:` (and by explicit name for sources with an
+# inline `skills:` list). Remote `repo:` sources without an inline `skills:`
+# list cannot be enumerated locally, so any skill matching one of *their*
+# entries cannot be classified — those are flagged interactively as extras
+# the user reviews per-agent.
+#
+# Usage: skills-review
+#
+# Exits silently if there is no drift or if stdin is not a tty.
+
+set -uo pipefail
+
+# Skip entirely when not interactive
+if [ ! -t 0 ]; then
+	exit 0
+fi
+
+# Resolve paths — prefer env vars set by chezmoi, fall back to derivation.
+# CHEZMOI_WORKING_TREE is the git working tree (= repo root); CHEZMOI_SOURCE_DIR
+# is the source state root (= repo/home). The skills/ directory of local
+# sources lives at the working tree, not under the source dir.
+CHEZMOI_SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi/home")}"
+CHEZMOI_WORKING_TREE="${CHEZMOI_WORKING_TREE:-$(chezmoi execute-template '{{ .chezmoi.workingTree }}' 2>/dev/null || dirname "$CHEZMOI_SOURCE_DIR")}"
+SKILLS_DATA_DIR="$CHEZMOI_SOURCE_DIR/.chezmoidata/skills"
+
+if [ ! -d "$SKILLS_DATA_DIR" ]; then
+	echo "skills-review: skills manifest directory not found at $SKILLS_DATA_DIR" >&2
+	exit 1
+fi
+
+# Use mise shims so npx (via the mise-managed node) is on PATH.
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+if ! command -v mise >/dev/null 2>&1; then
+	echo "skills-review: mise not found on PATH; run bootstrap first" >&2
+	exit 1
+fi
+
+# Tempfile cleanup
+TMPDIR_REVIEW="$(mktemp -d)"
+cleanup() {
+	rm -rf "$TMPDIR_REVIEW"
+}
+trap cleanup EXIT INT TERM
+
+# Aggregate per-agent declared-skill sets and the union of target agents.
+# Output format (tab-separated): <agent>\t<skill-name>
+# A blank skill-name line means "this agent has at least one repo: source
+# with no inline skills list, so its declared set is incomplete and extras
+# cannot be classified with certainty for that agent".
+_collect_declared() {
+	local -a files=()
+	shopt -s nullglob
+	files=("$SKILLS_DATA_DIR"/*.yaml)
+	shopt -u nullglob
+	if [ ${#files[@]} -eq 0 ]; then
+		return 1
+	fi
+
+	ruby -ryaml -e '
+		require "pathname"
+		working_tree = ENV["CHEZMOI_WORKING_TREE"]
+		declared = Hash.new { |h, k| h[k] = [] }   # agent -> [skill names]
+		incomplete = {}                            # agent -> true if any repo: source has no inline skills list
+		targets_union = []
+
+		ARGV.sort.each do |file|
+		  data = YAML.load_file(file) || {}
+		  skills = data["skills"]
+		  next unless skills.is_a?(Hash)
+
+		  defaults = skills["defaults"] || {}
+		  default_targets = (defaults["targets"] || [])
+
+		  sources = skills["sources"] || {}
+		  sources.each do |source_id, source|
+		    next unless source.is_a?(Hash)
+		    targets = source["targets"] || default_targets
+		    targets_union |= targets
+
+		    inline_skills = source["skills"]
+
+		    if source.key?("path")
+		      base = Pathname.new(working_tree) + source["path"]
+		      if inline_skills.is_a?(Array) && !inline_skills.empty?
+		        inline_skills.each do |name|
+		          targets.each { |t| declared[t] << name.to_s }
+		        end
+		      else
+		        # Enumerate <base>/*/SKILL.md
+		        if base.directory?
+		          base.children.select(&:directory?).each do |child|
+		            if (child + "SKILL.md").file?
+		              targets.each { |t| declared[t] << child.basename.to_s }
+		            end
+		          end
+		        end
+		      end
+		    elsif source.key?("repo")
+		      if inline_skills.is_a?(Array) && !inline_skills.empty?
+		        inline_skills.each do |name|
+		          targets.each { |t| declared[t] << name.to_s }
+		        end
+		      else
+		        # Remote source, no inline skills list — declared set is incomplete.
+		        targets.each { |t| incomplete[t] = true }
+		      end
+		    end
+		  end
+		end
+
+		targets_union.each do |agent|
+		  puts "TARGET\t#{agent}"
+		end
+		declared.each do |agent, names|
+		  names.uniq.each { |n| puts "DECLARED\t#{agent}\t#{n}" }
+		end
+		incomplete.each_key do |agent|
+		  puts "INCOMPLETE\t#{agent}"
+		end
+	' "${files[@]}"
+}
+
+declared_dump="$TMPDIR_REVIEW/declared"
+if ! _collect_declared >"$declared_dump"; then
+	echo "skills-review: failed to load declared skills manifest from $SKILLS_DATA_DIR" >&2
+	exit 1
+fi
+
+# Parse aggregated output
+AGENTS=()
+declare -A DECLARED_FOR     # agent -> space-separated skill names
+declare -A INCOMPLETE_FOR   # agent -> 1 if true
+
+while IFS=$'\t' read -r kind a b; do
+	case "$kind" in
+	TARGET)
+		AGENTS+=("$a")
+		;;
+	DECLARED)
+		existing="${DECLARED_FOR[$a]:-}"
+		if [ -z "$existing" ]; then
+			DECLARED_FOR[$a]="$b"
+		else
+			DECLARED_FOR[$a]="$existing $b"
+		fi
+		;;
+	INCOMPLETE)
+		INCOMPLETE_FOR[$a]=1
+		;;
+	esac
+done <"$declared_dump"
+
+if [ ${#AGENTS[@]} -eq 0 ]; then
+	# Nothing declared anywhere — nothing to reconcile.
+	exit 0
+fi
+
+# Returns 0 if $1 is whitespace-separated set $2.
+_in_set() {
+	local needle="$1"
+	local hay="$2"
+	[ -z "$hay" ] && return 1
+	# shellcheck disable=SC2086
+	for item in $hay; do
+		[ "$item" = "$needle" ] && return 0
+	done
+	return 1
+}
+
+ANY_DRIFT=0
+
+for agent in "${AGENTS[@]}"; do
+	# Get installed skills for this agent as JSON, then extract names.
+	list_tmp="$TMPDIR_REVIEW/installed-$agent.json"
+	if ! mise x -- npx -y skills@latest list -g --agent "$agent" --json >"$list_tmp" 2>"$TMPDIR_REVIEW/list-err"; then
+		echo "==> Skill drift review: $agent" >&2
+		echo "  skills-review: failed to list installed skills for $agent — skipping" >&2
+		sed 's/^/    /' "$TMPDIR_REVIEW/list-err" >&2 || true
+		echo "" >&2
+		continue
+	fi
+
+	# Extract skill names from the JSON output. Tolerate empty/non-array output.
+	installed_names=$(
+		ruby -rjson -e '
+		raw = STDIN.read
+		begin
+		  data = JSON.parse(raw)
+		rescue JSON::ParserError
+		  exit 0
+		end
+		exit 0 unless data.is_a?(Array)
+		data.each do |entry|
+		  next unless entry.is_a?(Hash)
+		  name = entry["name"]
+		  puts name if name && !name.empty?
+		end
+	' <"$list_tmp"
+	)
+
+	declared_set="${DECLARED_FOR[$agent]:-}"
+
+	extras=()
+	while IFS= read -r name; do
+		[ -z "$name" ] && continue
+		if ! _in_set "$name" "$declared_set"; then
+			extras+=("$name")
+		fi
+	done <<<"$installed_names"
+
+	if [ ${#extras[@]} -eq 0 ]; then
+		continue
+	fi
+
+	ANY_DRIFT=1
+	echo ""
+	echo "==> Skill drift review: $agent"
+	if [ "${INCOMPLETE_FOR[$agent]:-0}" = "1" ]; then
+		echo "  (note: $agent has remote sources with no inline 'skills:' list;"
+		echo "   skills that came from those sources cannot be matched locally and"
+		echo "   will appear here as extras)"
+	fi
+	echo ""
+	echo "The following skills are installed for $agent but not in the declared manifest:"
+	echo ""
+
+	for name in "${extras[@]}"; do
+		printf "  %s\n" "$name"
+		while true; do
+			printf "  [r]emove from %s / [s]kip: " "$agent"
+			read -r reply </dev/tty
+			case "$reply" in
+			r | R)
+				if mise x -- npx -y skills@latest remove -g --agent "$agent" -s "$name" -y; then
+					echo "  -> Removed $name from $agent"
+				else
+					echo "  -> Failed to remove $name from $agent" >&2
+				fi
+				break
+				;;
+			s | S | "")
+				echo "  -> Skipped"
+				break
+				;;
+			*)
+				echo "  Please enter r or s."
+				;;
+			esac
+		done
+		echo ""
+	done
+done
+
+if [ "$ANY_DRIFT" -eq 0 ]; then
+	exit 0
+fi

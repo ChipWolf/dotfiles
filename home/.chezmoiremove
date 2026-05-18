@@ -1,4 +1,11 @@
 .config/kitty
 .config/opencode/commands/retrospective.md
+.config/opencode/opencode.jsonc
 .config/zsh/.zfunctions/is-iterm2
 .local/beads
+.agents/skills/create-skill
+.agents/skills/dotfiles
+.agents/skills/git-commit-push
+.agents/skills/memory
+.agents/skills/retrospective
+.agents/skills/stop-slop

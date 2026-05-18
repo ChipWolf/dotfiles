@@ -1,0 +1,32 @@
+{{- if eq .chezmoi.os "windows" -}}
+{{- if hasKey . "skills" -}}
+# Re-run when the declared skills manifest changes.
+# {{ include ".chezmoidata/skills/00-skills.yaml" | sha256sum }}
+$ErrorActionPreference = "Stop"
+
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    throw "mise not found on PATH; run bootstrap first."
+}
+{{- if and (not .codespaces) (not .ci) }}
+{{ $defaults := .skills.defaults }}
+{{- $sources := .skills.sources }}
+{{- range $sourceId := (keys $sources | sortAlpha) }}
+{{- $source := index $sources $sourceId }}
+{{- $targets := $defaults.targets }}
+{{- if hasKey $source "targets" }}{{ $targets = $source.targets }}{{ end }}
+{{- $spec := "" }}
+{{- if hasKey $source "path" }}{{ $spec = printf "%s/%s" $.chezmoi.workingTree $source.path }}
+{{- else if hasKey $source "repo" }}{{ $spec = $source.repo }}
+{{- end }}
+{{- range $target := $targets }}
+{{- if and (hasKey $source "skills") $source.skills }}
+& mise x -- npx -y skills@latest add {{ $spec }} -a {{ $target }} -g -y -s '{{ join "," $source.skills }}'
+{{- else }}
+& mise x -- npx -y skills@latest add {{ $spec }} -a {{ $target }} -g -y -s '*'
+{{- end }}
+if ($LASTEXITCODE -ne 0) { throw "skills add {{ $spec }} -a {{ $target }} failed (exit code $LASTEXITCODE)." }
+{{- end }}
+{{- end }}
+{{- end }}
+{{ end -}}
+{{ end -}}

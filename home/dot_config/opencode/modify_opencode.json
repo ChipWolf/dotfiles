@@ -1,0 +1,26 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $merged := dict -}}
+{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
+  {{- $parsed := fromJson .chezmoi.stdin -}}
+  {{- if kindIs "map" $parsed -}}
+    {{- $merged = $parsed -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Chezmoi-managed keys: always overwrite */ -}}
+{{- $_ := set $merged "$schema" "https://opencode.ai/config.json" -}}
+{{- $_ := set $merged "autoupdate" false -}}
+{{- $_ := set $merged "model" "github-copilot/claude-sonnet-4.6" -}}
+{{- $_ := set $merged "plugin" (list "cc-safety-net@0.9.0" "@tarquinen/opencode-dcp@3.1.9" "context-mode") -}}
+
+{{- /* Render permission block from shared partial (wrap inner KV pairs in braces, parse) */ -}}
+{{- $permissionJson := printf "{%s}" (includeTemplate ".chezmoitemplates/opencode-permission.tmpl" . | trim) -}}
+{{- $permission := fromJson $permissionJson -}}
+{{- $_ := set $merged "permission" $permission -}}
+
+{{- /* Render mcp block from shared partial (wrap inner KV pairs in braces, parse) */ -}}
+{{- $mcpJson := printf "{%s}" (includeTemplate ".chezmoitemplates/opencode-mcp.jsonc.tmpl" . | trim) -}}
+{{- $mcp := fromJson $mcpJson -}}
+{{- $_ := set $merged "mcp" $mcp -}}
+
+{{ $merged | toPrettyJson }}

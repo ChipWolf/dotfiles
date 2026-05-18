@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/skills.schema.json",
+  "title": "Agent skill source definitions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skills"],
+  "properties": {
+    "skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources"],
+      "properties": {
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targets": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/agentId" }
+            }
+          }
+        },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-z0-9][a-z0-9-]*$": {
+              "$ref": "#/$defs/skillSource"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "agentId": {
+      "type": "string",
+      "enum": ["claude-code", "opencode", "cursor", "codex", "pi"]
+    },
+    "skillSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "repo": { "type": "string", "minLength": 1 },
+        "targets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/agentId" }
+        },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "oneOf": [
+        { "required": ["path"] },
+        { "required": ["repo"] }
+      ]
+    }
+  }
+}
