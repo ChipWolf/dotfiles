@@ -111,6 +111,6 @@ After each use, run this loop before ending the task:
    - Credential-helper failures (`gh: command not found`, helper not executable in shell).
    - Rebase/push branches not handled by the current instructions.
 2. If a pattern appears, update this skill in chezmoi source:
-   - `home/dot_agents/skills/git-commit-push/SKILL.md`
+   - `skills/git-commit-push/SKILL.md` at the chezmoi repo root
 3. Keep updates concrete, command-level, and minimal.
 4. Re-run the failing step once to validate the skill update.
