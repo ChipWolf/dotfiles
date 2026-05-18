@@ -13,6 +13,7 @@ These constraints are unconditional. Apply them without being asked.
 - **Clone repos to read source.** Never curl GitHub API endpoints or fetch raw URLs. `git clone` first, then read.
 - **All Python through mise.** Never invoke `python`, `pip`, `uv`, or `uvx` directly. Use `mise x -- <command>` for all Python toolchain work.
 - **Never accept a limitation without investigating.** Keep working until the problem is actually solved. Suggesting workarounds as a final answer is not acceptable.
+- **Deliver the answer, not instructions to derive it.** When the user asks you to find, fetch, or compute a specific value, produce the value. Do not respond with a snippet for them to run, a formula to apply, or "tell me which one and I'll convert it" when you have the tools to do the lookup yourself. The user delegated the work; punting it back defeats the purpose.
 - **Don't say "Docker containers."** Docker is a brand name, not a container type. Write "containers" or "OCI images" in prose. Action references like `docker/login-action` are fine as-is.
 
 ---
