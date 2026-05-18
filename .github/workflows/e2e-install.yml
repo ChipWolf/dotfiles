@@ -136,10 +136,15 @@ jobs:
       - name: Verify Windows E2E results
         shell: pwsh
         run: |
-          $managed = chezmoi managed
+          # mise-action's mise install uses file-mode shims (no mise-shim.exe),
+          # so invoking `chezmoi` directly from pwsh hits the cmd-shim wrapper
+          # and PowerShell's command resolution fails on the multi-path output.
+          # Resolve the real binary via `mise which` and invoke it directly.
+          $chezmoi = (mise which chezmoi).Trim()
+          if (-not $chezmoi) { throw "chezmoi not found via mise which" }
+          $managed = & $chezmoi managed
           if (-not ($managed | Select-String -Pattern '\.config[\\/]+nvim[\\/]+init\.lua')) { throw "Neovim target is not managed by chezmoi" }
           if (-not ($managed | Select-String -Pattern '\.config[\\/]+wezterm[\\/]+wezterm\.lua')) { throw "WezTerm target is not managed by chezmoi" }
-          if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) { throw "chezmoi not found on PATH" }
 
   e2e-macos:
     name: E2E install (macOS)
