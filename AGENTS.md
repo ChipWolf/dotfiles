@@ -145,6 +145,7 @@ Deleting a file from the chezmoi source does **not** remove it from the target (
 - **Install script templates** – `install.sh.tmpl` and `install.ps1.tmpl` are the source of truth for release installers. The release workflow renders `install.sh` and `install.ps1` from templates with repository/image/tag values before uploading release assets.
 - **Template readability** – Keep chezmoi template source files readable: use clear indentation, split complex logic into understandable blocks, and avoid flattening everything to the left margin with aggressive whitespace trimming unless required for output correctness.
 - **Bitwarden in automation** – Set `DOTFILES_SKIP_BITWARDEN=1` when running `chezmoi apply` in non-interactive/agent contexts. Templates that use the `bitwarden` function must honor this variable to avoid `bw` prompts/failures during automated runs.
+- **Cursor, Codex, and Claude-related tools deploy only on private machines** – Never add Cursor, Codex (`npm:@openai/codex`), Claude Code, Claude Desktop, or any other Claude/Anthropic tooling to a base/unconditional overlay. Gate them per subsystem: `{{ if .private }}` in chezmoi templates (e.g. `home/dot_config/mise/config.toml.tmpl`), `{ kind: env, name: PRIVATE, op: set }` in Brewfile overlay conditions, and `conditions: { private: true }` in `home/.chezmoidata/mcps/*.yaml` and `home/.chezmoidata/agent-permissions/*.yaml`. The `private` chezmoi data value is `true` on Windows or when `~/.private` exists (see `home/.chezmoi.toml.tmpl`).
 
 ---
 
