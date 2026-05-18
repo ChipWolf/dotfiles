@@ -42,8 +42,7 @@
     { "kind": "Class", "id": "#32770", "matching_strategy": "Equals" }
   ],
   "manage_rules": [
-    { "kind": "Exe", "id": "claude.exe", "matching_strategy": "Equals" },
-    { "kind": "Exe", "id": "Claude.exe", "matching_strategy": "Equals" },
+    { "kind": "Title", "id": "^Claude", "matching_strategy": "Regex" },
     { "kind": "Exe", "id": "WindowsTerminal.exe", "matching_strategy": "Equals" },
     { "kind": "Exe", "id": "pwsh.exe", "matching_strategy": "Equals" },
     { "kind": "Exe", "id": "powershell.exe", "matching_strategy": "Equals" },
@@ -51,6 +50,10 @@
     { "kind": "Exe", "id": "wezterm-gui.exe", "matching_strategy": "Equals" }
   ],
   "object_name_change_applications": [
+    { "kind": "Exe", "id": "claude.exe", "matching_strategy": "Equals" },
+    { "kind": "Exe", "id": "Claude.exe", "matching_strategy": "Equals" }
+  ],
+  "layered_applications": [
     { "kind": "Exe", "id": "claude.exe", "matching_strategy": "Equals" },
     { "kind": "Exe", "id": "Claude.exe", "matching_strategy": "Equals" }
   ]
