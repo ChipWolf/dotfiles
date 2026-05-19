@@ -29,6 +29,9 @@ jobs:
         uses: oxsecurity/megalinter@8fbdead70d1409964ab3d5afa885e18ee85388bb # v9.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Force a full-repo scan when Renovate bumps the MegaLinter action,
+          # so the new version is exercised against every file before merging.
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' || (github.event.pull_request.user.login == 'renovate[bot]' && startsWith(github.head_ref, 'renovate/oxsecurity-megalinter-')) }}
 
       - name: Upload SARIF report
         if: always()
