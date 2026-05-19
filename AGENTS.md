@@ -118,6 +118,7 @@ Deleting a file from the chezmoi source does **not** remove it from the target (
 - Keep source edits, `chezmoi apply`, and git operations as separate commands unless a later step strictly depends on the previous one within the same concern.
 - When `chezmoi apply` triggers a brew bundle run (via an onchange script), treat it as fire-and-forget once the apply succeeds.
 - If `chezmoi apply` fails because an unrelated template needs a secret (e.g. Bitwarden locked), apply only the file you need with `chezmoi apply <target-path>` to bypass the failing template.
+- Commit chezmoi source changes to the relevant branch before testing with `chezmoi apply`. Deploying from an uncommitted `--source <worktree-path>` is fragile: any subsequent `chezmoi apply` from a different source silently reverts the deploy, and chezmoi records the reverted content as its last-written state so nothing looks wrong on inspection. Diagnose suspected reverts by comparing `Get-FileHash` of the deployed file against the source and against chezmoi's tracked `contentsSHA256` (visible via `chezmoi state get-bucket --bucket=entryState`).
 
 ---
 
