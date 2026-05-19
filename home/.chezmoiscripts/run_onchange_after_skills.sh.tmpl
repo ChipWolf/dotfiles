@@ -5,8 +5,17 @@
 # {{ include ".chezmoidata/skills/00-skills.yaml" | sha256sum }}
 set -euo pipefail
 
-# Use mise shims so npx (via the mise-managed node) is on PATH for
-# non-interactive shells run by chezmoi.
+# Ensure brew-installed mise is on PATH for non-interactive shells (matches
+# the pattern in run_onchange_after_mise_install.sh.tmpl). Cloud-init's runcmd
+# environment in WSL has a minimal PATH that excludes brew prefixes.
+for prefix in /opt/homebrew /usr/local /home/linuxbrew/.linuxbrew "$HOME/.linuxbrew"; do
+  if [ -x "$prefix/bin/mise" ]; then
+    export PATH="$prefix/bin:$PATH"
+    break
+  fi
+done
+
+# Then add mise shims so npx (via the mise-managed node) is on PATH.
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 if ! command -v mise >/dev/null 2>&1; then
