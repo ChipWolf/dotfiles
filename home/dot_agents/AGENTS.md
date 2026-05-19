@@ -10,6 +10,7 @@ These constraints are unconditional. Apply them without being asked.
 
 - **No em dashes.** Use commas, colons, or restructure the sentence. Never generate inline `—` or `&mdash;` as punctuation. (Markdown horizontal rules — `---` alone on a line — are fine.)
 - **Never guess schemas or APIs.** Read the authoritative source first: Go structs, official docs, or the project's own examples. Blog posts and AI-generated examples are not acceptable.
+- **Diagnose from logs, not theory.** When investigating a failure (CI, runtime, hang, regression), the last lines of output before the failure are ground truth, not a guess based on which script's name matches your current hypothesis or which prior bug looked similar. If the visible log doesn't pin the cause, add a diagnostic and re-run rather than speculate further. When reporting findings, mark claims as observed ("log line N says X") versus suspected ("I think Y because…") and never let suspicion harden into assertion without evidence.
 - **Clone, don't curl.** To inspect repo source, `git clone` first and read locally. Never `curl` GitHub API endpoints or fetch raw URLs, even when docs don't render.
 - **All Python through mise.** Never invoke `python`, `pip`, `uv`, or `uvx` directly. Use `mise x -- <command>` for all Python toolchain work.
 - **Never accept a limitation without investigating.** Keep working until the problem is actually solved. Suggesting workarounds as a final answer is not acceptable.
