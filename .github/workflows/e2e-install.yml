@@ -142,7 +142,17 @@ jobs:
           # Resolve the real binary via `mise which` and invoke it directly.
           $chezmoi = (mise which chezmoi).Trim()
           if (-not $chezmoi) { throw "chezmoi not found via mise which" }
-          $managed = & $chezmoi managed
+          # install.ps1 runs `chezmoi init --apply --source=$repo` but `--source`
+          # is per-invocation only and isn't persisted to the chezmoi config, so
+          # subsequent `chezmoi` calls fall back to ~/.local/share/chezmoi which
+          # doesn't exist on the runner. Pass --source explicitly here too;
+          # chezmoi reads `.chezmoiroot` to find the home/ subdir.
+          $managed = & $chezmoi --source $env:GITHUB_WORKSPACE managed 2>&1
+          $managedExit = $LASTEXITCODE
+          if ($managedExit -ne 0) {
+              $managed | ForEach-Object { Write-Host "  $_" }
+              throw "chezmoi managed exited $managedExit"
+          }
           if (-not ($managed | Select-String -Pattern '\.config[\\/]+nvim[\\/]+init\.lua')) { throw "Neovim target is not managed by chezmoi" }
           if (-not ($managed | Select-String -Pattern '\.config[\\/]+wezterm[\\/]+wezterm\.lua')) { throw "WezTerm target is not managed by chezmoi" }
 
