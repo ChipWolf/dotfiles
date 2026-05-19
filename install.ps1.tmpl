@@ -156,11 +156,13 @@ if ($PSScriptRoot -and (Test-Path "$PSScriptRoot\.chezmoiroot")) {
     & $chezmoiPath @initArgs
     $sourceDir = $defaultSourceDir
 }
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "`nchezmoi apply finished with errors (exit code $LASTEXITCODE)." -ForegroundColor Red
+$chezmoiExit = $LASTEXITCODE
+if ($chezmoiExit -ne 0) {
+    Write-Host "`nchezmoi apply finished with errors (exit code $chezmoiExit)." -ForegroundColor Red
     Write-Host "Review the output above, fix any issues, then run 'chezmoi apply' to retry." -ForegroundColor Yellow
-} else {
-    # Disable filemode tracking (Windows does not support the executable bit)
-    git -C "$sourceDir" config core.fileMode false
-    Write-Host "Done! Restart your terminal to pick up the new configuration." -ForegroundColor Green
+    exit $chezmoiExit
 }
+
+# Disable filemode tracking (Windows does not support the executable bit)
+git -C "$sourceDir" config core.fileMode false
+Write-Host "Done! Restart your terminal to pick up the new configuration." -ForegroundColor Green
