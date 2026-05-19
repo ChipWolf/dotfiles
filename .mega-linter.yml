@@ -23,3 +23,10 @@ JSON_PRETTIER_FILTER_REGEX_EXCLUDE: "(home/.*modify_[^/]*\\.json)"
 TYPESCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(home/dot_config/opencode/plugins/rtk\\.ts)"
 
 REPOSITORY_KICS_ARGUMENTS: "--exclude-paths .github/workflows/e2e-install.yml"
+
+# MegaLinter v9.5.0 stopped forwarding GITHUB_TOKEN to linter containers by
+# default. zizmor needs it to query the GitHub API while running audits like
+# `artipacked` (which lists tags for referenced actions); without it the audit
+# aborts with a 401 and is reported as an error.
+ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
