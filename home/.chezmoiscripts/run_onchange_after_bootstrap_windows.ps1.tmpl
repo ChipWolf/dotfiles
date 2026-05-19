@@ -5,7 +5,7 @@
     {{- $wingetPackages = concat $wingetPackages (default (list) $ov.packages) -}}
   {{- end -}}
 {{- end -}}
-{{- if eq .chezmoi.os "windows" -}}
+{{- if and (eq .chezmoi.os "windows") (not (and (hasKey . "ci") .ci)) -}}
   {{- $wslWin := fromJson (includeTemplate ".chezmoitemplates/wsl-windows-script-context.json.tmpl" . | trim) -}}
   {{- $wslLinuxUser := index $wslWin "linuxUser" -}}
   {{- $wslChezmoiSource := index $wslWin "chezmoiSourceMount" -}}
@@ -13,6 +13,16 @@
 # {{ includeTemplate ".chezmoitemplates/choco-packages.config.tmpl" . | sha256sum }}
 # Winget package list hash (triggers re-run when this list changes):
 # {{ join " " $wingetPackages | sha256sum }}
+#
+# CI skip rationale: this script does the bulk choco install of 27+ personal
+# apps (Discord, Steam, Obsidian, PowerToys, wingetui, etc.), the matching
+# winget install set, mise-shim placement, and a redundant WSL bootstrap.
+# None of those are needed for the Verify Windows E2E step (which only
+# checks `chezmoi managed` for nvim/wezterm targets). Several of the choco
+# packages also fail or hang on a headless GitHub Actions runner: gnupg
+# (UI installer), powershell-core (InconsistentInstallerState), treesizefree
+# (install script error), wingetui (launches UniGetUI which never exits).
+# WSL provisioning still happens in run_after_95_wsl_ensure_windows.ps1.tmpl.
 
 $ErrorActionPreference = "Stop"
 {{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
