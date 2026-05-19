@@ -6,6 +6,7 @@
     ":semanticCommits",
     ":timezone(Europe/London)",
   ],
+  schedule: ["after 11am and before 1pm on Friday"],
   prHourlyLimit: 0,
   customManagers: [
     {
