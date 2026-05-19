@@ -5,9 +5,20 @@
     {{- $chocoPackages = concat $chocoPackages (default (list) $ov.packages) -}}
   {{- end -}}
 {{- end -}}
+{{- /*
+  CI exclusions: chocolatey packages whose Windows installer .exe blocks on a
+  UI dialog under a headless GitHub Actions runner. Confirmed for gnupg via
+  orphan-process termination of gnupg-w32-* after the 6h job timeout.
+*/ -}}
+{{- $ciExclude := list "gnupg" -}}
+{{- $isCi := and (hasKey . "ci") .ci -}}
 <?xml version="1.0" encoding="utf-8"?>
 <packages>
-{{- range $pkg := uniq $chocoPackages }}
+{{- range $pkg := uniq $chocoPackages -}}
+  {{- if and $isCi (has $pkg $ciExclude) }}
+  <!-- {{ $pkg }} skipped under CI -->
+  {{- else }}
   <package id="{{ $pkg }}" />
+  {{- end -}}
 {{- end }}
 </packages>
