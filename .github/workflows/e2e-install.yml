@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       vaultwarden:
-        image: vaultwarden/server:latest
+        image: vaultwarden/server:latest@sha256:d626d04934cd1192ad8ced1adb975099fca78cec33ab467d2d3c923cde7f3b0c
         ports:
           - 8222:80
         env:

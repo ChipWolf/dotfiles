@@ -6,17 +6,11 @@ DISABLE:
 
 DISABLE_LINTERS:
   - PYTHON_PYLINT
-  # MegaLinter v9.5.0 enables two new blocking linters that surface
-  # pre-existing findings in this repo. Disable them here to keep the
-  # version bump scope-focused; addressing the underlying findings is
-  # tracked separately.
-  #   - zizmor reports template-injection (workflow inputs interpolated
-  #     into `run:` blocks) and unpinned-images (vaultwarden:latest in
-  #     e2e-install.yml).
-  #   - osv-scanner aborts with "No package sources found" because this
-  #     repo has no scannable manifests (go.mod, package.json, etc.) at
-  #     the root that osv-scanner recognises by default.
-  - ACTION_ZIZMOR
+  # osv-scanner has nothing to scan in this repo: it's a chezmoi dotfiles
+  # tree with no language manifests or lockfiles (no go.mod, package.json,
+  # uv.lock, Gemfile.lock, etc.). MegaLinter treats the scanner's "No
+  # package sources found" exit as a failure, so it stays disabled until
+  # this repo grows a real dependency manifest.
   - REPOSITORY_OSV_SCANNER
 
 SARIF_REPORTER: true

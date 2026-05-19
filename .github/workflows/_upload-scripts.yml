@@ -46,8 +46,9 @@ jobs:
       - name: Upload install scripts to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tag_name }}
         run: |
-          gh release upload "${{ inputs.tag_name }}" \
+          gh release upload "$TAG_NAME" \
             install.sh \
             install.ps1 \
             --clobber
