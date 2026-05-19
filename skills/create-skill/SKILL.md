@@ -40,7 +40,7 @@ Description constraints:
 ## Authoring workflow
 
 1. Identify target location:
-   - Universal skills (shared across all coding agents): `~/.local/share/chezmoi/home/dot_agents/skills/`
+   - Universal skills (shared across all coding agents): `~/.local/share/chezmoi/skills/` (outside chezmoi state; distributed via `vercel-labs/skills` CLI per `.agents/skills/update-skills/SKILL.md`)
    - Tool-specific skills (e.g. OpenCode-only): `~/.local/share/chezmoi/home/dot_config/<tool>/skills/`
 2. Create skill directory and `SKILL.md`.
 3. Write concise instructions with concrete command patterns and guardrails.
@@ -64,4 +64,4 @@ Description constraints:
 
 ## Self-improvement loop
 
-After each skill-authoring task, capture any improvements in structure, validation, or memory-integration steps by updating this file: `home/dot_agents/skills/create-skill/SKILL.md`.
+After each skill-authoring task, capture any improvements in structure, validation, or memory-integration steps by updating this file: `skills/create-skill/SKILL.md` at the chezmoi repo root.

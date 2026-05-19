@@ -1,0 +1,30 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $merged := dict -}}
+{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
+  {{- $parsed := fromJson .chezmoi.stdin -}}
+  {{- if kindIs "map" $parsed -}}
+    {{- $merged = $parsed -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $contextServersJson := printf "{%s}" (includeTemplate ".chezmoitemplates/zed-context-servers.tmpl" . | trim) -}}
+{{- $contextServers := fromJson $contextServersJson -}}
+{{- $_ := set $merged "context_servers" $contextServers -}}
+
+{{- /* NOTE: Unix Zed intentionally does NOT register agent_servers.codex-acp.
+       The Windows Zed modify template does. This Unix/Windows divergence is
+       preserved per the design decision in
+       docs/superpowers/specs/2026-05-15-skills-distribution-design.md. */ -}}
+
+{{- $agent := dict -}}
+{{- if and (hasKey $merged "agent") (kindIs "map" $merged.agent) -}}
+  {{- $agent = $merged.agent -}}
+{{- end -}}
+{{- $toolPermissions := dict "default" "confirm" -}}
+{{- $terminalPermissionsJson := printf "{%s}" (includeTemplate ".chezmoitemplates/zed-terminal-tool-permissions.tmpl" . | trim) -}}
+{{- $terminalPermissions := fromJson $terminalPermissionsJson -}}
+{{- $_ := set $toolPermissions "tools" (dict "terminal" $terminalPermissions) -}}
+{{- $_ := set $agent "tool_permissions" $toolPermissions -}}
+{{- $_ := set $merged "agent" $agent -}}
+
+{{- $merged | toPrettyJson -}}

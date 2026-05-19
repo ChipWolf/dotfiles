@@ -11,13 +11,13 @@ Use this skill when changing MCP server configuration in this repo.
 
 - Canonical layered data: `home/.chezmoidata/mcps/*.yaml`
 - Cursor render template: `home/dot_cursor/mcp.json.tmpl`
-- OpenCode render template: `home/dot_config/opencode/opencode.jsonc.tmpl` (via `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
+- OpenCode render template: `home/dot_config/opencode/modify_opencode.json` (merges into `~/.config/opencode/opencode.json`; uses partial `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
 - mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`
 - pi render template: `home/dot_pi/agent/mcp.json.tmpl`
 - Claude Code render template: `home/modify_dot_claude.json` (merges `mcpServers` into `~/.claude.json`)
 - Claude Desktop render template: `home/AppData/Roaming/Claude/modify_claude_desktop_config.json`
-- Zed render template (Unix): `home/dot_config/zed/settings.json.tmpl` (via `home/.chezmoitemplates/zed-context-servers.tmpl`)
-- Zed render template (Windows): `home/AppData/Roaming/Zed/modify_settings.json.tmpl`
+- Zed render template (Unix): `home/dot_config/zed/modify_settings.json` (merges `context_servers` and `agent.tool_permissions` into `~/.config/zed/settings.json`; uses partial `home/.chezmoitemplates/zed-context-servers.tmpl`)
+- Zed render template (Windows): `home/AppData/Roaming/Zed/modify_settings.json`
 
 Treat `home/.chezmoidata/mcps/*.yaml` as the single source of truth.
 
@@ -65,14 +65,14 @@ Remote shape:
 After MCP changes:
 
 1. Render `home/dot_cursor/mcp.json.tmpl` with current chezmoi data.
-2. Render `home/dot_config/opencode/opencode.jsonc.tmpl` with current chezmoi data.
+2. Render `home/dot_config/opencode/modify_opencode.json` with stdin `{}` and current chezmoi data (merged JSON must parse).
 3. Render `home/private_dot_mcpproxy/modify_mcp_config.json` with current chezmoi data.
 4. Render `home/dot_pi/agent/mcp.json.tmpl` with current chezmoi data.
 5. Render `home/modify_dot_claude.json` with stdin `{}` and current chezmoi data (merged JSON must parse).
 6. Render `home/AppData/Roaming/Claude/modify_claude_desktop_config.json` with stdin `{}` and current chezmoi data.
-7. Render `home/dot_config/zed/settings.json.tmpl` with current chezmoi data.
-8. Render `home/AppData/Roaming/Zed/modify_settings.json.tmpl` with stdin `{}` and current chezmoi data.
-9. Validate the rendered Cursor, mcpproxy, pi, Claude Code, Claude Desktop, and Zed outputs are valid JSON.
+7. Render `home/dot_config/zed/modify_settings.json` with stdin `{}` and current chezmoi data (merged JSON must parse).
+8. Render `home/AppData/Roaming/Zed/modify_settings.json` with stdin `{}` and current chezmoi data.
+9. Validate the rendered Cursor, mcpproxy, pi, Claude Code, Claude Desktop, OpenCode, and Zed outputs are valid JSON.
 10. Confirm expected server entries and args in rendered output, including `$data.*` interpolation.
 
 Note: sprig `hasPrefix` signature is `hasPrefix prefix str`. The `$data.<key>` interpolation must be written as `hasPrefix "$data." $arg`, not the reverse.

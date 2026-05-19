@@ -1,0 +1,41 @@
+---
+# yaml-language-server: $schema=../../../schemas/skills.schema.json
+#
+# Canonical agent skills manifest.
+#
+# Each source is installed into each declared target agent's global skills dir
+# via the vercel-labs/skills CLI (`npx skills add ...`). Symlink mode on Unix,
+# `--copy` on Windows.
+#
+# Supported agent IDs: claude-code, opencode, cursor, codex, pi.
+# Adding a new agent requires editing both schemas/skills.schema.json and the
+# install scripts under home/.chezmoiscripts/run_onchange_after_skills*.tmpl.
+#
+# Sources: exactly one of `path` (local, relative to chezmoi sourceDir) or
+# `repo` (GitHub shorthand or full git URL).
+# Optional per-source overrides:
+#   targets: narrow the agent list (otherwise uses defaults.targets)
+#   skills:  selective install of named skills only (otherwise all)
+skills:
+  defaults:
+    targets:
+      - claude-code
+      - opencode
+      - cursor
+      - codex
+      - pi
+  sources:
+    # Local universal skills (formerly home/dot_agents/skills/).
+    # Source lives at the repo root in skills/ (not under home/, not chezmoi state).
+    local:
+      path: skills
+
+    # Third-party: mattpocock/skills (engineering, productivity, misc).
+    mattpocock-skills:
+      repo: mattpocock/skills
+
+    # Third-party: obra/superpowers (brainstorming, debugging, TDD, etc.).
+    # Note: if you previously consumed superpowers via a Claude plugin, uninstall
+    # the plugin to avoid name collisions with the symlinked/copied install.
+    obra-superpowers:
+      repo: obra/superpowers

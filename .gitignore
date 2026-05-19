@@ -9,4 +9,5 @@ install.sh
 install.ps1
 home/Brewfile
 megalinter-reports/
+docs/superpowers/
 

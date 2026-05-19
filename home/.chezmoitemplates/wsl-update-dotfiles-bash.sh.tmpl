@@ -1,10 +1,17 @@
-{{- /* Seed WSL ~/.local/share/chezmoi from Windows source, then keep it refreshed and apply from that source. */ -}}
+{{- /* Seed WSL ~/.local/share/chezmoi from Windows source, then keep it refreshed and apply from that source.
+       The refresh path MUST mirror deletions (rsync --delete, not cp -a) so renames and removals on the
+       Windows source don't leave stale files in WSL — chezmoi treats stale source + .chezmoiremove entries
+       as "inconsistent state" and aborts the apply. */ -}}
 set -euo pipefail
 CHEZMOI_SRC={{ printf "%q" .wslChezmoiSource }}
 dest="$HOME/.local/share/chezmoi"
 if [ -d "$dest" ]; then
-  echo "chezmoi source already exists at $dest; refreshing from Windows source and continuing with apply." >&2
-  cp -a "$CHEZMOI_SRC"/. "$dest"/
+  echo "chezmoi source already exists at $dest; refreshing from Windows source (rsync --delete) and continuing with apply." >&2
+  if ! command -v rsync >/dev/null 2>&1; then
+    echo "rsync not found; installing (required for source refresh)..." >&2
+    sudo apt-get update -qq && sudo apt-get install -y -qq rsync
+  fi
+  rsync -a --delete "$CHEZMOI_SRC"/ "$dest"/
 else
   mkdir -p "$HOME/.local/share"
   cp -a "$CHEZMOI_SRC" "$dest"
