@@ -2,6 +2,8 @@
   {{- $wslWin := fromJson (includeTemplate ".chezmoitemplates/wsl-windows-script-context.json.tmpl" . | trim) -}}
   {{- $wslLinuxUser := index $wslWin "linuxUser" -}}
   {{- $wslChezmoiSource := index $wslWin "chezmoiSourceMount" -}}
+  {{- $chezmoiEnvPrefix := "" -}}
+  {{- if .ci -}}{{- $chezmoiEnvPrefix = "CI=1 " -}}{{- end -}}
 $ErrorActionPreference = "Stop"
 {{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
 
@@ -42,7 +44,7 @@ $elevatedScript = {
         New-Item -ItemType Directory -Path $cloudInitDir | Out-Null
     }
     $cloudConfig = @"
-{{ .windowsWsl.ubuntuCloudInitUserData | replace "__WSL_CHEZMOI_SOURCE__" $wslChezmoiSource | replace "__WSL_USER__" $wslLinuxUser }}
+{{ .windowsWsl.ubuntuCloudInitUserData | replace "__WSL_CHEZMOI_SOURCE__" $wslChezmoiSource | replace "__WSL_USER__" $wslLinuxUser | replace "__CHEZMOI_ENV_PREFIX__" $chezmoiEnvPrefix }}
 "@
     [System.IO.File]::WriteAllText("$cloudInitDir\Ubuntu.user-data", $cloudConfig)
 
@@ -55,7 +57,7 @@ $elevatedScript = {
     Write-Host "Launching Ubuntu for cloud-init provisioning..."
     wsl -d Ubuntu -- true
     $prevLine = ""
-    $deadline = (Get-Date).AddMinutes(10)
+    $deadline = (Get-Date).AddMinutes(20)
     do {
         Start-Sleep -Seconds 5
         $status = (wsl -d Ubuntu -- cloud-init status 2>$null) -replace '^\s+',''
@@ -65,12 +67,16 @@ $elevatedScript = {
             $prevLine = $tail
         }
         if ((Get-Date) -ge $deadline -and $status -match "running") {
-            throw "cloud-init still running after 10 minutes. Let it finish, then rerun 'chezmoi apply'."
+            throw "cloud-init still running after 20 minutes. Let it finish, then rerun 'chezmoi apply'."
         }
     } while ($status -match "running")
 
     if ($status -match "error") {
-        throw "cloud-init finished with errors. Run 'wsl -d Ubuntu -- cat /var/log/cloud-init.log' for details."
+        Write-Host "---- /var/log/cloud-init-output.log (last 200 lines) ----" -ForegroundColor Yellow
+        wsl -d Ubuntu -- bash -c "tail -200 /var/log/cloud-init-output.log 2>/dev/null || true"
+        Write-Host "---- cloud-init status --long ----" -ForegroundColor Yellow
+        wsl -d Ubuntu -- bash -c "cloud-init status --long 2>/dev/null || true"
+        throw "cloud-init finished with errors. Output dumped above; full log at /var/log/cloud-init.log inside the Ubuntu distro."
     } else {
         Write-Host "WSL provisioning complete." -ForegroundColor Green
     }
