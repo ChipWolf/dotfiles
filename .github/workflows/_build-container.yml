@@ -75,10 +75,11 @@ jobs:
 
       - name: Extract delta layers and push
         id: push
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          TAG: ${{ inputs.tag_name }}
         run: |
           set -euo pipefail
-          IMAGE="${{ steps.image.outputs.name }}"
-          TAG="${{ inputs.tag_name }}"
 
           # The Dockerfile adds exactly 2 layers on top of the base:
           #   1. COPY (dotfiles source)
