@@ -6,11 +6,19 @@
   {{- end -}}
 {{- end -}}
 {{- /*
-  CI exclusions: chocolatey packages whose Windows installer .exe blocks on a
-  UI dialog under a headless GitHub Actions runner. Confirmed for gnupg via
-  orphan-process termination of gnupg-w32-* after the 6h job timeout.
+  CI exclusions: chocolatey packages that fail or hang on a headless GitHub
+  Actions windows-2025 runner. Confirmed against PR #78 runs:
+
+  - gnupg            blocks on the GnuPG setup dialog (orphan-process termination
+                     of gnupg-w32-* after the 6h job timeout).
+  - powershell-core  install errors with `(InconsistentInstallerState) Attempt
+                     to install host that is currently running` because pwsh is
+                     the interpreter running the workflow step.
+  - treesizefree    chocolateyInstall.ps1 errors during install.
+
+  These aren't needed for the chezmoi managed / Verify checks.
 */ -}}
-{{- $ciExclude := list "gnupg" -}}
+{{- $ciExclude := list "gnupg" "powershell-core" "treesizefree" -}}
 {{- $isCi := and (hasKey . "ci") .ci -}}
 <?xml version="1.0" encoding="utf-8"?>
 <packages>
