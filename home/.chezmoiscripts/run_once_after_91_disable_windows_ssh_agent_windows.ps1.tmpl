@@ -1,0 +1,22 @@
+{{- if and (eq .chezmoi.os "windows") (hasKey . "sshSigning") .sshSigning.enabled -}}
+$ErrorActionPreference = "Stop"
+{{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}
+
+$elevatedScript = {
+    $ErrorActionPreference = "Stop"
+
+    $svc = Get-Service -Name "ssh-agent" -ErrorAction SilentlyContinue
+    if ($svc -and $svc.Status -eq "Running") {
+        Stop-Service -Name "ssh-agent" -ErrorAction SilentlyContinue
+        Write-Host "Stopped ssh-agent service."
+    }
+
+    Set-Service -Name "ssh-agent" -StartupType Disabled -ErrorAction SilentlyContinue
+    Write-Host "Set ssh-agent service startup type to Disabled."
+}
+
+Invoke-ElevatedWithLog `
+    -Name "ssh-agent-disable" `
+    -ScriptBlock $elevatedScript `
+    -StatusMessage "Elevating to disable Windows built-in ssh-agent service..."
+{{- end -}}

@@ -1,0 +1,5 @@
+---
+sshTpmAgent:
+  version: "0.10.0"
+  sha256:
+    windowsAmd64: "REPLACE_WITH_RELEASE_SHA256"

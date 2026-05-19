@@ -19,10 +19,22 @@
 [github]
   user = {{ .githubUser }}
 {{- end }}
+{{- if and (eq .chezmoi.os "windows") (hasKey . "sshSigning") .sshSigning.enabled }}
+[gpg]
+  format = ssh
+  ssh.program = "C:/Windows/System32/OpenSSH/ssh-keygen.exe"
+[gpg "ssh"]
+  allowedSignersFile = ~/.ssh/allowed_signers
+[user]
+  signingkey = ~/.ssh/id_ecdsa.tpm.pub
+[commit]
+  gpgsign = true
+{{- else }}
 [gpg]
   program = gpg
 [commit]
   #gpgsign = true
+{{- end }}
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
