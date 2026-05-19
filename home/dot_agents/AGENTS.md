@@ -71,3 +71,4 @@ Always edit the source, not the deployed file. When updating any memory file: re
 
 - When a CLI can be managed by `mise`, run it through `mise x -- <command>`. Do not invoke managed tools directly.
 - When entering a new worktree that has a `mise.toml` or `.mise.toml`, run `mise trust <worktree-path>/{mise,.mise}.toml` (or the specific file present) before any `mise x --` call. Otherwise every mise invocation fails with `Config files in <path> are not trusted`.
+- **`mise x -- go install` puts binaries in mise's GOBIN, not `$HOME/go/bin/`.** mise's Go install has its own GOBIN (typically `<mise root>/installs/go/<ver>/bin/`), so binaries installed through `mise x -- go install ...` do not appear under `$HOME/go/bin/`. Scripts that fall back to `$HOME/go/bin/<tool>` will not find them. Either set `GOBIN=$HOME/go/bin mise x -- go install <pkg>` to land it there, or copy the resulting `<mise root>/installs/go/<ver>/bin/<tool>` into `$HOME/go/bin/` after install.
