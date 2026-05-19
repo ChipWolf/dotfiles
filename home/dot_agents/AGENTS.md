@@ -2,39 +2,38 @@
 
 These rules apply to every coding session, across every project.
 
+**Precedence:** the **closest `AGENTS.md`** to the files you're changing wins. This file holds cross-tool defaults; project and directory `AGENTS.md` files override on conflict. See the [Memory](#memory) section for where each file lives.
+
 ---
 
 ## Always active
 
 These constraints are unconditional. Apply them without being asked.
 
-- **No em dashes.** Use commas, colons, or restructure the sentence. Never generate inline `—` or `&mdash;` as punctuation. (Markdown horizontal rules — `---` alone on a line — are fine.)
+- **No em dashes.** Use commas, colons, or restructure the sentence. Never generate inline `—` or `&mdash;` as punctuation. (Markdown horizontal rules: `---` alone on a line is fine.)
 - **Never guess schemas or APIs.** Read the authoritative source first: Go structs, official docs, or the project's own examples. Blog posts and AI-generated examples are not acceptable.
 - **Diagnose from logs, not theory.** When investigating a failure (CI, runtime, hang, regression), the last lines of output before the failure are ground truth, not a guess based on which script's name matches your current hypothesis or which prior bug looked similar. If the visible log doesn't pin the cause, add a diagnostic and re-run rather than speculate further. When reporting findings, mark claims as observed ("log line N says X") versus suspected ("I think Y because…") and never let suspicion harden into assertion without evidence.
-- **Clone, don't curl.** To inspect repo source, `git clone` first and read locally. Never `curl` GitHub API endpoints or fetch raw URLs, even when docs don't render.
+- **Clone, don't curl.** When reading another repository's source, `git clone` first and read locally. Never `curl` GitHub API endpoints or `curl` raw file URLs to read source, even when docs don't render. (Using `WebFetch` for public documentation pages is fine.)
 - **All Python through mise.** Never invoke `python`, `pip`, `uv`, or `uvx` directly. Use `mise x -- <command>` for all Python toolchain work.
 - **Never accept a limitation without investigating.** Keep working until the problem is actually solved. Suggesting workarounds as a final answer is not acceptable.
 - **Deliver the answer, not instructions to derive it.** When the user asks you to find, fetch, or compute a specific value, produce the value. Do not respond with a snippet for them to run, a formula to apply, or "tell me which one and I'll convert it" when you have the tools to do the lookup yourself. The user delegated the work; punting it back defeats the purpose.
 - **Don't say "Docker containers."** Docker is a brand name, not a container type. Write "containers" or "OCI images" in prose. Action references like `docker/login-action` are fine as-is.
 - **Never commit secrets.** No API keys, tokens, `.env` files, credentials, or private keys in any repo. If staged accidentally, unstage and remove from history before pushing. If already pushed, rotate the secret immediately; force-push history rewrite only with explicit user confirmation.
 - **Never log PII.** No email, phone, name, address, or payment data in logs, traces, or monitoring payloads.
-
----
-
-## Session close: mandatory
-
-After every non-trivial task, run a retrospective before closing out.
+- **Run a retrospective before closing out.** After every non-trivial task, invoke the `retrospective` skill to capture lessons for global memory.
 
 ---
 
 ## Memory
 
-Global memory is `~/.agents/AGENTS.md`. Edit the chezmoi source at `~/.local/share/chezmoi/home/dot_agents/AGENTS.md`, not the deployed file.
-Local memory is the `AGENTS.md` in the current project root (or nearest ancestor).
+| Scope | Deployed path | Edit (source of truth) |
+|---|---|---|
+| Global cross-tool rules | `~/.agents/AGENTS.md` | `~/.local/share/chezmoi/home/dot_agents/AGENTS.md` |
+| Global cross-tool skills | `~/.agents/skills/` | `~/.local/share/chezmoi/home/dot_agents/skills/` |
+| Project rules | `./AGENTS.md` (project root or nearest ancestor) | same path |
+| Chezmoi repo rules | `~/.local/share/chezmoi/AGENTS.md` | same path |
 
-For rules specific to the chezmoi dotfiles repo itself, the target is `~/.local/share/chezmoi/AGENTS.md`.
-
-When updating any memory file: review nearby rules for contradictions, duplication, and scope conflicts; reconcile in the same edit. Keep cross-cutting rules in global memory; keep project-specific rules in local memory.
+Always edit the source, not the deployed file. When updating any memory file: review nearby rules for contradictions, duplication, and scope conflicts; reconcile in the same edit. Keep cross-cutting rules in global memory; keep project-specific rules in local memory.
 
 ---
 
@@ -51,7 +50,8 @@ When updating any memory file: review nearby rules for contradictions, duplicati
     - Use `git -C <path>` for all subsequent commands. Confirm the active branch with `git -C <path> branch --show-current` before reading or editing files.
 - **Cloning for tag comparison.** `--depth=1 --no-single-branch` does not fetch tags. When you need to compare specific tags, either clone without `--depth`, or run `git fetch --tags` after the shallow clone.
 - **Inspecting a PR's diff.** Always diff the remote PR branch against `origin/main` (e.g. `git diff origin/main...origin/<pr-branch>`), not local HEAD. Local HEAD may be on an unrelated branch, so a diff against it is meaningless and returns empty output without any error.
-- **Once a PR is open, never amend or force-push.** Use followup commits so reviewers see exactly what changed between their review and your response. The pre-PR rule (squash dirty/AI-attributed history into a clean commit) is the opposite of the post-PR rule (preserve every change as a separate commit). The boundary is the moment `gh pr create` succeeds: from then on, the branch belongs to the reviewer, and rewriting it erases the diff they expect to see.
+- **Before opening a PR: clean up history.** Squash messy work-in-progress or AI-attributed commits into a clean, atomic commit sequence on the branch. The branch is yours until `gh pr create` succeeds.
+- **Once a PR is open: never amend or force-push.** Use follow-up commits so reviewers see exactly what changed between their review and your response. The branch now belongs to the reviewer; rewriting it erases the diff they expect to see. Preserve every change as a separate commit.
 
 ---
 
@@ -62,7 +62,7 @@ When updating any memory file: review nearby rules for contradictions, duplicati
 - Do not check whether a directory exists before using it. Attempt the operation; create the directory if it fails.
 - On Windows, when admin rights are required, launch elevated commands with `Start-Process -Verb RunAs` instead of failing back to manual instructions.
 - On Windows, use the Bash tool (not PowerShell) for POSIX-style commands like `grep`, `find`, `head`, `tail`, and path operations that use forward slashes. Use PowerShell only when you need Windows-native cmdlets, `$env:` variables, or paths with backslashes that POSIX tools cannot handle.
-- On Windows, POSIX-style paths like `/tmp/...` resolve only inside the Bash tool. `Read`, `Edit`, `Write`, `Grep`, and `Glob` use Windows file APIs and need Windows-style paths (`C:\...` or `C:/...`). When a Bash command reports a canonical path (e.g. `Cloning into 'C:/Users/.../Temp/repo'`), use that path for subsequent tool calls; do not reuse the `/tmp/` shortcut.
+- On Windows, POSIX-style paths like `/tmp/...` resolve only inside the Bash tool. Native filesystem tools (read/edit/write/grep/glob in any agent harness) use Windows file APIs and need Windows-style paths (`C:\...` or `C:/...`). When a Bash command reports a canonical path (e.g. `Cloning into 'C:/Users/.../Temp/repo'`), use that path for subsequent tool calls; do not reuse the `/tmp/` shortcut.
 
 ---
 
