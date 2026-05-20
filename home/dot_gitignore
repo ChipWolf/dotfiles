@@ -1,0 +1,7 @@
+# Claude Code worktrees set core.hooksPath to a relative "dev/null" on
+# Windows, causing git-lfs to mkdir and drop hook stubs in ./dev/null/.
+# Ignore the directory globally so those stubs never appear as untracked.
+dev/null/
+
+# Claude Code local settings
+**/.claude/settings.local.json
