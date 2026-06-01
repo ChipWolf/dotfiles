@@ -1,5 +1,77 @@
 # Changelog
 
+## [1.9.0](https://github.com/ChipWolf/dotfiles/compare/v1.8.1...v1.9.0) (2026-05-22)
+
+
+### Features
+
+* add Zed, Claude Code/Desktop, komorebi support and refactor choco management ([3785100](https://github.com/ChipWolf/dotfiles/commit/37851007f6c8f39f2168bc562b7a279c36b6e621))
+* **skills:** distribute via vercel-labs/skills + modify_ migrations ([#72](https://github.com/ChipWolf/dotfiles/issues/72)) ([9d35651](https://github.com/ChipWolf/dotfiles/commit/9d3565177870f1a083c00e06bd4ae283009d8062))
+* **ssh-signing:** Windows commit signing via ssh-tpm-agent ([#73](https://github.com/ChipWolf/dotfiles/issues/73)) ([4d5825f](https://github.com/ChipWolf/dotfiles/commit/4d5825ff1f6029a48adb7bb52db9adebae84488e))
+
+
+### Bug Fixes
+
+* add missing chezmoiignore entries and document Zed MCP target ([4429c77](https://github.com/ChipWolf/dotfiles/commit/4429c779b2d817ee7b12d6313946565279cd038a))
+* **git:** create global gitignore to suppress Claude Code worktree artifacts ([#89](https://github.com/ChipWolf/dotfiles/issues/89)) ([6ebface](https://github.com/ChipWolf/dotfiles/commit/6ebface1da611491ca768003f1a1365239723cab))
+* **git:** use cross-platform null hooks path on Windows ([#68](https://github.com/ChipWolf/dotfiles/issues/68)) ([5032e2f](https://github.com/ChipWolf/dotfiles/commit/5032e2f4f01e295671eb5ca954193acfce203dd2))
+* **komorebi:** stop tiling Claude Desktop folder picker dialogs ([eeba5da](https://github.com/ChipWolf/dotfiles/commit/eeba5da28888ab7b8bf08df822f4ff4d6f4e3784))
+* **lint:** exclude chezmoi modify_*.json templates from JSON linters ([#76](https://github.com/ChipWolf/dotfiles/issues/76)) ([ab638f2](https://github.com/ChipWolf/dotfiles/commit/ab638f28584c93fa37507331e458c11eafc540b4))
+* **lint:** exclude vendored rtk.ts from ts-standard ([#77](https://github.com/ChipWolf/dotfiles/issues/77)) ([6f7dc5f](https://github.com/ChipWolf/dotfiles/commit/6f7dc5f3e14c5b03ae72aa09aa4227553cf338cd))
+* **lint:** forward GITHUB_TOKEN to zizmor for action audits ([#84](https://github.com/ChipWolf/dotfiles/issues/84)) ([9ac5b8d](https://github.com/ChipWolf/dotfiles/commit/9ac5b8d6fac51ab253ed60576889580904b97133))
+* **scripts:** quote suffix expansion in choco-review (SC2295) ([#75](https://github.com/ChipWolf/dotfiles/issues/75)) ([286fcef](https://github.com/ChipWolf/dotfiles/commit/286fcef1f918b5ad200c280985ae02bc954a3a78))
+* **test:** align choco-review bats assertion with script ([#74](https://github.com/ChipWolf/dotfiles/issues/74)) ([232c441](https://github.com/ChipWolf/dotfiles/commit/232c441ccf1a96153a1e23c647e89f8eb8c03dae))
+* **windows-bootstrap:** unblock Windows E2E CI by propagating CI=1 to WSL ([#78](https://github.com/ChipWolf/dotfiles/issues/78)) ([0e40f7d](https://github.com/ChipWolf/dotfiles/commit/0e40f7d723803d982b0cf0cdcd86ba8b5c4b34d5))
+* **windows:** place mise-shim.exe next to choco-installed mise.exe ([42529ba](https://github.com/ChipWolf/dotfiles/commit/42529ba6f6597833f1db65292a873f0c05cc0459))
+* **workflows:** re-enable zizmor; fix template-injection and unpinned-image findings ([#88](https://github.com/ChipWolf/dotfiles/issues/88)) ([d43cd05](https://github.com/ChipWolf/dotfiles/commit/d43cd05e49fec4e46473023563f4ab2c85061e26))
+* **workflows:** set persist-credentials: false on actions/checkout ([#85](https://github.com/ChipWolf/dotfiles/issues/85)) ([74d1576](https://github.com/ChipWolf/dotfiles/commit/74d15760ca032d93a51bfcbdcd3348f73b178fd8))
+
+
+### Miscellaneous
+
+* **agents:** add 'diagnose from logs, not theory' to global rules ([defe9b7](https://github.com/ChipWolf/dotfiles/commit/defe9b7e422fc233199f5a3a4f5c1902d7a51a5c))
+* **agents:** add rule for inspecting PR diffs against origin/main ([146de93](https://github.com/ChipWolf/dotfiles/commit/146de930ec94121d9a5e0af96a3d6d7f8d247c2a))
+* **agents:** add rules for branch verification and stale git lock files ([2611695](https://github.com/ChipWolf/dotfiles/commit/261169578f3991737e0fcf448b8be193f9148bb3))
+* **agents:** add Windows path and mise-trust rules from retrospective ([8498a62](https://github.com/ChipWolf/dotfiles/commit/8498a624dca52ca622e759b8b21c64b42c95867d))
+* **agents:** anchor subagent bash commands to the worktree path ([e5c68eb](https://github.com/ChipWolf/dotfiles/commit/e5c68eb9970caffd6b3f232eef8e6e5327e4a0e6))
+* **agents:** apply quality audit findings to memory files ([08e400d](https://github.com/ChipWolf/dotfiles/commit/08e400d56142e5de975138295b55fa68a350f66f))
+* **agents:** apply review fixes to global rules ([ae8a7e8](https://github.com/ChipWolf/dotfiles/commit/ae8a7e87e2c4b71f9aadc768633cb00b139f7c74))
+* **agents:** capture two retrospective lessons ([9b034ce](https://github.com/ChipWolf/dotfiles/commit/9b034cefb19357f278e6bba4a70073700cbb44a7))
+* **agents:** check for prior work before starting a fix ([e48f44e](https://github.com/ChipWolf/dotfiles/commit/e48f44ea4b0a959020be73420a2bc7d578cdd3a9))
+* **agents:** forbid disabling linters/tests to make CI green ([5dd632c](https://github.com/ChipWolf/dotfiles/commit/5dd632c0d2e97f8829edc5c6b39e33c0bdc90ad5))
+* **agents:** gate Cursor/Codex/Claude tools to private systems ([#71](https://github.com/ChipWolf/dotfiles/issues/71)) ([2f6a039](https://github.com/ChipWolf/dotfiles/commit/2f6a0393a8ad6bd4b223ece2756e90ed60074254))
+* **agents:** generalise perf rule to one-sample-is-not-a-measurement ([3d12da5](https://github.com/ChipWolf/dotfiles/commit/3d12da52353da2f47618ef7e32842634c6d42358))
+* **agents:** merge clone-related rules into single authoritative-source rule ([a8b43ef](https://github.com/ChipWolf/dotfiles/commit/a8b43ef0e3cf5752323f4bb89e1d72fe189d1d4b))
+* **agents:** move Twilio IaC lessons to project-local memory ([29a4062](https://github.com/ChipWolf/dotfiles/commit/29a4062d7764a1befcec59376bea2d3199a47a48))
+* **agents:** no amend or force-push after PR is open ([977734e](https://github.com/ChipWolf/dotfiles/commit/977734ed8f3986c439750839247627d2b370c462))
+* **agents:** note mise GOBIN drift for go install fallbacks ([8cb1c59](https://github.com/ChipWolf/dotfiles/commit/8cb1c5983f1945f09edb456cc48be5049f6cb425))
+* **agents:** note that git hooks need mise activation ([9a48894](https://github.com/ChipWolf/dotfiles/commit/9a488943397df3300f341206a9f7472897f51406))
+* **agents:** pull project-specific rules out of global memory ([ec0c027](https://github.com/ChipWolf/dotfiles/commit/ec0c0275cb1542e7f2f340210b5cb6cad0a12895))
+* **agents:** reconcile scaffolded output + Windows git exec bit ([4c00709](https://github.com/ChipWolf/dotfiles/commit/4c0070929f0772d2a1611fcd9ca8b353ae3d6bf1))
+* **agents:** require delivering the value, not instructions to derive it ([3c706f8](https://github.com/ChipWolf/dotfiles/commit/3c706f8d1f0ced2672bf9ece25646053fb1cadb1))
+* **agents:** require variance + thread-pinning for perf recommendations ([f3fc372](https://github.com/ChipWolf/dotfiles/commit/f3fc3724594af07744bcc8b2f5c956a930283225))
+* **agents:** tighten global AGENTS.md after audit ([#82](https://github.com/ChipWolf/dotfiles/issues/82)) ([078f788](https://github.com/ChipWolf/dotfiles/commit/078f788b8513f2db980094ee63b74ddfaabd2f76))
+* **agents:** verify IaC exporters and browser vs shell auth ([bc50ae5](https://github.com/ChipWolf/dotfiles/commit/bc50ae58aff81da6ea56b6dea40c4e079537422c))
+* **agents:** warn against chezmoi apply --source &lt;worktree&gt; ([aa8ca93](https://github.com/ChipWolf/dotfiles/commit/aa8ca93ce00e161f17ad32ca31bca1b66a0da200))
+* **ci:** cancel in-flight E2E install runs when a PR is closed ([#86](https://github.com/ChipWolf/dotfiles/issues/86)) ([6aee9a5](https://github.com/ChipWolf/dotfiles/commit/6aee9a53ad8e59351a9aa501ce630b5263a3a01b))
+* **ci:** full-scan MegaLinter on its own Renovate update PRs ([#81](https://github.com/ChipWolf/dotfiles/issues/81)) ([795fea6](https://github.com/ChipWolf/dotfiles/commit/795fea6b327477aa39ffdb0733fe970ae0759b88))
+* **deps:** update dependency @tarquinen/opencode-dcp to v3.1.12 ([#58](https://github.com/ChipWolf/dotfiles/issues/58)) ([f85694f](https://github.com/ChipWolf/dotfiles/commit/f85694f26ad8c0a8004d598624d296f5ee37bf38))
+* **deps:** update dependency chezmoi to v2.70.3 ([#60](https://github.com/ChipWolf/dotfiles/issues/60)) ([06e8c74](https://github.com/ChipWolf/dotfiles/commit/06e8c74da78d06f17092fff12a9c29e8c2f0025c))
+* **deps:** update dependency chezmoi to v2.70.4 ([#90](https://github.com/ChipWolf/dotfiles/issues/90)) ([b633440](https://github.com/ChipWolf/dotfiles/commit/b633440349f2285d121a264daa48e93777ad37f0))
+* **deps:** update dependency chrome-devtools-mcp to v1 ([#79](https://github.com/ChipWolf/dotfiles/issues/79)) ([7078d53](https://github.com/ChipWolf/dotfiles/commit/7078d536d41bb0cd9cea43528c3549dc17463607))
+* **deps:** update dependency google/go-containerregistry to v0.21.6 ([#83](https://github.com/ChipWolf/dotfiles/issues/83)) ([3184ea6](https://github.com/ChipWolf/dotfiles/commit/3184ea614f48b1f492c290ff56e6c2de478eafdb))
+* **deps:** update dependency macos to v26 ([#69](https://github.com/ChipWolf/dotfiles/issues/69)) ([f21ae06](https://github.com/ChipWolf/dotfiles/commit/f21ae06ceb824f971a90786dbdbae16c2cbad5ef))
+* **deps:** update dependency smart-mcp-proxy/mcpproxy-go to v0.32.1 ([#63](https://github.com/ChipWolf/dotfiles/issues/63)) ([831324d](https://github.com/ChipWolf/dotfiles/commit/831324daedacb11665c958fef0044abd0b0a69ae))
+* **deps:** update dependency smart-mcp-proxy/mcpproxy-go to v0.33.1 ([#92](https://github.com/ChipWolf/dotfiles/issues/92)) ([7724e04](https://github.com/ChipWolf/dotfiles/commit/7724e04c0b0566cdf60fd1bbb97cd5e9cedf7c69))
+* **deps:** update dependency uv to v0.11.15 ([#61](https://github.com/ChipWolf/dotfiles/issues/61)) ([09ed83e](https://github.com/ChipWolf/dotfiles/commit/09ed83ebb561c3d41035bf3df03b8955f64f22f4))
+* **deps:** update dependency uv to v0.11.16 ([#91](https://github.com/ChipWolf/dotfiles/issues/91)) ([ab48231](https://github.com/ChipWolf/dotfiles/commit/ab482316be0d359274b62ebb18a7500151798dcd))
+* **deps:** update ghcr.io/chipwolf/badgesort docker digest to e0542e4 ([#62](https://github.com/ChipWolf/dotfiles/issues/62)) ([c355a4e](https://github.com/ChipWolf/dotfiles/commit/c355a4e6371d80506298e85c0d662608b6169145))
+* **deps:** update github/codeql-action digest to 9e0d7b8 ([#59](https://github.com/ChipWolf/dotfiles/issues/59)) ([c05bdc9](https://github.com/ChipWolf/dotfiles/commit/c05bdc9a8dbd4d22c1597b708ca150ed6a5debcf))
+* **deps:** update mcr.microsoft.com/devcontainers/universal docker tag to v6.0.4 ([#80](https://github.com/ChipWolf/dotfiles/issues/80)) ([608f81c](https://github.com/ChipWolf/dotfiles/commit/608f81ce530634cd3f366251ab5c69c60b533126))
+* **deps:** update oxsecurity/megalinter action to v9.5.0 ([#70](https://github.com/ChipWolf/dotfiles/issues/70)) ([68afd67](https://github.com/ChipWolf/dotfiles/commit/68afd675438f07a53aa580e0a7bc9fd6d76e5ae2))
+* **renovate:** restrict update PRs to Friday 11am-1pm window ([003cab3](https://github.com/ChipWolf/dotfiles/commit/003cab3b2ad6b0ea2c6196f4687d132a7740b638))
+* **skills:** scope memory skill chezmoi apply to AGENTS.md only ([b6f80f1](https://github.com/ChipWolf/dotfiles/commit/b6f80f159e5f65bf5b310fe581c71eee96c2119a))
+
 ## [1.8.1](https://github.com/ChipWolf/dotfiles/compare/v1.8.0...v1.8.1) (2026-05-11)
 
 
