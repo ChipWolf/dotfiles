@@ -189,7 +189,8 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
 # Sync Neovim plugins
 if (Get-Command nvim -ErrorAction SilentlyContinue) {
     Write-Host "Syncing Neovim plugins..."
-    nvim --headless "+Lazy! sync" +qa
+    $headlessInstall = Join-Path $xdgTarget 'nvim\scripts\headless-install.lua'
+    nvim --headless -S "$headlessInstall"
     if ($LASTEXITCODE -ne 0) {
         throw "Neovim plugin sync failed (exit code $LASTEXITCODE)."
     }

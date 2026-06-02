@@ -100,7 +100,7 @@ if [ -z "$NVIM_PRE_INSTALLED" ]; then
     echo "neovim binary not found at $NVIM_BIN after brew bundle." >&2
     exit 1
   fi
-  "$NVIM_BIN" --headless "+Lazy! sync" +qa
+  "$NVIM_BIN" --headless -S "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/scripts/headless-install.lua"
 fi
 
 BREW_ZSH="$(brew --prefix)/bin/zsh"
