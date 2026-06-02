@@ -163,6 +163,11 @@ brew:
           conditions:
             - { kind: os, op: is, value: mac }
         - type: cask
+          name: blockblock # persistence monitor
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
+        - type: cask
           name: cursor
           conditions:
             - { kind: os, op: is, value: mac }
