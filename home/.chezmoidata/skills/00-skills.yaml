@@ -3,9 +3,9 @@
 #
 # Canonical agent skills manifest.
 #
-# Each source is installed into each declared target agent's global skills dir
-# via the vercel-labs/skills CLI (`npx skills add ...`). Symlink mode on Unix,
-# `--copy` on Windows.
+# Each source is installed for each declared target agent via the
+# vercel-labs/skills CLI (`npx skills add ...`). The CLI owns any per-agent
+# links/copies; these dotfiles do not gap-fill missing agent directories.
 #
 # Supported agent IDs: claude-code, opencode, cursor, codex, pi.
 # Adding a new agent requires editing both schemas/skills.schema.json and the
@@ -19,11 +19,10 @@
 skills:
   defaults:
     # Pi is intentionally omitted: pi natively discovers ~/.agents/skills/
-    # (see pi's docs/skills.md "Locations"), so installing copies into
-    # ~/.pi/agent/skills/ duplicates every skill and produces name-collision
-    # warnings at startup. The skills install script prunes any leftover
-    # duplicates in ~/.pi/agent/skills/ on every apply so machines that
-    # previously had pi in targets get reconciled.
+    # (see pi's docs/skills.md "Locations"), so targeting pi duplicates every
+    # skill and produces name-collision warnings at startup. The Unix skills
+    # install script prunes leftover byte-identical ~/.pi/agent/skills entries
+    # on apply so machines that previously had pi in targets get reconciled.
     targets:
       - claude-code
       - opencode

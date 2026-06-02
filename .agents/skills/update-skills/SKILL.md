@@ -39,14 +39,11 @@ Supported agent IDs: `claude-code`, `opencode`, `cursor`, `codex`, `pi`. Adding 
 
 ## Installation model
 
-- The `vercel-labs/skills` CLI installs every skill to `~/.agents/skills/` as the **canonical on-disk location**, regardless of the `-a <agent>` flag. The flag controls metadata (which agents are registered as consumers), not the install path.
-- The CLI then creates per-agent links from each agent's expected discovery path back to the canonical:
-  - **claude-code** → junction at `~/.claude/skills/<name>` (Windows) / symlink (Unix) → `~/.agents/skills/<name>`. Works automatically.
-  - **pi** → real directory copies at `~/.pi/agent/skills/<name>`. Works automatically.
-  - **codex, cursor, opencode** → CLI silently skips these. Our install script creates the links itself in a "gap-fill" pass after the `npx skills add` invocations.
-- **Gap-fill pass:** at the end of each install script, we enumerate `~/.agents/skills/*` (excluding hidden dirs like Codex's `.system/`) and create junctions (Windows) / symlinks (Unix) at `~/.codex/skills/<name>`, `~/.cursor/skills/<name>`, and `${XDG_CONFIG_HOME:-~/.config}/opencode/skills/<name>`. The pass is idempotent — existing entries are skipped.
-- On Unix the canonical store + symlinks means each skill exists once on disk. On Windows junctions provide the same single-source-of-truth (NTFS junctions are not file copies).
-- The install scripts are **install-and-update only**. They NEVER remove. To remove, edit the manifest and run `~/.scripts/skills-review`.
+- The `vercel-labs/skills` CLI owns skill distribution. The install scripts only invoke `npx skills@latest add <source> -a <agent> -g ...` for the manifest targets.
+- Do not manually create per-agent symlinks, junctions, or copies for agents that the CLI supports. If the CLI skips an agent-specific directory, treat that as intentional or rely on that agent's native discovery of `~/.agents/skills`.
+- Legacy gap-fill links are pruned by the install scripts for Codex, Cursor, and OpenCode. Safety: cleanup removes only symlinks/junctions that point under `~/.agents/skills`.
+- Pi is omitted from default targets because it natively discovers `~/.agents/skills`; installing copies into `~/.pi/agent/skills` duplicates every skill and produces name-collision warnings. The Unix install script still prunes old byte-identical Pi duplicates left behind by earlier manifests.
+- The install scripts otherwise are **install-and-update only**. To remove a declared skill/source, edit the manifest and run `~/.scripts/skills-review`.
 
 ## Editing rules
 
@@ -54,7 +51,7 @@ Supported agent IDs: `claude-code`, `opencode`, `cursor`, `codex`, `pi`. Adding 
 2. Use overlays in separate files under `home/.chezmoidata/skills/` for personal/fork-specific additions; map keys deep-merge.
 3. Exactly one of `path` or `repo` per source.
 4. For local sources, `path` is relative to `{{ .chezmoi.workingTree }}` (the git working tree, e.g. `~/.local/share/chezmoi`), NOT `{{ .chezmoi.sourceDir }}` (which is the source state root, e.g. `~/.local/share/chezmoi/home`). The canonical local skills source lives at `skills/` at the repo root, outside chezmoi source state. For remote sources, prefer GitHub shorthand (`org/repo`) over full URLs unless you need a non-GitHub host.
-5. Don't reintroduce a "universal" location at `~/.agents/skills/`. The CLI distributes per-agent paths directly; the universal convention has been abandoned for skills.
+5. Do not add manual gap-fill distribution for supported agents. Let the `vercel-labs/skills` CLI and each agent's native discovery paths define where skills appear.
 6. To remove a skill, delete it from the manifest **and** run `~/.scripts/skills-review` interactively. Apply alone never removes.
 
 ## Validation workflow
@@ -62,9 +59,9 @@ Supported agent IDs: `claude-code`, `opencode`, `cursor`, `codex`, `pi`. Adding 
 After manifest or script changes:
 
 1. `chezmoi apply <changed-path>` for targeted application.
-2. Read the resulting deployed files under each per-agent skills dir (`~/.claude/skills/`, `~/.codex/skills/`, etc.) and confirm expected entries are present.
-3. On Unix, verify entries are symlinks back to `<workingTree>/<path>/<skill>` (use `readlink`).
-4. On Windows, verify entries are real directories with the expected content (use `Get-ChildItem`).
+2. Confirm expected entries exist in the locations created by the `skills` CLI or by the agent's native discovery path. Do not require Codex, Cursor, or OpenCode per-agent directories to be populated by dotfiles.
+3. On Unix, verify legacy gap-fill symlinks under `~/.codex/skills`, `~/.cursor/skills`, and `${XDG_CONFIG_HOME:-~/.config}/opencode/skills` were pruned when they point under `~/.agents/skills`.
+4. On Windows, verify legacy gap-fill junctions under `~/.codex/skills`, `~/.cursor/skills`, and `~/.config/opencode/skills` were pruned when they point under `~/.agents\skills`.
 5. Run `~/.scripts/skills-review` and confirm no false-positive drift is reported when the manifest matches the install state.
 
 ## Drift review (skills-review)
