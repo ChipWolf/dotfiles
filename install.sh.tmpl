@@ -100,9 +100,23 @@ if ! chezmoi="$(command -v chezmoi)"; then
 				;;
 			*)
 				echo "Installing Homebrew..." >&2
-				run_remote bash https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh || {
-					echo "Homebrew installation failed; continuing without it." >&2
-				}
+				# Stage the installer to a tmpfile and run it with stdin from
+				# /dev/tty so the sudo prompt works. Piping curl|bash leaves
+				# the installer's stdin attached to the curl pipe, which
+				# forces NONINTERACTIVE mode and bails out for any user who
+				# does not already have passwordless sudo.
+				brew_installer="$(mktemp)"
+				if command -v curl >/dev/null 2>&1; then
+					curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "${brew_installer}"
+				elif command -v wget >/dev/null 2>&1; then
+					wget -qO "${brew_installer}" https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+				else
+					echo "curl or wget is required; please install one and retry." >&2
+					exit 1
+				fi
+				bash "${brew_installer}" </dev/tty
+				rm -f "${brew_installer}"
+				unset brew_installer
 				# Homebrew may not be on PATH yet in this session; source shellenv if needed
 				if ! command -v brew >/dev/null 2>&1; then
 					for brew_prefix in /opt/homebrew /usr/local /home/linuxbrew/.linuxbrew; do
@@ -112,12 +126,10 @@ if ! chezmoi="$(command -v chezmoi)"; then
 						fi
 					done
 				fi
-				if command -v brew >/dev/null 2>&1; then
-					echo "Installing chezmoi via Homebrew" >&2
-					brew install chezmoi
-					chezmoi="$(command -v chezmoi)"
-					install_via_script=0
-				fi
+				echo "Installing chezmoi via Homebrew" >&2
+				brew install chezmoi
+				chezmoi="$(command -v chezmoi)"
+				install_via_script=0
 				;;
 			esac
 		fi
