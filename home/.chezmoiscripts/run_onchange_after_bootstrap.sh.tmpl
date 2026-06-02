@@ -38,6 +38,14 @@ fi
 
 export HOMEBREW_CASK_OPTS="--require-sha"
 export HOMEBREW_NO_AUTO_UPDATE=1
+{{- if .private }}
+# Chezmoi knows this is a private machine (~/.private exists or OS is
+# Windows). Surface that to brew bundle as HOMEBREW_PRIVATE so PRIVATE-
+# gated casks (lulu, blockblock, cursor, shadow, ...) actually install
+# under a plain `chezmoi apply` without the user having to remember to
+# prefix the command with PRIVATE=1.
+export PRIVATE=1
+{{- end }}
 
 BREWFILE_RENDERED="$(mktemp)"
 trap 'rm -f "$BREWFILE_RENDERED"' EXIT INT TERM
