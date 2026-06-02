@@ -209,6 +209,10 @@ brew:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: cask
+          name: tailscale-app # mesh VPN
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
           name: visual-studio-code
           conditions:
             - { kind: os, op: is, value: mac }

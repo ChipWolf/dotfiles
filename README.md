@@ -31,7 +31,7 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 | **WakaTime CLI**        | Coding activity tracker                  |   x   |   x   |         |            |
 | **Git**                 | Version control config                   |   x   |   x   |    x    |     x      |
 | **GnuPG**               | Encryption and signing                   |   x   |   x   |         |            |
-| **Tailscale**           | VPN mesh and secure remote access        |       |       |    x    |            |
+| **Tailscale**           | VPN mesh and secure remote access        |   x   |       |    x    |            |
 | **Yubico Authenticator** | YubiKey OATH, PIV, and FIDO management  |       |       |    x    |            |
 | **ssh-tpm-agent**       | TPM-sealed SSH commit signing (Windows)  |       |       |    x    |            |
 | **Homebrew**            | Package manager                          |   x   |   x   |         |     x      |
