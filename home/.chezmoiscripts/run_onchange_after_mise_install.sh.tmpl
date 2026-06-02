@@ -20,4 +20,7 @@ fi
 
 mise trust "$HOME/.config/mise/config.toml" >/dev/null 2>&1 || true
 mise install
+# Remove installed versions no longer referenced by any tracked config so
+# tool removals/renames in mise.toml reconcile across machines.
+mise prune --tools -y
 {{ end -}}

@@ -26,4 +26,11 @@ if (-not $miseCmd) {
 if ($LASTEXITCODE -ne 0) {
     throw "mise install failed (exit code $LASTEXITCODE)."
 }
+
+# Remove installed versions no longer referenced by any tracked config so
+# tool removals/renames in mise.toml reconcile across machines.
+& $miseCmd.Source prune --tools -y
+if ($LASTEXITCODE -ne 0) {
+    throw "mise prune failed (exit code $LASTEXITCODE)."
+}
 {{- end }}
