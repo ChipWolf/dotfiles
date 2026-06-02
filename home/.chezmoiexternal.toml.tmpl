@@ -1,4 +1,12 @@
-{{- if and (not .codespaces) (not .ci) (not .wsl) }}
+{{- /* Skip on first install: the external clone needs the gh-backed credential
+       helper in ~/.gitconfig, but gh isn't installed/authed until the bootstrap
+       script runs later in the same apply. Gate on gh's hosts.yml so the vault
+       clones on a subsequent apply once `gh auth login` has run. */ -}}
+{{- $ghHosts := joinPath .chezmoi.homeDir ".config" "gh" "hosts.yml" -}}
+{{- if eq .chezmoi.os "windows" -}}
+{{- $ghHosts = joinPath (env "APPDATA") "GitHub CLI" "hosts.yml" -}}
+{{- end -}}
+{{- if and (not .codespaces) (not .ci) (not .wsl) (stat $ghHosts) }}
 ["Documents/Obsidian/Vault"]
     type = "git-repo"
     url = "https://github.com/ChipWolf/obsidian-on.git"
