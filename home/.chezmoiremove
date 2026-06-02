@@ -3,9 +3,7 @@
 .config/opencode/opencode.jsonc
 .config/zsh/.zfunctions/is-iterm2
 .local/beads
-.agents/skills/create-skill
+# Guard: dotfiles is a project-only skill (used when editing this repo);
+# the skills CLI excludes it from global install, but keep this entry as a
+# safety net against accidental future deployment to ~/.agents/skills/.
 .agents/skills/dotfiles
-.agents/skills/git-commit-push
-.agents/skills/memory
-.agents/skills/retrospective
-.agents/skills/stop-slop

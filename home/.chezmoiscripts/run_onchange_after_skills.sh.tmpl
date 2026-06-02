@@ -44,10 +44,11 @@ mise x -- npx -y skills@latest add {{ $spec }} -a {{ $target }} -g -y -s '*'
 {{- end }}
 
 # Symlink fill-in for agent dirs the vercel-labs/skills CLI doesn't auto-link.
-# The CLI installs every skill to ~/.agents/skills/ as canonical, then links
-# to some per-agent dirs (claude-code works, pi gets copies) but silently skips
-# codex, cursor, and opencode. We create symlinks ourselves so those agents
-# see the same canonical install. Idempotent: skips existing entries.
+# The CLI installs every skill to ~/.agents/skills/ as canonical and links it
+# into ~/.claude/skills/ but silently skips codex, cursor, and opencode. We
+# create symlinks ourselves so those agents see the same canonical install.
+# Pi is not in this list because it natively discovers ~/.agents/skills/.
+# Idempotent: skips existing entries.
 canonical_skills_dir="$HOME/.agents/skills"
 gap_agent_dirs=(
     "$HOME/.codex/skills"
@@ -66,6 +67,28 @@ if [ -d "$canonical_skills_dir" ]; then
                 ln -s "$skill_path" "$link_path" 2>/dev/null || true
             fi
         done
+    done
+fi
+
+# Prune pi skill duplicates left behind on machines that previously had pi
+# in defaults.targets (the skills CLI copied skills into ~/.pi/agent/skills/
+# and pi reads that location as well as ~/.agents/skills/, producing
+# name-collision warnings at startup).
+#
+# Safety: only remove a ~/.pi/agent/skills/<name> when its contents are
+# byte-identical to ~/.agents/skills/<name>. A pi extension that writes a
+# same-named skill with different content is left alone.
+pi_skills_dir="$HOME/.pi/agent/skills"
+if [ -d "$pi_skills_dir" ] && [ -d "$canonical_skills_dir" ]; then
+    for skill_path in "$pi_skills_dir"/*; do
+        [ -d "$skill_path" ] || continue
+        skill_name=$(basename "$skill_path")
+        case "$skill_name" in .*) continue ;; esac
+        canonical_path="$canonical_skills_dir/$skill_name"
+        [ -d "$canonical_path" ] || continue
+        if diff -rq "$skill_path" "$canonical_path" >/dev/null 2>&1; then
+            rm -rf "$skill_path"
+        fi
     done
 fi
 {{ end -}}

@@ -18,12 +18,17 @@
 #   skills:  selective install of named skills only (otherwise all)
 skills:
   defaults:
+    # Pi is intentionally omitted: pi natively discovers ~/.agents/skills/
+    # (see pi's docs/skills.md "Locations"), so installing copies into
+    # ~/.pi/agent/skills/ duplicates every skill and produces name-collision
+    # warnings at startup. The skills install script prunes any leftover
+    # duplicates in ~/.pi/agent/skills/ on every apply so machines that
+    # previously had pi in targets get reconciled.
     targets:
       - claude-code
       - opencode
       - cursor
       - codex
-      - pi
   sources:
     # Local universal skills (formerly home/dot_agents/skills/).
     # Source lives at the repo root in skills/ (not under home/, not chezmoi state).
