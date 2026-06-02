@@ -75,11 +75,31 @@ mise_x() {
 	fi
 }
 
+# Tracked via a file because throwaway_cwd is called inside command
+# substitution (a subshell), so bash array mutations would not survive.
+THROWAWAY_LIST="$OUT_DIR/.throwaway-cwds"
+: >"$THROWAWAY_LIST"
+
 throwaway_cwd() {
 	local d
 	d="$(mktemp -d "${TMPDIR:-/tmp}/agent-audit-$1.XXXXXX")"
+	printf '%s\n' "$d" >>"$THROWAWAY_LIST"
 	printf '%s\n' "$d"
 }
+
+cleanup() {
+	# Per-client throwaway cwds are pure scratch — remove unconditionally.
+	if [ -s "$THROWAWAY_LIST" ]; then
+		while IFS= read -r d; do
+			[ -n "$d" ] && rm -rf "$d" 2>/dev/null || true
+		done <"$THROWAWAY_LIST"
+	fi
+	# When not --raw and OUT_DIR wasn't user-provided, remove the whole OUT_DIR.
+	if [ "$KEEP_RAW" -eq 0 ] && [ -z "${AGENT_AUDIT_OUT_DIR:-}" ]; then
+		rm -rf "$OUT_DIR" 2>/dev/null || true
+	fi
+}
+trap cleanup EXIT
 
 # ---------- Claude Code ----------
 audit_claude() {
@@ -316,10 +336,6 @@ while IFS=$'\t' read -r client version chars tokens note; do
 	printf '%-9s %-12s %10s %10s  %s\n' "$client" "$version" "$chars" "$tokens" "$note"
 done <"$RESULTS_FILE"
 
-printf '\nRaw captures: %s\n' "$OUT_DIR"
-if [ "$KEEP_RAW" -eq 0 ] && [ -z "${AGENT_AUDIT_OUT_DIR:-}" ]; then
-	# Keep results.tsv and per-client .txt; remove transient logs.
-	find "$OUT_DIR" -maxdepth 1 -type f \
-		\( -name '*.log' -o -name '*.port' -o -name '*-stdout.*' -o -name '*-stderr.*' \) \
-		-delete 2>/dev/null || true
+if [ "$KEEP_RAW" -eq 1 ] || [ -n "${AGENT_AUDIT_OUT_DIR:-}" ]; then
+	printf '\nRaw captures: %s\n' "$OUT_DIR"
 fi

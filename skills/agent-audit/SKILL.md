@@ -61,6 +61,7 @@ After each use, run this loop before ending the task:
    - A new client appears in `home/.chezmoidata/skills/*.yaml` or `home/.chezmoidata/mcps/*.yaml` that has no row in the table.
    - A char count drifts more than ~10% from the previous run without a known cause (skills catalogue or AGENTS.md edits, CLI upgrade).
    - Token estimate (`chars/4`) diverges noticeably from a real tokenizer count when one is available.
+   - `${TMPDIR}/agent-audit-*` dirs accumulate after a non-`--raw` run (cleanup trap regressed).
 2. If a pattern appears, update this skill in chezmoi source:
    - `skills/agent-audit/SKILL.md` for instructions and the capture-method table.
    - `skills/agent-audit/audit.sh` for detection, invocation, or output changes.
