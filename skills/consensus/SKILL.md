@@ -41,9 +41,17 @@ for trivial or already-decided questions — it is deliberately expensive (panel
    summary, and runs a convergence check. Repeat until **converged** or `maxRounds` (default 4).
 5. **Synthesis (Phase 3):** chair declares the decision: choice, rationale, rejected options +
    why, **dissent / minority report**, risks + mitigations, confidence, follow-ups.
-6. **Record (Phase 4):** write an ADR from [resources/adr-template.md](resources/adr-template.md)
-   into `docs/adr/` using the next free sequence number — list the directory first, don't assume
-   the next number — then return the summary.
+6. **Record (Phase 4) — approval-gated, never a subagent:** the top-level orchestrator records the
+   decision; **no panel member, chair, synthesizer, or recorder subagent ever writes to the repo.**
+   Render the ADR from [resources/adr-template.md](resources/adr-template.md) and **present it
+   inline as `Status: proposed`**.
+   - **Human present:** write the file to `docs/adr/` **only on explicit approval**, claiming the
+     next free number by listing the directory *at write-time*. The sequence number AND
+     `Status: accepted` are claimed only at this approval step — that combination is what makes a
+     record canonical, so it is an orchestrator-only, approval-time operation.
+   - **Headless (no human to approve):** do **not** write to disk. Return/emit the ADR draft
+     (`Status: proposed`); the caller persists it. A vanished decision is worse than a deletable
+     file, but an unprompted `accepted`/numbered write is worse still — so return, never auto-write.
 
 ## Convergence = stability, not just agreement
 
@@ -100,6 +108,12 @@ the standing advice is just don't make *everyone* opus. This is guidance, not a 
 
 - **No fabricated context.** Members ground every claim in the context pack, repo, or MCP results
   — never invent facts, schemas, or prior decisions. (See global `AGENTS.md`.)
+- **Subagents are read-only; the orchestrator records, on approval.** Every meeting agent (member,
+  chair, synthesizer, recorder) is told not to write files; the Workflow prompts carry a
+  `NO_WRITE_RULE`, and where a harness can strip a subagent's write tools, do so (defense-in-depth).
+  Only the top-level orchestrator writes the ADR, only on explicit human approval, and never in a
+  headless run (it returns the draft instead). This exists because a subagent once wrote an
+  unrequested `Status: accepted` ADR into a repo — the failure was that no prompt forbade it.
 - **Always surface dissent.** A buried minority report is a failed meeting.
 - **Scale to the decision.** Match panel size and round count to how much the decision is worth.
 

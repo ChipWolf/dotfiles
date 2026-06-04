@@ -95,11 +95,28 @@ discussion), rationale, each rejected option and why, **dissent / minority repor
 mitigations, overall confidence, and follow-ups. Dissent is mandatory if any member ended below
 moderate confidence or kept an unaddressed objection.
 
-### Phase 4 — Record
-Write an ADR from [resources/adr-template.md](resources/adr-template.md) into `docs/adr/` using
-the next sequence number, following the repo's existing ADR style. Return the summary to the user.
-If the repo has no `docs/adr/`, return the summary and offer to create the directory rather than
-writing silently.
+### Phase 4 — Record (approval-gated, orchestrator-only)
+The **top-level orchestrator** records the decision — **never a subagent** (no member, chair,
+synthesizer, or recorder). Render the ADR from
+[resources/adr-template.md](resources/adr-template.md) and present it **inline as
+`Status: proposed`**.
+
+- **Human present:** write to `docs/adr/` **only on explicit approval**, claiming the next free
+  number by listing the directory at write-time. The number AND `Status: accepted` are assigned
+  only at this step; that combination is what makes a record *canonical*, so it is an
+  orchestrator-only, approval-time operation. A stray subagent write can therefore at worst leave
+  an unnumbered `proposed` draft, never a ratified numbered ADR.
+- **Headless (no human):** do not write. Return/emit the draft (`Status: proposed`) for the caller
+  to persist; in the Workflow path this is the `adrDraft` field in the return value, produced by a
+  dedicated low-context **recorder** step (a scalar string, not a required `DECISION_SCHEMA` field
+  — a required field on the heaviest agent call would risk the empty-`{}` synthesis hang).
+- If the repo has no `docs/adr/`, return the summary and offer to create the directory rather than
+  writing silently.
+
+This policy exists because a subagent once followed the old "write an ADR" prose literally and
+wrote an unrequested `Status: accepted` ADR into a repo (consuming a sequence number for a decision
+no human had ratified). The failure was the absence of a prohibition, not a defied one — so the
+Workflow prompt builders now all carry a `NO_WRITE_RULE`, and the record step is gated.
 
 ## Building the panel (real roles, not archetypes)
 
@@ -147,6 +164,13 @@ vs. stability, detail vs. big-picture). Make them distinct and human; no two ide
 
 ## Failure modes
 
+- **Unprompted subagent write** — a meeting subagent has file-write tools and follows a stray "write
+  the ADR" instruction literally, landing an unrequested `Status: accepted` ADR (and a consumed
+  sequence number) in the repo for a decision no human ratified. Observed live. Fix is the Phase 4
+  policy above: `NO_WRITE_RULE` on every Workflow prompt builder (portable floor), strip subagent
+  write tools where the harness allows (defense-in-depth), and make canonical-ness (number +
+  `accepted`) an orchestrator-only, approval-time act so a stray write degrades to a recoverable
+  unnumbered `proposed` draft. In a team/portable run, prefer read-only agent types for members.
 - **False/early consensus** — agents agree because they're the same model with the same prior. Fix
   with model diversity (not an all-flagship panel), distinct role/disposition profiles, and the
   groupthink guard.

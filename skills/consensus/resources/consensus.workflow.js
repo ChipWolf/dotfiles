@@ -169,6 +169,13 @@ const STANCE_OUTPUT_RULE = [
   'If you have already written your reasoning as prose, do not stop there: you have not responded until the StructuredOutput call carries the populated fields.',
 ].join(' ')
 
+// Every meeting agent is read-only. A subagent once wrote an unrequested ADR to
+// the repo because no prompt forbade it; this is the portable floor (works on any
+// harness, sandbox or not). Only the top-level caller records the decision, and
+// only on explicit human approval. See SKILL.md Phase 4.
+const NO_WRITE_RULE =
+  'READ-ONLY: you may read files and run read-only commands to ground yourself, but you must NOT write, edit, or create any file, and must NOT run any state-changing command (no git add/commit, no chezmoi apply, no ADR file). This meeting only RETURNS a recommendation; recording it to the repo is the top-level caller\'s job after the meeting, gated on human approval. Do not write the ADR yourself under any circumstances.'
+
 function briefPrompt() {
   return [
     'You are the Chair of a decision panel. Frame the decision before anyone is convened.',
@@ -182,6 +189,7 @@ function briefPrompt() {
     'For each member set: `role` (the realistic title), `focus` (2-4 concrete things someone in that role tends to weigh — these are EXAMPLES to orient them, not orders to argue a side), and `disposition` (one line placing them at a believable point on a spectrum: risk appetite, change vs. stability, detail vs. big-picture). Make every disposition distinct and human; NO caricatures, NO "extreme" anyone — real colleagues are all just somewhere on the scale. Do NOT assign anyone the job of opposing or cheerleading; let their role and disposition produce genuine views. Do not give members names; the meeting assigns those.',
     'Exactly ONE member has `facilitator: true` — the person who will run the room and write up the decision. They hold real views too; facilitator is a duty, not a neutral chairhood.',
     'Assign each member a model, and mind the mix: DEFAULT members to sonnet; use haiku for lighter-weight perspectives; reserve opus for AT MOST ONE pivotal voice where deep reasoning genuinely pays. An all-opus panel is wrong two ways over: it wastes the flagship model AND collapses the diversity of priors the panel exists to create — the point of a panel is varied minds, not one model many times. Set chairModel to the facilitator\'s model. (The script maps the opus tier to a pinned non-long-context build, so opus is safe for the facilitator if you want it there; just do not make it the default for everyone.)',
+    NO_WRITE_RULE,
   ].filter(Boolean).join('\n\n')
 }
 
@@ -199,6 +207,7 @@ function prepPrompt(member, brief) {
     'First, think privately: mull this over in your own terms, surface your strong views and your real uncertainties, and whether the option slate is even framed right. You may use tools (via ToolSearch) to ground yourself, but cite only what you can verify — never invent facts.',
     'Then emit your stance. This is your independent prior: do not assume what others think. If you would put a new or reframed option on the table, include it in proposedOptions and you may set preferredOption to it. Set changedFromLastRound to false.',
     STANCE_OUTPUT_RULE,
+    NO_WRITE_RULE,
   ].join('\n\n')
 }
 
@@ -235,6 +244,7 @@ function crosstalkPrompt(member, brief, transcript, round, chairSummary, slate) 
     'React like a real participant: concede where others are right, push back where they are wrong, and say plainly if you have changed your mind. Pressure-test the front-runner wherever YOUR perspective genuinely sees a weakness — that scrutiny is everyone\'s job here, not one assigned skeptic\'s. Stay grounded in the context and tool results; do not invent.',
     'Emit your updated stance. If you are proposing or reshaping an option, put it in proposedOptions. Set changedFromLastRound to true if your preferred option or a material reason changed this round.',
     STANCE_OUTPUT_RULE,
+    NO_WRITE_RULE,
   ].filter(Boolean).join('\n\n')
 }
 
@@ -248,6 +258,7 @@ function chairCheckPrompt(brief, prev, curr, round, slate) {
     'First, curate the live slate into optionSlate: fold in options members put forward this round, merge duplicates and near-duplicates, reword for clarity, and drop options nobody backs any more. This is the set the room has actually shaped — it may differ from the menu it started with. Keep at least one option.',
     'Then judge convergence strictly: converged = true ONLY if NO member changed their preferred option THIS round AND no new substantive objection appeared AND the slate itself is stable (no new option still drawing support). A round in which members moved onto the front-runner, or a freshly proposed option is still gathering backers, is progress, NOT convergence — it needs a following quiet round to confirm. A momentary majority is NOT convergence.',
     'Summarize where the room stands (refer to people by name), list the live tensions, name the front-runner, and explain your convergence judgement (name who is still moving or the new objection if not converged).',
+    NO_WRITE_RULE,
   ].join('\n\n')
 }
 
@@ -260,7 +271,26 @@ function synthPrompt(brief, stances, chairSummary, provisional, slate) {
     chairSummary ? `Your latest read of the room:\n${chairSummary}` : '',
     provisional ? 'The meeting hit the round cap WITHOUT convergence: mark the decision provisional and record the unresolved tensions.' : '',
     'Declare the decision: chosen option (any option on the final slate, including one that emerged in discussion), rationale grounded in the panel\'s reasoning, each rejected option and why, dissent / minority report (mandatory if anyone ended below moderate confidence or kept an unaddressed objection), risks with mitigations, overall confidence, and follow-ups.',
+    NO_WRITE_RULE,
   ].filter(Boolean).join('\n\n')
+}
+
+// Post-synthesis recorder: renders the ADR markdown as a plain string so the
+// draft is always captured in the return value. A dedicated, low-context call
+// with a scalar return — NOT a field bolted onto DECISION_SCHEMA, which (being a
+// required field on the heaviest agent call) would risk the empty-{} synthesis
+// hang. The recorder never writes; the caller persists it (gated on approval).
+function recorderPrompt(brief, decision, slate) {
+  return [
+    'You are the recorder. Render the final decision below as a complete ADR in Markdown, ready for a human to review.',
+    'Follow the repo\'s ADR shape: a single H1 title that states the chosen outcome (not a question); then ## Status, ## Decision, ## Context (with a "### Options considered" list), ## Consequences, and a ## Dissent / minority report section.',
+    'Set ## Status to exactly `proposed` — this draft has NOT been ratified by a human. Do not write `accepted`.',
+    `Decision question: ${brief.question}`,
+    `Final option slate:\n${slate}`,
+    `Decision object (JSON):\n${JSON.stringify(decision, null, 2)}`,
+    'Return ONLY the Markdown ADR text as your message. Do not add commentary before or after.',
+    NO_WRITE_RULE,
+  ].join('\n\n')
 }
 
 // --- orchestration -----------------------------------------------------------
@@ -353,4 +383,10 @@ phase('Synthesis')
 const provisional = !converged
 const decision = await agent(synthPrompt(brief, stances, chairSummary, provisional, slateOf(slate)), { label: 'chair:synthesis', phase: 'Synthesis', schema: DECISION_SCHEMA, model: resolveModel(facilitator.model) })
 
-return { brief, panel: members.map(m => ({ name: m.name, role: m.role, model: m.model, facilitator: !!m.facilitator })), finalSlate: slate, finalStances: stances, rounds: round, converged, decision }
+// Render the ADR draft as a string (Status: proposed) so it is always captured
+// in the return value. The workflow NEVER writes it: recording is the caller's
+// job, gated on human approval (see SKILL.md Phase 4). In a headless run this
+// returned `adrDraft` IS the durable record — the caller persists it.
+const adrDraft = await agent(recorderPrompt(brief, decision, slateOf(slate)), { label: 'recorder', phase: 'Synthesis', model: resolveModel(facilitator.model) })
+
+return { brief, panel: members.map(m => ({ name: m.name, role: m.role, model: m.model, facilitator: !!m.facilitator })), finalSlate: slate, finalStances: stances, rounds: round, converged, decision, adrDraft }
