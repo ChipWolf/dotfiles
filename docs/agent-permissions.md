@@ -1,15 +1,27 @@
 # Agent Permissions (How To)
 
-Agent permission rules are managed as layered chezmoi data, then rendered into OpenCode config.
+Agent permission rules are managed as layered chezmoi data, then rendered into several editors'
+configs.
 
 Source files:
 
 - `home/.chezmoidata/agent-permissions/*.yaml` (overlays merged lexically)
 - schema: `schemas/agent-permissions.schema.json`
 
-Rendered output:
+Shared prep partial (collects the top-level rules + condition-enabled ruleSets once; see
+[CONTEXT.md](../CONTEXT.md) and [ADR-0001](adr/0001-source-of-truth-fan-out-via-prep-partials.md)):
 
-- OpenCode config via `home/dot_config/opencode/opencode.jsonc.tmpl`
+- `home/.chezmoitemplates/agent-permission-rules.tmpl` — emits the collected rule list as JSON
+
+Render targets (each consumes the prep partial, keeps its own per-rule conditions gate + shaping):
+
+- OpenCode via `home/dot_config/opencode/modify_opencode.json` (partial `home/.chezmoitemplates/opencode-permission.tmpl`) — honours all `kinds`
+- Cursor via `home/Library/Application Support/Cursor/User/settings.json.tmpl` and `home/AppData/Roaming/Cursor/User/settings.json.tmpl` (partial `home/.chezmoitemplates/cursor-terminal-auto-approve.tmpl`) — `bash` kind only
+- Zed via `home/dot_config/zed/modify_settings.json` and `home/AppData/Roaming/Zed/modify_settings.json` (partial `home/.chezmoitemplates/zed-terminal-tool-permissions.tmpl`) — `bash` kind only
+
+A `kind` renders to a target only when `agentPermissions.kinds.<kind>.targets.<target>` is
+truthy (e.g. `bash` enables `opencode` and `zed`; `external_directory` and `permission_key`
+enable `opencode` only).
 
 ## Data shape
 
@@ -21,14 +33,21 @@ agentPermissions:
     bash:
       destinationType: namespaced
       destinationKey: bash
+      targets:
+        opencode: true
+        zed: true
       supportsMatchMode: true
       defaultMatchMode: exact
       wildcardSuffix: " *"
     external_directory:
       destinationType: namespaced
       destinationKey: external_directory
+      targets:
+        opencode: true
     permission_key:
       destinationType: top_level
+      targets:
+        opencode: true
   rules:
     - kind: bash
       pattern: "git status"
@@ -44,7 +63,13 @@ All rule types share the same schema. Kind routing is data-driven via `agentPerm
 
 - `destinationType: namespaced` -> rule emits into `permission.<destinationKey>`
 - `destinationType: top_level` -> rule emits at top level of `permission`
+- `targets.<target>` -> per-target enablement for the kind (truthy = rendered to that target)
 - `supportsMatchMode` + `defaultMatchMode` + `wildcardSuffix` control wildcard expansion behavior for that kind
+
+Note: the per-rule `conditions` gate is applied inside each render target, not in the shared
+prep partial — OpenCode uses a strict gate (an absent condition key excludes the rule) while
+Cursor/Zed use a loose gate (an absent key includes it). Both agree for the conditions used in
+this repo (`ci`, `private`), which are always present.
 
 Rules then reference a configured kind by `kind`.
 
@@ -105,7 +130,12 @@ In this repo, Atlassian-specific permission keys live in `home/.chezmoidata/agen
 
 ## Validation
 
-1. Render OpenCode config with `chezmoi execute-template`.
-2. Run test suite (`tests/source/chezmoi.bats`).
-3. Run `pre-commit run --all-files` before commit.
+1. Render each target (`chezmoi cat <target-path>` or `chezmoi execute-template`) and confirm
+   expected permission keys are present/absent.
+2. After changing the shared prep partial, confirm render output is byte-identical for the
+   OpenCode, Cursor, and Zed settings targets (`chezmoi cat` before/after).
+3. Run test suite (`tests/source/chezmoi.bats`).
+4. Run `pre-commit run --all-files` before commit.
+
+See `.agents/skills/update-agent-permissions/SKILL.md` for the full validation workflow.
 

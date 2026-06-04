@@ -7,10 +7,21 @@ Source files:
 - `home/.chezmoidata/mcps/*.yaml` (canonical overlays, merged lexically)
 - schema: `schemas/mcp-servers.schema.json`
 
-Rendered outputs:
+Shared prep partial (single source of the filtering + `$data.*` resolution; see
+[CONTEXT.md](../CONTEXT.md) and [ADR-0001](adr/0001-source-of-truth-fan-out-via-prep-partials.md)):
+
+- `home/.chezmoitemplates/mcp-eligible-servers.tmpl` — emits the eligible server set per target as JSON
+
+Render targets (each consumes the prep partial via `includeTemplate ... | fromJson`, then maps to its own schema):
 
 - Cursor via `home/dot_cursor/mcp.json.tmpl`
-- OpenCode via `home/dot_config/opencode/opencode.jsonc.tmpl`
+- OpenCode via `home/dot_config/opencode/modify_opencode.json` (partial `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
+- pi via `home/dot_pi/agent/mcp.json.tmpl`
+- Zed (Unix) via `home/dot_config/zed/modify_settings.json` (partial `home/.chezmoitemplates/zed-context-servers.tmpl`)
+- Zed (Windows) via `home/AppData/Roaming/Zed/modify_settings.json` (same partial)
+- Claude Code via `home/modify_dot_claude.json`
+- Claude Desktop (Windows) via `home/AppData/Roaming/Claude/modify_claude_desktop_config.json`
+- mcpproxy via `home/private_dot_mcpproxy/modify_mcp_config.json`
 
 ## Data shape
 
@@ -70,7 +81,11 @@ mcp:
       enabled: false
 ```
 
-### Disable a server for one client only
+### Enable a server for one client only
+
+Targets are **opt-in**: a server renders to a target only when it explicitly sets
+`targets.<name>.enabled: true`. Unlisted targets get nothing, so to scope a server to a
+single client list only that client:
 
 ```yaml
 mcp:
@@ -79,8 +94,7 @@ mcp:
       enabled: true
       targets:
         cursor:
-          enabled: false
-        opencode: {}
+          enabled: true
 ```
 
 ### Show a server only on certain machines
@@ -102,8 +116,10 @@ Per-server fields under `mcp.serversById.<id>`:
 
 - `enabled` (required)
 - `conditions` (optional)
-- `targets` (optional). When omitted, server is enabled for both clients by default.
-- `targets.cursor.enabled` / `targets.opencode.enabled` (optional, default `true`)
+- `targets` (optional, **opt-in**). Each target defaults to `false`; a server renders to a
+  target only when that target sets `enabled: true`. Unlisted targets render nothing.
+- `targets.<name>.enabled` for `name` in: `cursor`, `opencode`, `pi`, `zed`, `claudeCode`,
+  `claudeDesktop`, `mcpproxy` (optional, default `false`)
 - exactly one of `local` or `remote`
 
 `local` fields:
@@ -120,6 +136,10 @@ Per-server fields under `mcp.serversById.<id>`:
 
 ## Validation
 
-1. Render both templates with `chezmoi execute-template`.
-2. Validate rendered Cursor MCP JSON.
+1. Render each target with `chezmoi cat <target-path>` (or `chezmoi execute-template`) and
+   confirm valid JSON with the expected servers and resolved `$data.*` args.
+2. After changing the shared prep partial, confirm render output is byte-identical for the
+   targets you can render on the current OS (`chezmoi cat` before/after).
 3. Run `pre-commit run --all-files` (on Windows run via WSL in this repo).
+
+See `.agents/skills/update-mcp-servers/SKILL.md` for the full validation workflow.

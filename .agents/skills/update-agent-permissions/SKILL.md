@@ -11,10 +11,18 @@ Use this skill when changing agent permission rules in this repo.
 
 - Canonical layered data: `home/.chezmoidata/agent-permissions/*.yaml`
 - Schema: `schemas/agent-permissions.schema.json`
-- Render partial: `home/.chezmoitemplates/opencode-permission.tmpl`
-- OpenCode config template: `home/dot_config/opencode/opencode.jsonc.tmpl`
+- Shared rule-collection partial: `home/.chezmoitemplates/agent-permission-rules.tmpl` (collects top-level rules + condition-enabled ruleSets once; emits JSON consumed via `includeTemplate ... | fromJson`)
+- Render partials (each consumes the shared partial, keeps its own per-rule conditions gate + shaping):
+  - OpenCode: `home/.chezmoitemplates/opencode-permission.tmpl` (all kinds), included by `home/dot_config/opencode/modify_opencode.json`
+  - Cursor: `home/.chezmoitemplates/cursor-terminal-auto-approve.tmpl` (`bash` kind only), included by `home/Library/Application Support/Cursor/User/settings.json.tmpl` and `home/AppData/Roaming/Cursor/User/settings.json.tmpl`
+  - Zed: `home/.chezmoitemplates/zed-terminal-tool-permissions.tmpl` (`bash` kind only), included by `home/dot_config/zed/modify_settings.json` and `home/AppData/Roaming/Zed/modify_settings.json`
 
 Treat `home/.chezmoidata/agent-permissions/*.yaml` as the single source of truth.
+
+See `CONTEXT.md` (repo root) and `docs/adr/0001-source-of-truth-fan-out-via-prep-partials.md`
+for the fan-out pattern. The per-rule `conditions` gate is intentionally NOT centralised:
+OpenCode uses a strict gate (absent condition key excludes), Cursor/Zed use a loose gate
+(absent key includes). Centralise only the identical collection logic.
 
 ## Canonical schema
 
@@ -34,7 +42,7 @@ Each rule should follow this shape:
 ## Editing rules
 
 1. Keep all permission behavior in `agentPermissions.rules` instead of introducing parallel structures.
-2. Keep `agentPermissions.kinds` as the source of truth for destination routing and wildcard behavior, do not hardcode kind-specific destinations in templates.
+2. Keep `agentPermissions.kinds` as the source of truth for destination routing, per-target enablement (`kinds.<kind>.targets.<target>`), and wildcard behavior, do not hardcode kind-specific destinations in templates.
 3. Prefer profile-specific overlays (for example `10-<name>.yaml`) for personal/work-only rules.
 4. Keep shared defaults in `00-base.yaml`.
 5. Use `conditions` for environment/profile gating, not template-side hardcoded special cases.
@@ -54,6 +62,10 @@ Use `exactAndWithArgs` when both should be allowed explicitly.
 
 After permission changes:
 
-1. Render `home/dot_config/opencode/opencode.jsonc.tmpl` with current chezmoi data.
+1. Render each affected target with current chezmoi data (`chezmoi cat <target-path>` or `chezmoi execute-template`):
+   - OpenCode: `~/.config/opencode/opencode.json`
+   - Cursor: `~/Library/Application Support/Cursor/User/settings.json`
+   - Zed: `~/.config/zed/settings.json`
 2. Confirm expected permission keys are present/absent.
-3. Run `tests/source/chezmoi.bats`.
+3. After changing the shared `agent-permission-rules.tmpl` partial, confirm render output is byte-identical before/after for every target you can render on the current OS.
+4. Run `tests/source/chezmoi.bats`.

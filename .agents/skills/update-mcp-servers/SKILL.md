@@ -10,6 +10,7 @@ Use this skill when changing MCP server configuration in this repo.
 ## Source of truth
 
 - Canonical layered data: `home/.chezmoidata/mcps/*.yaml`
+- Shared prep partial: `home/.chezmoitemplates/mcp-eligible-servers.tmpl` (does the target-enablement + condition filtering and `$data.*` resolution once; each render template consumes it via `includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "<name>") | fromJson` and only maps the eligible set to its own schema). See `CONTEXT.md` (repo root) and `docs/adr/0001-source-of-truth-fan-out-via-prep-partials.md`.
 - Cursor render template: `home/dot_cursor/mcp.json.tmpl`
 - OpenCode render template: `home/dot_config/opencode/modify_opencode.json` (merges into `~/.config/opencode/opencode.json`; uses partial `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
 - mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`
@@ -78,3 +79,7 @@ After MCP changes:
 Note: sprig `hasPrefix` signature is `hasPrefix prefix str`. The `$data.<key>` interpolation must be written as `hasPrefix "$data." $arg`, not the reverse.
 
 Templates should trust schema-required fields. Use `hasKey` checks only for optional fields.
+
+When changing the shared prep partial, confirm render output is byte-identical before/after
+(`chezmoi cat <target>` for each target renderable on the current OS) so no target's behaviour
+shifts unintentionally.
