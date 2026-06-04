@@ -125,6 +125,8 @@ Deleting a file from the chezmoi source does **not** remove it from the target (
 
 ## Repo-specific conventions
 
+- **Project glossary & ADRs** – `CONTEXT.md` (repo root) defines the domain language for the config fan-out (source of truth, overlay, render target, target enablement, condition gate, prep partial, eligible set). `docs/adr/` records architecture decisions; `0001` documents the source-of-truth → many-opt-in-targets pattern. When a concept renders to multiple tools, prefer a shared **prep partial** under `home/.chezmoitemplates/` that does the target-independent filtering/resolution and emits JSON (consumed via `includeTemplate ... | fromJson`); keep only per-target schema shaping in each render template. Existing prep partials: `mcp-eligible-servers.tmpl`, `agent-permission-rules.tmpl`.
+
 - **Universal agent definitions** – `home/dot_agents/AGENTS.md` (→ `~/.agents/AGENTS.md`). Cross-tool agent rules shared by OpenCode, Claude Code, Cursor, and pi. Edit the chezmoi source, not the deployed files. (Universal *skills* are no longer at `~/.agents/skills/`; they're distributed per-agent via the `vercel-labs/skills` CLI from the local `skills/` source at the repo root — see "Skill distribution updates" below.)
 - **Repo-local skills** – Shared project skills live under `.agents/skills/`.
 - **MCP server updates** – Load `.agents/skills/update-mcp-servers/SKILL.md` before changing `home/.chezmoidata/mcps/*.yaml`, `home/dot_cursor/mcp.json.tmpl`, `home/dot_config/opencode/modify_opencode.json`, or `home/modify_dot_claude.json` (Claude Code `~/.claude.json` merge).
