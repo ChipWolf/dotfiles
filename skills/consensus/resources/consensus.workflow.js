@@ -108,13 +108,25 @@ const DECISION_SCHEMA = {
 
 // --- prompt builders ---------------------------------------------------------
 
+// Stance agents must terminate with exactly one fully-populated StructuredOutput
+// call. Without this, a model that writes a long prose preamble sometimes calls
+// the tool with an empty `{}`, fails schema validation, and re-submits empty
+// indefinitely (no retry cap exists at the agent layer), wedging the round.
+const STANCE_OUTPUT_RULE = [
+  'OUTPUT CONTRACT: keep any private reasoning short, then finish by calling StructuredOutput EXACTLY ONCE.',
+  'That single call MUST include every required field with a real value — never call it with an empty object {} or with fields omitted.',
+  'Required: preferredOption (one of the option names), confidence (0..1), reasons (>=1), concerns, changedFromLastRound.',
+  'If you have already written your reasoning as prose, do not stop there: you have not responded until the StructuredOutput call carries the populated fields.',
+].join(' ')
+
 function briefPrompt() {
   return [
     'You are the Chair of a decision panel. Frame the decision before anyone is convened.',
-    `Decision: ${question}`,
+    `Decision (THIS is the decision the panel must resolve; do not substitute another):\n${question}`,
     seedOptions ? `Caller-suggested options: ${seedOptions.join(', ')}` : 'Derive the candidate options from the question and the repo context.',
     contextNotes ? `Caller notes: ${contextNotes}` : '',
     'Read the repo for grounding: CONTEXT.md, docs/adr/, AGENTS.md, and the code/configs this decision touches. If an internal-docs / repo / ticketing MCP is connected, query it (via ToolSearch) for prior decisions and constraints. Never invent facts, options, or prior decisions.',
+    'The brief\'s `question` field MUST restate the caller\'s decision above. You may sharpen its wording, but you MUST NOT change its subject or scope, and you MUST NOT replace it with a different question you find more interesting in the repo. Every option must be a way of resolving THAT decision; if the caller supplied options, yours must cover them (refine or add, never swap the topic).',
     'Produce a decision brief: the question, 2-6 concrete options, hard constraints, success criteria, and a condensed context pack that every member will share.',
     'Then convene a panel sized to the decision (3-8 members): the core (chair, pragmatist, devils-advocate, scribe) plus the specialists THIS decision actually needs (e.g. cost, reliability/SRE, security, product, future-planning, blue-sky, non-technical). Give each a sharp persona charter (what they optimize for and the bias they bring).',
     'Assign each member a model. Diversify deliberately so priors do not collapse into one model\'s bias; give heavier reasoning to the chair and pivotal specialists, lighter to routine roles. Set chairModel to the strongest you assign.',
@@ -132,6 +144,7 @@ function prepPrompt(member, brief) {
     `Shared context:\n${brief.contextPack}`,
     'First, think privately: mull this over in your own terms, surface what you would bring to the room, your strong views and your real uncertainties. You may use tools (via ToolSearch) to ground yourself, but cite only what you can verify — never invent facts.',
     'Then emit your stance. This is your independent prior: do not assume what others think. Set changedFromLastRound to false.',
+    STANCE_OUTPUT_RULE,
   ].join('\n\n')
 }
 
@@ -150,6 +163,7 @@ function crosstalkPrompt(member, brief, transcript, round, chairSummary) {
     `The room right now:\n${transcript}`,
     'React: concede where others are right, push back where they are wrong, and say plainly if you have changed your mind. The devil\'s advocate should hammer the front-runner. Stay grounded in the context and tool results; do not invent.',
     'Emit your updated stance. Set changedFromLastRound to true if your preferred option or a material reason changed this round.',
+    STANCE_OUTPUT_RULE,
   ].filter(Boolean).join('\n\n')
 }
 

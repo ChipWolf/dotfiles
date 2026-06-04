@@ -133,6 +133,16 @@ writing silently.
   pack. The chair should challenge unsourced claims and exclude them from the rationale.
 - **Cost blowout** — `members × rounds` agent calls add up. Scale the panel to the decision; use
   lighter models for routine roles; lower `maxRounds` for low-stakes calls.
+- **Substituted question:** the Frame chair discards the caller's decision and frames a different
+  one it finds more interesting in the repo, so the whole panel debates the wrong thing. The
+  `briefPrompt()` now pins the brief's `question` to the caller's decision; verify the returned
+  `brief.question` still matches what you asked before trusting the result.
+- **Empty StructuredOutput loop:** a stance agent writes a long prose preamble, then calls
+  `StructuredOutput` with `{}`, fails validation, and re-submits empty forever (no agent-layer
+  retry cap), wedging the round barrier. `STANCE_OUTPUT_RULE` in the stance prompts mitigates this
+  by demanding exactly one fully-populated call with brief reasoning; it reduces but does not
+  provably eliminate the degeneration. If a run hangs with no new journal results, inspect the
+  pending `agent-*.jsonl` for repeated empty `StructuredOutput` calls and stop the workflow.
 
 ## Adapting the Workflow script
 
