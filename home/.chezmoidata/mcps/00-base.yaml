@@ -75,6 +75,12 @@ mcp:
     # native tool calls (Shell/Read/Grep/curl) and redirect them to
     # the ctx_execute sandbox. Routing through mcpproxy would bypass
     # those hooks since they live in the client, not in MCP transport.
+    #
+    # NOT rendered to claudeCode: Claude Code has no context-mode hooks
+    # (settings.json hooks: {}), so the interception rationale above does
+    # not apply there. Registering it direct only added ~27 KB / 11 ctx_*
+    # tool defs to every first-turn request for no benefit. See zed/pi/
+    # cursor/opencode targets below where hooks actually consume it.
 
     context-mode:
       enabled: true
@@ -86,8 +92,6 @@ mcp:
         pi:
           enabled: true
         zed:
-          enabled: true
-        claudeCode:
           enabled: true
       local:
         command: "context-mode"
