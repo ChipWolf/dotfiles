@@ -133,16 +133,24 @@ writing silently.
   pack. The chair should challenge unsourced claims and exclude them from the rationale.
 - **Cost blowout** — `members × rounds` agent calls add up. Scale the panel to the decision; use
   lighter models for routine roles; lower `maxRounds` for low-stakes calls.
-- **Substituted question:** the Frame chair discards the caller's decision and frames a different
-  one it finds more interesting in the repo, so the whole panel debates the wrong thing. The
-  `briefPrompt()` now pins the brief's `question` to the caller's decision; verify the returned
-  `brief.question` still matches what you asked before trusting the result.
+- **Args delivered as a JSON string:** the host can hand the script's `args` global to the
+  Workflow as a JSON-encoded string rather than a parsed object (observed: a passed object arrives
+  as its `JSON.stringify` form). `args.question` is then `undefined`, so the meeting silently runs
+  on the empty-question default and the chair frames whatever it infers from the repo. The script
+  now normalizes `args` (parses it when it is a string) before reading any field. If a run ignores
+  your inputs, this is the first thing to check.
+- **Substituted question:** even with a real question, the Frame chair can wander onto a more
+  interesting repo topic. `briefPrompt()` pins the brief's `question` to the caller's decision;
+  verify the returned `brief.question` still matches what you asked before trusting the result.
 - **Empty StructuredOutput loop:** a stance agent writes a long prose preamble, then calls
-  `StructuredOutput` with `{}`, fails validation, and re-submits empty forever (no agent-layer
-  retry cap), wedging the round barrier. `STANCE_OUTPUT_RULE` in the stance prompts mitigates this
-  by demanding exactly one fully-populated call with brief reasoning; it reduces but does not
-  provably eliminate the degeneration. If a run hangs with no new journal results, inspect the
-  pending `agent-*.jsonl` for repeated empty `StructuredOutput` calls and stop the workflow.
+  `StructuredOutput` with `{}`. When the stance schema marks fields `required`, the host rejects
+  the empty call and re-prompts, and a degenerate model re-submits empty forever (no agent-layer
+  retry cap), wedging the round barrier. Observed live across multiple agents (one looped 145×).
+  A prompt nudge (`STANCE_OUTPUT_RULE`) was NOT enough to stop it. The real fix is structural:
+  `STANCE_SCHEMA` declares nothing `required`, so an empty stance validates and the agent
+  resolves; `normalizeStance()` backfills defaults and flags the member as abstaining (logged via
+  `logAbstentions`), so one degenerate agent costs a single abstention instead of hanging the
+  meeting. If you re-tighten the schema, you reintroduce the hang.
 
 ## Adapting the Workflow script
 

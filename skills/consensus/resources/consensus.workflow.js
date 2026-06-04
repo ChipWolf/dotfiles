@@ -17,10 +17,21 @@ export const meta = {
 // Schemas mirror the JSON files alongside this script.
 // ---------------------------------------------------------------------------
 
-const question = (args && args.question) || 'No decision question was provided in args.question.'
-const seedOptions = (args && args.options) || null            // optional: string[] of candidate options
-const contextNotes = (args && args.contextNotes) || ''        // optional: extra context from the caller
-const MAX_ROUNDS = (args && args.maxRounds) || 4
+// The host may hand `args` to the script as a JSON-encoded STRING rather than a
+// parsed object (observed: a passed object arrives as its JSON.stringify form).
+// Normalize both shapes, or every field below silently falls back to its default
+// and the whole meeting runs on an empty question.
+let _args = {}
+if (args && typeof args === 'object') {
+  _args = args
+} else if (typeof args === 'string' && args.trim()) {
+  try { _args = JSON.parse(args) } catch (e) { _args = {} }
+}
+
+const question = _args.question || 'No decision question was provided in args.question.'
+const seedOptions = _args.options || null                     // optional: string[] of candidate options
+const contextNotes = _args.contextNotes || ''                 // optional: extra context from the caller
+const MAX_ROUNDS = _args.maxRounds || 4
 
 const MODEL_ENUM = ['opus', 'sonnet', 'haiku']
 
@@ -56,14 +67,21 @@ const BRIEF_SCHEMA = {
   },
 }
 
+// No fields are `required` on purpose. A required list makes the host reject an
+// empty `{}` submission and re-prompt; a model that degenerates into emitting
+// `{}` then loops forever against that rejection (no agent-layer retry cap),
+// wedging the round barrier. With nothing required, an empty stance validates,
+// the agent resolves, and normalizeStance() backfills defaults + flags it as an
+// abstention so the meeting proceeds instead of hanging. The prompt
+// (STANCE_OUTPUT_RULE) still asks for every field; this is the safety net.
 const STANCE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['preferredOption', 'confidence', 'reasons', 'concerns', 'changedFromLastRound'],
+  required: [],
   properties: {
     preferredOption: { type: 'string' },
     confidence: { type: 'number', minimum: 0, maximum: 1 },
-    reasons: { type: 'array', minItems: 1, items: { type: 'string' } },
+    reasons: { type: 'array', items: { type: 'string' } },
     concerns: { type: 'array', items: { type: 'string' } },
     objectionsToOthers: { type: 'array', items: { type: 'string' } },
     openQuestions: { type: 'array', items: { type: 'string' } },
@@ -192,6 +210,30 @@ function synthPrompt(brief, stances, chairSummary, provisional) {
 
 // --- orchestration -----------------------------------------------------------
 
+// Backfill a possibly-empty stance (see STANCE_SCHEMA) so downstream code never
+// reads undefined, and flag abstentions (a member whose agent emitted no real
+// preferredOption) rather than silently treating an empty stance as a position.
+function normalizeStance(s, m) {
+  const abstained = !s || !s.preferredOption
+  return {
+    member: m.name,
+    role: m.role,
+    abstained,
+    preferredOption: (s && s.preferredOption) || '(abstained: no stance emitted)',
+    confidence: (s && typeof s.confidence === 'number') ? s.confidence : 0,
+    reasons: (s && s.reasons) || [],
+    concerns: (s && s.concerns) || [],
+    objectionsToOthers: (s && s.objectionsToOthers) || [],
+    openQuestions: (s && s.openQuestions) || [],
+    changedFromLastRound: !!(s && s.changedFromLastRound),
+  }
+}
+
+function logAbstentions(label, stances) {
+  const out = stances.filter(s => s.abstained).map(s => s.member)
+  if (out.length) log(`${label}: ${out.length} member(s) emitted no stance, recorded as abstaining: ${out.join(', ')}`)
+}
+
 phase('Frame')
 const brief = await agent(briefPrompt(), { label: 'chair:frame', phase: 'Frame', schema: BRIEF_SCHEMA, model: 'opus' })
 
@@ -201,8 +243,9 @@ const members = brief.panel.filter(m => m.role !== 'scribe')
 phase('Prep')
 let stances = (await parallel(members.map(m => () =>
   agent(prepPrompt(m, brief), { label: `prep:${m.name}`, phase: 'Prep', schema: STANCE_SCHEMA, model: m.model })
-    .then(s => ({ ...s, member: m.name, role: m.role }))
+    .then(s => normalizeStance(s, m))
 ))).filter(Boolean)
+logAbstentions('Prep', stances)
 
 phase('Meeting')
 let round = 0
@@ -214,8 +257,9 @@ while (!converged && round < MAX_ROUNDS) {
   const transcript = transcriptOf(prev)
   const updated = (await parallel(members.map(m => () =>
     agent(crosstalkPrompt(m, brief, transcript, round, chairSummary), { label: `round${round}:${m.name}`, phase: 'Meeting', schema: STANCE_SCHEMA, model: m.model })
-      .then(s => ({ ...s, member: m.name, role: m.role }))
+      .then(s => normalizeStance(s, m))
   ))).filter(Boolean)
+  logAbstentions(`Round ${round}`, updated)
 
   const check = await agent(chairCheckPrompt(brief, prev, updated, round), { label: `chair:round${round}`, phase: 'Meeting', schema: ROUND_SCHEMA, model: brief.chairModel })
   chairSummary = check.summary
