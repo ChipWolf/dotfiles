@@ -1,6 +1,12 @@
 {{ if ne .chezmoi.os "windows" -}}
 #!/bin/bash
 
+# Re-run when chezmoi config data changes (e.g. `private` flips to true after
+# `~/.private` is created and the config is regenerated). The render-time diff
+# of this script alone is too thin to rely on, so hash the config data to force
+# a re-run and reconcile newly-eligible (PRIVATE-gated) packages via brew bundle.
+# {{ .chezmoi.config.data | toJson | sha256sum }}
+
 # -e: exit on error
 # -u: exit on unset variables
 set -eu
