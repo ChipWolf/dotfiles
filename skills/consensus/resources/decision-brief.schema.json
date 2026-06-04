@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionBrief",
+  "description": "Phase 0 output: the framed decision and the panel convened to decide it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["question", "options", "constraints", "successCriteria", "contextPack", "panel", "chairModel"],
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The crisp decision to be made."
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "description": "Concrete candidate options. Do not invent — derive from the question and context.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "summary"],
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string", "description": "One line on what choosing this means." }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hard constraints the decision must satisfy."
+    },
+    "successCriteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What a good outcome looks like."
+    },
+    "contextPack": {
+      "type": "string",
+      "description": "Condensed, citable shared context (repo facts, prior ADRs, MCP findings) given to every member."
+    },
+    "panel": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "description": "Roster sized to the decision: core members plus the specialists this question needs.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "role", "charter", "model"],
+        "properties": {
+          "name": { "type": "string", "description": "Display name for this voice." },
+          "role": {
+            "type": "string",
+            "enum": ["chair", "pragmatist", "devils-advocate", "scribe", "specialist"]
+          },
+          "charter": {
+            "type": "string",
+            "description": "What this member optimizes for and the deliberate bias they bring."
+          },
+          "model": {
+            "type": "string",
+            "enum": ["opus", "sonnet", "haiku"],
+            "description": "Soft guidance: diversify across the panel; heavier reasoning for pivotal roles."
+          }
+        }
+      }
+    },
+    "chairModel": {
+      "type": "string",
+      "enum": ["opus", "sonnet", "haiku"],
+      "description": "Model for the chair's compile/convergence/synthesis calls. Usually the strongest available."
+    }
+  }
+}

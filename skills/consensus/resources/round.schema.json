@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RoundCheck",
+  "description": "The chair's summary and convergence judgement after a Phase 2 round.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "tensions", "frontRunner", "converged", "rationale"],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "Where the room stands after this round."
+    },
+    "tensions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Live disagreements and unresolved questions."
+    },
+    "frontRunner": {
+      "type": "string",
+      "description": "The currently leading option."
+    },
+    "converged": {
+      "type": "boolean",
+      "description": "True ONLY if no member changed their preferred option this round AND no new substantive objection appeared. Mere majority is not convergence."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Why converged is true or false — name the member(s) still moving or the new objection if not converged."
+    }
+  }
+}

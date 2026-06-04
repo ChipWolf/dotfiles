@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Decision",
+  "description": "Phase 3 synthesis: the chair's final, recordable decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision", "rationale", "rejectedOptions", "dissent", "risks", "confidence", "provisional", "followUps"],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "description": "The chosen option, stated plainly."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Why this option won, grounded in the panel's reasoning and the context pack."
+    },
+    "rejectedOptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "why"],
+        "properties": {
+          "name": { "type": "string" },
+          "why": { "type": "string", "description": "Why this option was not chosen." }
+        }
+      }
+    },
+    "dissent": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Minority report: unresolved objections and low-confidence positions worth recording. Mandatory if any member ended below moderate confidence or kept an unaddressed objection."
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["risk", "mitigation"],
+        "properties": {
+          "risk": { "type": "string" },
+          "mitigation": { "type": "string" }
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in the decision."
+    },
+    "provisional": {
+      "type": "boolean",
+      "description": "True if the meeting hit maxRounds without convergence; the decision stands but tensions remain unresolved."
+    },
+    "followUps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Next actions, spikes, or revisit triggers."
+    }
+  }
+}

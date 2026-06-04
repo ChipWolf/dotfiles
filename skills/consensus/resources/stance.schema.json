@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stance",
+  "description": "A panel member's current position, emitted in Phase 1 (prep) and after each Phase 2 round.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["preferredOption", "confidence", "reasons", "concerns", "changedFromLastRound"],
+  "properties": {
+    "preferredOption": {
+      "type": "string",
+      "description": "The option this member currently favors (must match a brief option name)."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How strongly the member holds this position."
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Grounded reasons. Each should be traceable to the context pack, repo, or tool results — never invented."
+    },
+    "concerns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Blocking concerns or risks the member sees with their own preferred option."
+    },
+    "objectionsToOthers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Substantive objections to other members' positions (drives cross-talk)."
+    },
+    "openQuestions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What this member still needs answered to commit."
+    },
+    "changedFromLastRound": {
+      "type": "boolean",
+      "description": "Did the preferred option or a material reason change since the previous round? Used by the chair's convergence check. Always false in the Phase 1 prep stance."
+    }
+  }
+}
