@@ -68,8 +68,14 @@ Each round:
 Stop when converged or at `maxRounds` (default 4). On hitting the cap without convergence, the
 chair still synthesizes but records the decision as **provisional** with the unresolved tensions.
 
-**Groupthink guard:** round-1 unanimity at high confidence is suspicious. Force one more
-adversarial round (Devil's Advocate leads) before accepting it.
+**Convergence tie-break.** Convergence = a round with *zero* preferred-option changes and no new
+substantive objection. A round in which members move *onto* the front-runner is progress, not
+convergence — require a following quiet round to confirm stability. Do not let "everyone agrees
+now" on a moving round end the meeting; the next round must show the agreement holds.
+
+**Groupthink guard:** agreement that comes too easily is suspect — round-1 unanimity, near-
+unanimity, or unanimity at low confidence all earn one more adversarial round (Devil's Advocate
+leads) before acceptance. The Devil's Advocate stress-tests the front-runner every round anyway.
 
 ### Phase 3 — Synthesis (Chair)
 Chair declares: decision, rationale, each rejected option and why, **dissent / minority report**,

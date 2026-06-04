@@ -159,7 +159,7 @@ function chairCheckPrompt(brief, prev, curr, round) {
     `Decision: ${brief.question}`,
     `Previous round stances:\n${transcriptOf(prev)}`,
     `This round stances:\n${transcriptOf(curr)}`,
-    'Judge convergence strictly: converged = true ONLY if no member changed their preferred option this round AND no new substantive objection appeared. A momentary majority is NOT convergence.',
+    'Judge convergence strictly: converged = true ONLY if NO member changed their preferred option THIS round AND no new substantive objection appeared. A round in which members moved onto the front-runner is progress, NOT convergence — it needs a following quiet round to confirm. A momentary majority is NOT convergence.',
     'Summarize where the room stands, list the live tensions, name the front-runner, and explain your convergence judgement (name who is still moving or the new objection if not converged).',
   ].join('\n\n')
 }

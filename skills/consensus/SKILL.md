@@ -35,16 +35,23 @@ for trivial or already-decided questions — it is deliberately expensive (panel
 5. **Synthesis (Phase 3):** chair declares the decision: choice, rationale, rejected options +
    why, **dissent / minority report**, risks + mitigations, confidence, follow-ups.
 6. **Record (Phase 4):** write an ADR from [resources/adr-template.md](resources/adr-template.md)
-   into `docs/adr/` (next number), and return the summary.
+   into `docs/adr/` using the next free sequence number — list the directory first, don't assume
+   the next number — then return the summary.
 
 ## Convergence = stability, not just agreement
 
-Declare consensus only when, in one full round, **no member changed their preferred option AND no
-new substantive objection appeared**. Mere majority is not enough — it flip-flops. Always report
-confidence and dissent so a *thin* consensus is visible, not hidden.
+Declare consensus only when **a full round passes with no member changing their preferred option
+AND no new substantive objection appearing**. Mere majority is not enough — it flip-flops. Always
+report confidence and dissent so a *thin* consensus is visible, not hidden.
 
-**Groupthink guard:** if the panel is unanimous with high confidence in round 1, force one extra
-adversarial round before accepting it.
+**Tie-break — movement toward the winner is progress, not convergence.** A round in which members
+shift *onto* the front-runner is the meeting working, but it is not yet stable: it must be
+followed by a quiet round (zero option changes, no new objection) to confirm. Never declare
+convergence on the same round that options moved.
+
+**Groupthink guard:** force one extra adversarial round (Devil's Advocate leads) before accepting
+consensus whenever agreement looks too easy — round-1 unanimity, near-unanimity, or unanimity at
+low confidence. The Devil's Advocate stress-tests the front-runner *every* round regardless.
 
 ## Model guidance (soft, not rigid)
 
@@ -59,7 +66,10 @@ satisfy a tier table.
 - **Default — prose procedure:** drive the phases above using whatever subagent primitive the
   host agent provides (Claude Code `Agent`/`Task`; pi's pi-subagent skill; opencode/cursor/codex
   Task). With no subagent primitive, the orchestrator role-plays each persona in separate framed
-  passes (still keep priors independent — one fresh pass per member before any cross-talk).
+  passes. **Enforce independent priors:** write each member's Phase-1 stance in its own pass and
+  commit it before reading or writing the next; do not summarize the others first. Anchor each
+  pass hard to its charter so stances diverge. Real subagents are strongly preferred — single-agent
+  role-play cannot *prove* the priors were independent, so flag it as a validity caveat.
 - **Fast-path — Workflow (Claude Code):** when the `Workflow` tool is available, run the bundled
   reference script for deterministic fan-out, looped rounds, and schema-validated stances:
   `Workflow({ scriptPath: "<this skill>/resources/consensus.workflow.js",
