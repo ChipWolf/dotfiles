@@ -1,5 +1,4 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- $root := . -}}
 {{- $merged := dict -}}
 {{- if .chezmoi.stdin -}}
   {{- $parsed := fromJson .chezmoi.stdin -}}
@@ -18,73 +17,42 @@
 {{- $_ := set $merged "tools_limit" 15 -}}
 {{- $_ := set $merged "tool_response_limit" 20000 -}}
 
-{{- /* Build declarative MCP server list from merged chezmoidata. */ -}}
+{{- /* Build declarative MCP server list from merged chezmoidata.
+       Eligible servers + resolved args come from the shared prep partial. */ -}}
 {{- $servers := list -}}
-{{- $serversById := dict -}}
-{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
-  {{- $serversById = .mcp.serversById -}}
-{{- end -}}
-{{- range $serverId := (keys $serversById | sortAlpha) -}}
-  {{- $server := index $serversById $serverId -}}
-
-  {{- $conditionsMatch := true -}}
-  {{- if hasKey $server "conditions" -}}
-    {{- range $conditionKey, $expected := $server.conditions -}}
-      {{- if and (hasKey $root $conditionKey) (eq (index $root $conditionKey) $expected) -}}
-      {{- else -}}
-        {{- $conditionsMatch = false -}}
+{{- $eligible := includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "mcpproxy") | fromJson -}}
+{{- range $serverId := (keys $eligible | sortAlpha) -}}
+  {{- $server := index $eligible $serverId -}}
+  {{- if hasKey $server "local" -}}
+    {{- $entry := dict
+          "name" $serverId
+          "protocol" "stdio"
+          "command" $server.local.command
+          "args" $server.local.args
+          "enabled" true -}}
+    {{- if and (hasKey $server.local "env") $server.local.env -}}
+      {{- $_ := set $entry "env" $server.local.env -}}
+    {{- end -}}
+    {{- $servers = append $servers $entry -}}
+  {{- else if hasKey $server "remote" -}}
+    {{- $proxyProtocol := "streamable-http" -}}
+    {{- if hasKey $server.remote "transport" -}}
+      {{- $t := $server.remote.transport -}}
+      {{- if eq $t "streamableHttp" -}}{{- $proxyProtocol = "streamable-http" -}}
+      {{- else if eq $t "http" -}}{{- $proxyProtocol = "http" -}}
+      {{- else if eq $t "sse" -}}{{- $proxyProtocol = "sse" -}}
+      {{- else -}}{{- $proxyProtocol = $t -}}
       {{- end -}}
     {{- end -}}
-  {{- end -}}
-
-  {{- $proxyEnabled := false -}}
-  {{- if and (hasKey $server "targets") (hasKey $server.targets "mcpproxy") (hasKey $server.targets.mcpproxy "enabled") -}}
-    {{- $proxyEnabled = $server.targets.mcpproxy.enabled -}}
-  {{- end -}}
-
-  {{- if and $server.enabled $proxyEnabled $conditionsMatch -}}
-    {{- if hasKey $server "local" -}}
-      {{- $proxyArgs := list -}}
-      {{- range $arg := $server.local.args -}}
-        {{- $resolvedArg := $arg -}}
-        {{- if hasPrefix "$data." $arg -}}
-          {{- $dataKey := trimPrefix "$data." $arg -}}
-          {{- if hasKey $root $dataKey -}}
-            {{- $resolvedArg = (index $root $dataKey) -}}
-          {{- end -}}
-        {{- end -}}
-        {{- $proxyArgs = append $proxyArgs $resolvedArg -}}
-      {{- end -}}
-      {{- $entry := dict
-            "name" $serverId
-            "protocol" "stdio"
-            "command" $server.local.command
-            "args" $proxyArgs
-            "enabled" $server.enabled -}}
-      {{- if and (hasKey $server.local "env") $server.local.env -}}
-        {{- $_ := set $entry "env" $server.local.env -}}
-      {{- end -}}
-      {{- $servers = append $servers $entry -}}
-    {{- else if hasKey $server "remote" -}}
-      {{- $proxyProtocol := "streamable-http" -}}
-      {{- if hasKey $server.remote "transport" -}}
-        {{- $t := $server.remote.transport -}}
-        {{- if eq $t "streamableHttp" -}}{{- $proxyProtocol = "streamable-http" -}}
-        {{- else if eq $t "http" -}}{{- $proxyProtocol = "http" -}}
-        {{- else if eq $t "sse" -}}{{- $proxyProtocol = "sse" -}}
-        {{- else -}}{{- $proxyProtocol = $t -}}
-        {{- end -}}
-      {{- end -}}
-      {{- $entry := dict
-            "name" $serverId
-            "protocol" $proxyProtocol
-            "url" $server.remote.url
-            "enabled" $server.enabled -}}
-      {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
-        {{- $_ := set $entry "headers" $server.remote.headers -}}
-      {{- end -}}
-      {{- $servers = append $servers $entry -}}
+    {{- $entry := dict
+          "name" $serverId
+          "protocol" $proxyProtocol
+          "url" $server.remote.url
+          "enabled" true -}}
+    {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
+      {{- $_ := set $entry "headers" $server.remote.headers -}}
     {{- end -}}
+    {{- $servers = append $servers $entry -}}
   {{- end -}}
 {{- end }}
 {{- $_ := set $merged "mcpServers" $servers -}}

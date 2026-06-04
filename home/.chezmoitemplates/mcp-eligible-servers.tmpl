@@ -1,0 +1,71 @@
+{{- /*
+  Shared MCP eligibility + arg-resolution partial (single source of truth for the
+  "boring prep" every per-target MCP render template used to duplicate).
+
+  Input  : a dict with
+             .ctx    = the chezmoi root data context (pass the template's "." )
+             .target = target key name under server.targets (e.g. "cursor", "pi",
+                       "opencode", "zed", "claudeCode", "claudeDesktop", "mcpproxy")
+  Output : a complete JSON object mapping serverId -> resolved server, containing
+           ONLY servers eligible for the target. Eligibility =
+             server.enabled
+             AND server.targets.<target>.enabled
+             AND every server.conditions key matches .ctx
+           Each emitted server is the source entry passed through, with $data.<key>
+           tokens in local.args resolved against .ctx. Per-target output SHAPE is
+           intentionally left to the caller; this partial only does the shared prep.
+
+  Consume with:
+    {{ $eligible := includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "cursor") | fromJson }}
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $target := .target -}}
+{{- $serversById := dict -}}
+{{- if and (hasKey $ctx "mcp") (hasKey $ctx.mcp "serversById") -}}
+  {{- $serversById = $ctx.mcp.serversById -}}
+{{- end -}}
+{{- $out := dict -}}
+{{- range $serverId := (keys $serversById | sortAlpha) -}}
+  {{- $server := index $serversById $serverId -}}
+
+  {{- $conditionsMatch := true -}}
+  {{- if hasKey $server "conditions" -}}
+    {{- range $conditionKey, $expected := $server.conditions -}}
+      {{- if and (hasKey $ctx $conditionKey) (eq (index $ctx $conditionKey) $expected) -}}
+      {{- else -}}
+        {{- $conditionsMatch = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $targetEnabled := false -}}
+  {{- if and (hasKey $server "targets") (hasKey $server.targets $target) (hasKey (index $server.targets $target) "enabled") -}}
+    {{- $targetEnabled = (index $server.targets $target).enabled -}}
+  {{- end -}}
+
+  {{- if and $server.enabled $targetEnabled $conditionsMatch -}}
+    {{- $resolved := dict -}}
+    {{- if hasKey $server "local" -}}
+      {{- $args := list -}}
+      {{- range $arg := $server.local.args -}}
+        {{- $resolvedArg := $arg -}}
+        {{- if hasPrefix "$data." $arg -}}
+          {{- $dataKey := trimPrefix "$data." $arg -}}
+          {{- if hasKey $ctx $dataKey -}}
+            {{- $resolvedArg = (index $ctx $dataKey) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $args = append $args $resolvedArg -}}
+      {{- end -}}
+      {{- $local := dict "command" $server.local.command "args" $args -}}
+      {{- if hasKey $server.local "env" -}}
+        {{- $_ := set $local "env" $server.local.env -}}
+      {{- end -}}
+      {{- $_ := set $resolved "local" $local -}}
+    {{- else if hasKey $server "remote" -}}
+      {{- $_ := set $resolved "remote" $server.remote -}}
+    {{- end -}}
+    {{- $_ := set $out $serverId $resolved -}}
+  {{- end -}}
+{{- end -}}
+{{ $out | toJson }}

@@ -1,53 +1,18 @@
-{{- /* Load MCP servers from merged chezmoidata */ -}}
-{{- $serversById := dict -}}
-{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
-  {{- $serversById = .mcp.serversById -}}
-{{- end -}}
-
-{{- /* Render OpenCode MCP entries */ -}}
+{{- /* Render OpenCode MCP entries (eligible servers + resolved args from shared partial). */ -}}
+{{- $eligible := includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "opencode") | fromJson -}}
 {{- $first := true -}}
-{{- range $serverId := (keys $serversById | sortAlpha) -}}
-  {{- $server := index $serversById $serverId -}}
-
-  {{- $conditionsMatch := true -}}
-  {{- if hasKey $server "conditions" -}}
-    {{- range $conditionKey, $expected := $server.conditions -}}
-      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
-      {{- else -}}
-        {{- $conditionsMatch = false -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
-  {{- $opencodeEnabled := false -}}
-  {{- if and (hasKey $server "targets") (hasKey $server.targets "opencode") (hasKey $server.targets.opencode "enabled") -}}
-    {{- $opencodeEnabled = $server.targets.opencode.enabled -}}
-  {{- end -}}
-
-  {{- if and $server.enabled $opencodeEnabled $conditionsMatch -}}
-    {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+{{- range $serverId := (keys $eligible | sortAlpha) -}}
+  {{- $server := index $eligible $serverId -}}
+  {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
     "{{ $serverId }}": {
       {{- if hasKey $server "local" -}}
-        {{- $openCodeCommandName := $server.local.command -}}
-        {{- $openCodeCommandArgs := list -}}
-        {{- range $arg := $server.local.args -}}
-          {{- $resolvedArg := $arg -}}
-          {{- if hasPrefix "$data." $arg -}}
-            {{- $dataKey := trimPrefix "$data." $arg -}}
-            {{- if hasKey $ $dataKey -}}
-              {{- $resolvedArg = (index $ $dataKey) -}}
-            {{- end -}}
-          {{- end -}}
-          {{- $openCodeCommandArgs = append $openCodeCommandArgs $resolvedArg -}}
-        {{- end -}}
-        {{- $openCodeCommand := prepend $openCodeCommandArgs $openCodeCommandName }}
+        {{- $openCodeCommand := prepend $server.local.args $server.local.command }}
       "type": {{ "local" | toJson }},
       "command": {{ $openCodeCommand | toPrettyJson | indent 6 | trim }},
       {{- else if hasKey $server "remote" }}
       "type": {{ "remote" | toJson }},
       "url": {{ $server.remote.url | toJson }},
       {{- end }}
-      "enabled": {{ $server.enabled | toJson }}
+      "enabled": true
     }
-  {{- end -}}
 {{- end }}

@@ -1,68 +1,35 @@
 {
   "mcpServers": {
-{{- /* Load MCP servers from merged chezmoidata */ -}}
-{{- $serversById := dict -}}
-{{- if and (hasKey . "mcp") (hasKey .mcp "serversById") -}}
-  {{- $serversById = .mcp.serversById -}}
-{{- end -}}
-
-{{- /* Render Cursor MCP entries */ -}}
+{{- /* Eligible servers + resolved args come from the shared prep partial. */ -}}
+{{- $eligible := includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "cursor") | fromJson -}}
 {{- $first := true -}}
-{{- range $serverId := (keys $serversById | sortAlpha) -}}
-  {{- $server := index $serversById $serverId -}}
-
-  {{- $conditionsMatch := true -}}
-  {{- if hasKey $server "conditions" -}}
-    {{- range $conditionKey, $expected := $server.conditions -}}
-      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
-      {{- else -}}
-        {{- $conditionsMatch = false -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
-  {{- $cursorEnabled := false -}}
-  {{- if and (hasKey $server "targets") (hasKey $server.targets "cursor") (hasKey $server.targets.cursor "enabled") -}}
-    {{- $cursorEnabled = $server.targets.cursor.enabled -}}
-  {{- end -}}
-
-  {{- if and $server.enabled $cursorEnabled $conditionsMatch -}}
-    {{- if hasKey $server "local" -}}
-      {{- $cursorCommand := $server.local.command -}}
-      {{- $cursorArgs := list -}}
-      {{- range $arg := $server.local.args -}}
-        {{- $resolvedArg := $arg -}}
-        {{- if hasPrefix "$data." $arg -}}
-          {{- $dataKey := trimPrefix "$data." $arg -}}
-          {{- if hasKey $ $dataKey -}}
-            {{- $resolvedArg = (index $ $dataKey) -}}
-          {{- end -}}
-        {{- end -}}
-        {{- $cursorArgs = append $cursorArgs $resolvedArg -}}
-      {{- end -}}
-      {{- $cursorEnv := (default (dict) $server.local.env) -}}
-      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+{{- range $serverId := (keys $eligible | sortAlpha) -}}
+  {{- $server := index $eligible $serverId -}}
+  {{- if hasKey $server "local" -}}
+    {{- $cursorCommand := $server.local.command -}}
+    {{- $cursorArgs := $server.local.args -}}
+    {{- $cursorEnv := (default (dict) $server.local.env) -}}
+    {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
     "{{ $serverId }}": {
       "command": "{{ $cursorCommand }}",
       "env": {{ $cursorEnv | toPrettyJson "      " }},
       "args": {{ $cursorArgs | toPrettyJson "      " }}
     }
-    {{- else if hasKey $server "remote" -}}
-      {{- $cursorTransport := "streamableHttp" -}}
-      {{- if hasKey $server.remote "transport" -}}
-        {{- $cursorTransport = $server.remote.transport -}}
-      {{- end -}}
-      {{- $cursorHeaders := dict -}}
-      {{- if hasKey $server.remote "headers" -}}
-        {{- $cursorHeaders = $server.remote.headers -}}
-      {{- end -}}
-      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+  {{- else if hasKey $server "remote" -}}
+    {{- $cursorTransport := "streamableHttp" -}}
+    {{- if hasKey $server.remote "transport" -}}
+      {{- $cursorTransport = $server.remote.transport -}}
+    {{- end -}}
+    {{- $cursorHeaders := dict -}}
+    {{- if hasKey $server.remote "headers" -}}
+      {{- $cursorHeaders = $server.remote.headers -}}
+    {{- end -}}
+    {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
     "{{ $serverId }}": {
       "transport": "{{ $cursorTransport }}",
       "url": "{{ $server.remote.url }}",
       "headers": {{ $cursorHeaders | toPrettyJson "      " }}
     }
-    {{- end -}}
   {{- end -}}
 {{- end }}
   }
