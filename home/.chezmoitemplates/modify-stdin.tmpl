@@ -1,0 +1,22 @@
+{{- /*
+  Shared modify-template stdin preamble (single source of truth for the
+  "parse the current target file from stdin into a merged dict" prep that every
+  modify_ template used to duplicate).
+
+  Input  : the chezmoi root data context (pass the template's "." ), which
+           carries .chezmoi.stdin (the current target file contents, or "").
+  Output : JSON of the merged dict — the parsed stdin when it is a JSON map,
+           otherwise an empty object. Each caller reads it back with fromJson
+           and then sets only the keys it manages.
+
+  Consume with:
+    {{ $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson }}
+*/ -}}
+{{- $merged := dict -}}
+{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
+  {{- $parsed := fromJson .chezmoi.stdin -}}
+  {{- if kindIs "map" $parsed -}}
+    {{- $merged = $parsed -}}
+  {{- end -}}
+{{- end -}}
+{{- $merged | toJson -}}

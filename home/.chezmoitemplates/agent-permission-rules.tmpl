@@ -2,23 +2,33 @@
   Shared agent-permission rule-collection partial (single source of truth for the
   "boring prep" every per-target permission render template used to duplicate).
 
-  Input  : a dict with .ctx = the chezmoi root data context (pass the template's ".").
+  Input  : a dict with
+             .ctx  = the chezmoi root data context (pass the template's ".").
+             .gate = optional per-rule conditions gate mode:
+                       "strict" — absent condition key EXCLUDES the rule (opencode);
+                                  a rule matches only if every condition key is
+                                  present in .ctx AND equals the expected value.
+                       "loose"  — absent condition key INCLUDES the rule (cursor,
+                                  zed); a rule is excluded only when .ctx has the
+                                  key AND it differs from the expected value.
+                       omitted/"" — no per-rule gating (rules pass through, the
+                                  legacy behavior; callers gate themselves).
   Output : a JSON array of collected permission rules, in deterministic order:
              1. top-level agentPermissions.rules (source order)
              2. agentPermissions.ruleSets, in sortAlpha order of set name, each
                 included only when its set-level conditions all match .ctx
-           Rules are passed through unchanged (kind/pattern/op/bashMatchMode/conditions).
+           then filtered by the per-rule .gate mode (when given). Each surviving
+           rule is passed through unchanged (kind/pattern/op/bashMatchMode/conditions).
 
   Intentionally NOT done here (left to each caller, because it varies per target):
-    - per-rule conditions filtering (opencode uses a strict eq/else gate; cursor and
-      zed use a loose ne gate) — kept in the adapters to preserve exact output
     - kind selection, matchMode expansion, namespaced vs top_level destinations,
       and homeDir substitution
 
-  Consume with:
-    {{ $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson }}
+  Consume with (gated):
+    {{ $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" . "gate" "strict") | fromJson }}
 */ -}}
 {{- $ctx := .ctx -}}
+{{- $gate := default "" (index . "gate") -}}
 {{- $permission := dict -}}
 {{- if hasKey $ctx "agentPermissions" -}}
   {{- $permission = $ctx.agentPermissions -}}
@@ -41,5 +51,23 @@
   {{- if $setEnabled -}}
     {{- $rules = concat $rules (default (list) (index $ruleSet "rules")) -}}
   {{- end -}}
+{{- end -}}
+{{- /* Per-rule conditions gate (strict|loose). No-op when $gate is empty. */ -}}
+{{- if ne $gate "" -}}
+  {{- $gated := list -}}
+  {{- range $rule := $rules -}}
+    {{- $match := true -}}
+    {{- if hasKey $rule "conditions" -}}
+      {{- range $ck, $cv := $rule.conditions -}}
+        {{- if eq $gate "strict" -}}
+          {{- if and (hasKey $ctx $ck) (eq (index $ctx $ck) $cv) -}}{{- else -}}{{- $match = false -}}{{- end -}}
+        {{- else -}}
+          {{- if and (hasKey $ctx $ck) (ne (index $ctx $ck) $cv) -}}{{- $match = false -}}{{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $match -}}{{- $gated = append $gated $rule -}}{{- end -}}
+  {{- end -}}
+  {{- $rules = $gated -}}
 {{- end -}}
 {{ $rules | toJson }}

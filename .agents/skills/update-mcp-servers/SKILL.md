@@ -11,6 +11,7 @@ Use this skill when changing MCP server configuration in this repo.
 
 - Canonical layered data: `home/.chezmoidata/mcps/*.yaml`
 - Shared prep partial: `home/.chezmoitemplates/mcp-eligible-servers.tmpl` (does the target-enablement + condition filtering and `$data.*` resolution once; each render template consumes it via `includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "<name>") | fromJson` and only maps the eligible set to its own schema). See `CONTEXT.md` (repo root) and `docs/adr/0001-source-of-truth-fan-out-via-prep-partials.md`.
+- Shared modify preamble: the `modify_` render targets below (Claude Code, Claude Desktop, OpenCode, Zed, mcpproxy) start with `{{ $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson }}`, the shared partial that parses the current target file from stdin into a merged dict. Do not re-inline the stdin/`kindIs map` preamble.
 - Cursor render template: `home/dot_cursor/mcp.json.tmpl`
 - OpenCode render template: `home/dot_config/opencode/modify_opencode.json` (merges into `~/.config/opencode/opencode.json`; uses partial `home/.chezmoitemplates/opencode-mcp.jsonc.tmpl`)
 - mcpproxy render template: `home/private_dot_mcpproxy/modify_mcp_config.json`

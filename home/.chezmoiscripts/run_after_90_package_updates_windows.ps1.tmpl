@@ -1,17 +1,5 @@
-{{- $chocoPackages := list -}}
-{{- if and (hasKey . "chocolatey") (hasKey .chocolatey "overlays") -}}
-  {{- range $name := keys .chocolatey.overlays | sortAlpha -}}
-    {{- $ov := index $.chocolatey.overlays $name -}}
-    {{- $chocoPackages = concat $chocoPackages (default (list) $ov.packages) -}}
-  {{- end -}}
-{{- end -}}
-{{- $wingetPackages := list -}}
-{{- if and (hasKey . "winget") (hasKey .winget "overlays") -}}
-  {{- range $name := keys .winget.overlays | sortAlpha -}}
-    {{- $ov := index $.winget.overlays $name -}}
-    {{- $wingetPackages = concat $wingetPackages (default (list) $ov.packages) -}}
-  {{- end -}}
-{{- end -}}
+{{- $chocoPackages := includeTemplate ".chezmoitemplates/overlay-flatten.tmpl" (dict "ctx" . "area" "chocolatey" "key" "packages") | fromJson -}}
+{{- $wingetPackages := includeTemplate ".chezmoitemplates/overlay-flatten.tmpl" (dict "ctx" . "area" "winget" "key" "packages") | fromJson -}}
 {{ if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = "Stop"
 {{ includeTemplate ".chezmoitemplates/windows-elevation.ps1.tmpl" . }}

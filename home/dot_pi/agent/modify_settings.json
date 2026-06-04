@@ -1,12 +1,6 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- $root := . -}}
-{{- $merged := dict -}}
-{{- if .chezmoi.stdin -}}
-  {{- $parsed := fromJson .chezmoi.stdin -}}
-  {{- if kindIs "map" $parsed -}}
-    {{- $merged = $parsed -}}
-  {{- end -}}
-{{- end -}}
+{{- $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson -}}
 {{- $_ := set $merged "packages" (list
   "npm:context-mode"
   "npm:pi-mcp-adapter"

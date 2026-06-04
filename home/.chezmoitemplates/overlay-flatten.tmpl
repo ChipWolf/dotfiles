@@ -1,0 +1,32 @@
+{{- /*
+  Shared overlay-flatten partial (single source of truth for the "walk an area's
+  overlays in lexical name order and concatenate one list key" prep that the
+  chocolatey/winget/registry render targets used to duplicate inline).
+
+  Input  : a dict with
+             .ctx  = the chezmoi root data context (pass the template's "." )
+             .area = the data area key (e.g. "chocolatey", "winget", "registry")
+             .key  = the per-overlay list key to concatenate (e.g. "packages",
+                     "entries")
+  Output : a JSON array concatenating .ctx.<area>.overlays.<name>.<key> for every
+           overlay name in sortAlpha order. Missing area/overlays/key yield [].
+
+  This is the plain flatten only — no per-overlay or per-item condition gating.
+  Brewfile keeps its own overlay walk because it gates overlays by env condition
+  and shapes each package with os/env conditions (its own target shaping).
+
+  Consume with:
+    {{ $pkgs := includeTemplate ".chezmoitemplates/overlay-flatten.tmpl" (dict "ctx" . "area" "winget" "key" "packages") | fromJson }}
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $area := .area -}}
+{{- $key := .key -}}
+{{- $items := list -}}
+{{- if and (hasKey $ctx $area) (hasKey (index $ctx $area) "overlays") -}}
+  {{- $overlays := (index $ctx $area).overlays -}}
+  {{- range $name := keys $overlays | sortAlpha -}}
+    {{- $ov := index $overlays $name -}}
+    {{- $items = concat $items (default (list) (index $ov $key)) -}}
+  {{- end -}}
+{{- end -}}
+{{- $items | toJson -}}

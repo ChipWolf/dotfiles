@@ -11,8 +11,8 @@ Use this skill when changing agent permission rules in this repo.
 
 - Canonical layered data: `home/.chezmoidata/agent-permissions/*.yaml`
 - Schema: `schemas/agent-permissions.schema.json`
-- Shared rule-collection partial: `home/.chezmoitemplates/agent-permission-rules.tmpl` (collects top-level rules + condition-enabled ruleSets once; emits JSON consumed via `includeTemplate ... | fromJson`)
-- Render partials (each consumes the shared partial, keeps its own per-rule conditions gate + shaping):
+- Shared rule-collection partial: `home/.chezmoitemplates/agent-permission-rules.tmpl` (collects top-level rules + condition-enabled ruleSets once, then applies the per-rule `conditions` gate selected by the `gate` parameter; emits JSON consumed via `includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" . "gate" "strict"|"loose") | fromJson`)
+- Render partials (each consumes the shared partial with its `gate` mode, then does only target-specific shaping — kind selection, matchMode expansion, destinations, `homeDir` substitution):
   - OpenCode: `home/.chezmoitemplates/opencode-permission.tmpl` (all kinds), included by `home/dot_config/opencode/modify_opencode.json`
   - Cursor: `home/.chezmoitemplates/cursor-terminal-auto-approve.tmpl` (`bash` kind only), included by `home/Library/Application Support/Cursor/User/settings.json.tmpl` and `home/AppData/Roaming/Cursor/User/settings.json.tmpl`
   - Zed: `home/.chezmoitemplates/zed-terminal-tool-permissions.tmpl` (`bash` kind only), included by `home/dot_config/zed/modify_settings.json` and `home/AppData/Roaming/Zed/modify_settings.json`
@@ -20,9 +20,10 @@ Use this skill when changing agent permission rules in this repo.
 Treat `home/.chezmoidata/agent-permissions/*.yaml` as the single source of truth.
 
 See `CONTEXT.md` (repo root) and `docs/adr/0001-source-of-truth-fan-out-via-prep-partials.md`
-for the fan-out pattern. The per-rule `conditions` gate is intentionally NOT centralised:
-OpenCode uses a strict gate (absent condition key excludes), Cursor/Zed use a loose gate
-(absent key includes). Centralise only the identical collection logic.
+for the fan-out pattern, and `docs/adr/0002-parameterize-per-rule-permission-gate.md` for the
+per-rule gate. The gate is centralised behind the `gate` parameter: OpenCode passes
+`gate "strict"` (absent condition key excludes), Cursor/Zed pass `gate "loose"` (absent key
+includes). Do not reintroduce a per-rule conditions loop in the adapters.
 
 ## Canonical schema
 

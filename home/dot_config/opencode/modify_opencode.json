@@ -1,11 +1,5 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- $merged := dict -}}
-{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
-  {{- $parsed := fromJson .chezmoi.stdin -}}
-  {{- if kindIs "map" $parsed -}}
-    {{- $merged = $parsed -}}
-  {{- end -}}
-{{- end -}}
+{{- $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson -}}
 
 {{- /* Chezmoi-managed keys: always overwrite */ -}}
 {{- $_ := set $merged "$schema" "https://opencode.ai/config.json" -}}

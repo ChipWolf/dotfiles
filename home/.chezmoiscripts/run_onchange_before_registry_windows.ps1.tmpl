@@ -1,10 +1,4 @@
-{{- $entries := list -}}
-{{- if and (hasKey . "registry") (hasKey .registry "overlays") -}}
-  {{- range $name := keys .registry.overlays | sortAlpha -}}
-    {{- $ov := index $.registry.overlays $name -}}
-    {{- $entries = concat $entries (default (list) $ov.entries) -}}
-  {{- end -}}
-{{- end -}}
+{{- $entries := includeTemplate ".chezmoitemplates/overlay-flatten.tmpl" (dict "ctx" . "area" "registry" "key" "entries") | fromJson -}}
 {{- $hklmEntries := list -}}
 {{- $hkcuEntries := list -}}
 {{- range $entries -}}

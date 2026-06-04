@@ -44,7 +44,10 @@ _Avoid_: filter, guard, predicate
 A shared `home/.chezmoitemplates/*.tmpl` that does the target-independent prep once —
 target-enablement and condition gating, plus value resolution — and emits JSON that render
 targets read back with `fromJson`. The single place that shared work lives. Current prep
-partials: `mcp-eligible-servers.tmpl`, `agent-permission-rules.tmpl`.
+partials: `mcp-eligible-servers.tmpl`, `agent-permission-rules.tmpl` (collection plus the
+optional strict/loose per-rule `gate`, see ADR-0002), `overlay-flatten.tmpl` (sortAlpha
+overlay walk + list concat for chocolatey/winget/registry), and `modify-stdin.tmpl` (the
+stdin-into-merged-dict preamble every `modify_` template shares).
 _Avoid_: helper, include, mixin
 
 **Eligible set**:

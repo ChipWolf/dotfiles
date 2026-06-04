@@ -1,7 +1,7 @@
 {{- /* Render bash permission rules as Cursor chat.tools.terminal.autoApprove (allow=true, deny=false).
-       Collected rules (top-level + enabled ruleSets) come from the shared prep partial;
-       the per-rule conditions gate below is kept local (Cursor uses the loose ne style). */ -}}
-{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson -}}
+       Collected + per-rule gated rules come from the shared prep partial.
+       Cursor uses the loose gate (absent condition key includes the rule). */ -}}
+{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" . "gate" "loose") | fromJson -}}
 
 {{- $first := true -}}
 {{- range $rule := $rules -}}
@@ -10,18 +10,8 @@
     {{- if eq $rule.op "allow" -}}{{- $value = "true" -}}{{- end -}}
     {{- if eq $rule.op "deny" -}}{{- $value = "false" -}}{{- end -}}
     {{- if ne $value "" -}}
-      {{- $conditionsMatch := true -}}
-      {{- if hasKey $rule "conditions" -}}
-        {{- range $ck, $cv := $rule.conditions -}}
-          {{- if and (hasKey $ $ck) (ne (index $ $ck) $cv) -}}
-            {{- $conditionsMatch = false -}}
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-      {{- if $conditionsMatch -}}
-        {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
+      {{- if $first }}{{- $first = false }}{{ else }},{{ end }}
         "{{ $rule.pattern }}": {{ $value }}
-      {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end }}

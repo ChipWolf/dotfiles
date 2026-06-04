@@ -1,11 +1,5 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- $merged := dict -}}
-{{- if .chezmoi.stdin -}}
-  {{- $parsed := fromJson .chezmoi.stdin -}}
-  {{- if kindIs "map" $parsed -}}
-    {{- $merged = $parsed -}}
-  {{- end -}}
-{{- end -}}
+{{- $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson -}}
 
 {{- /* Build mcpServers map from merged chezmoidata.
        Eligible servers + resolved args come from the shared prep partial. */ -}}

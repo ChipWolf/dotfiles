@@ -4,9 +4,9 @@
   {{- $permission = .agentPermissions -}}
 {{- end -}}
 {{- $kinds := default (dict) (index $permission "kinds") -}}
-{{- /* Collected rules (top-level + enabled ruleSets) come from the shared prep partial;
-       the per-rule conditions gate below is kept local (OpenCode uses the strict eq/else style). */ -}}
-{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson -}}
+{{- /* Collected + per-rule gated rules come from the shared prep partial.
+       OpenCode uses the strict gate (absent condition key excludes the rule). */ -}}
+{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" . "gate" "strict") | fromJson -}}
 
 {{- /* Render namespaced permission maps based on kind configuration */ -}}
 {{- $firstField := true -}}
@@ -23,17 +23,7 @@
     "{{ $kindCfg.destinationKey }}": {
     {{- $firstEntry := true -}}
     {{- range $rule := $rules -}}
-      {{- $conditionsMatch := true -}}
-      {{- if hasKey $rule "conditions" -}}
-        {{- range $conditionKey, $expected := $rule.conditions -}}
-          {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
-          {{- else -}}
-            {{- $conditionsMatch = false -}}
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-
-      {{- if and $conditionsMatch (eq $rule.kind $kindName) -}}
+      {{- if eq $rule.kind $kindName -}}
         {{- $pattern := replace "{{ .chezmoi.homeDir }}" $.chezmoi.homeDir $rule.pattern -}}
         {{- $supportsMatchMode := false -}}
         {{- if hasKey $kindCfg "supportsMatchMode" -}}
@@ -73,15 +63,6 @@
 
 {{- /* Render top-level permission keys based on kind configuration */ -}}
 {{- range $rule := $rules -}}
-  {{- $conditionsMatch := true -}}
-  {{- if hasKey $rule "conditions" -}}
-    {{- range $conditionKey, $expected := $rule.conditions -}}
-      {{- if and (hasKey $ $conditionKey) (eq (index $ $conditionKey) $expected) -}}
-      {{- else -}}
-        {{- $conditionsMatch = false -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
   {{- $kindCfg := dict -}}
   {{- if hasKey $kinds $rule.kind -}}
     {{- $kindCfg = index $kinds $rule.kind -}}
@@ -92,7 +73,7 @@
       {{- $kindEnabledForOpenCode = $kindCfg.targets.opencode -}}
     {{- end -}}
   {{- end -}}
-  {{- if and $conditionsMatch $kindEnabledForOpenCode (eq (default "" (index $kindCfg "destinationType")) "top_level") -}}
+  {{- if and $kindEnabledForOpenCode (eq (default "" (index $kindCfg "destinationType")) "top_level") -}}
     {{- $pattern := replace "{{ .chezmoi.homeDir }}" $.chezmoi.homeDir $rule.pattern -}}
     {{- if $firstField }}{{- $firstField = false }}{{ else }},{{ end }}
     {{ $pattern | toJson }}: {{ $rule.op | toJson }}

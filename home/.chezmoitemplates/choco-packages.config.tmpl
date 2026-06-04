@@ -1,10 +1,4 @@
-{{- $chocoPackages := list -}}
-{{- if and (hasKey . "chocolatey") (hasKey .chocolatey "overlays") -}}
-  {{- range $name := keys .chocolatey.overlays | sortAlpha -}}
-    {{- $ov := index $.chocolatey.overlays $name -}}
-    {{- $chocoPackages = concat $chocoPackages (default (list) $ov.packages) -}}
-  {{- end -}}
-{{- end -}}
+{{- $chocoPackages := includeTemplate ".chezmoitemplates/overlay-flatten.tmpl" (dict "ctx" . "area" "chocolatey" "key" "packages") | fromJson -}}
 {{- /*
   CI exclusions: chocolatey packages that fail or hang on a headless GitHub
   Actions windows-2025 runner. Confirmed against PR #78 runs:

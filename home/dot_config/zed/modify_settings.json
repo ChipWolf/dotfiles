@@ -1,11 +1,5 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- $merged := dict -}}
-{{- if and (hasKey .chezmoi "stdin") .chezmoi.stdin -}}
-  {{- $parsed := fromJson .chezmoi.stdin -}}
-  {{- if kindIs "map" $parsed -}}
-    {{- $merged = $parsed -}}
-  {{- end -}}
-{{- end -}}
+{{- $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson -}}
 
 {{- $contextServersJson := printf "{%s}" (includeTemplate ".chezmoitemplates/zed-context-servers.tmpl" . | trim) -}}
 {{- $contextServers := fromJson $contextServersJson -}}

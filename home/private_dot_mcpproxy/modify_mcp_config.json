@@ -1,11 +1,5 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- $merged := dict -}}
-{{- if .chezmoi.stdin -}}
-  {{- $parsed := fromJson .chezmoi.stdin -}}
-  {{- if kindIs "map" $parsed -}}
-    {{- $merged = $parsed -}}
-  {{- end -}}
-{{- end -}}
+{{- $merged := includeTemplate ".chezmoitemplates/modify-stdin.tmpl" . | fromJson -}}
 
 {{- /* Drop deprecated fields that mcpproxy 0.29+ removes on first run. */ -}}
 {{- $_ := unset $merged "top_k" -}}

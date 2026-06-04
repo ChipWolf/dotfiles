@@ -30,8 +30,10 @@ target-specific shaping in each target.
   shared filtering/resolution; the calling template owns only schema shaping.
 - Opt-in (default-off) target enablement is deliberate: adding a target to one tool must never
   silently enable it everywhere. Do not reintroduce implicit `default: true` enablement.
-- The per-rule conditions gate is intentionally **not** centralised for agent permissions:
+- ~~The per-rule conditions gate is intentionally **not** centralised for agent permissions:
   OpenCode uses a strict gate (absent condition key excludes) while Cursor/Zed use a loose gate
-  (absent key includes). Only the identical collection logic is shared.
+  (absent key includes). Only the identical collection logic is shared.~~ **Superseded by
+  ADR-0002**: the strict/loose split is a one-token difference, now expressed as a `gate`
+  parameter on the shared partial. The adapters no longer carry the gate loop.
 - Behaviour is verified by rendering each target (`chezmoi cat` / `chezmoi execute-template`)
   and confirming byte-identical output across changes to the shared prep.

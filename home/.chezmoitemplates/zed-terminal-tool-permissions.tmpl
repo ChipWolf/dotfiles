@@ -1,20 +1,11 @@
-{{- /* Collected rules (top-level + enabled ruleSets) come from the shared prep partial;
-       the per-rule conditions gate below is kept local (Zed uses the loose ne style). */ -}}
-{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson -}}
+{{- /* Collected + per-rule gated rules come from the shared prep partial.
+       Zed uses the loose gate (absent condition key includes the rule). */ -}}
+{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" . "gate" "loose") | fromJson -}}
 {{- $allow := list -}}
 {{- $deny := list -}}
 {{- $confirm := list -}}
 {{- range $rule := $rules -}}
   {{- if and (eq $rule.kind "bash") (ne $rule.pattern "*") -}}
-    {{- $conditionsMatch := true -}}
-    {{- if hasKey $rule "conditions" -}}
-      {{- range $ck, $cv := $rule.conditions -}}
-        {{- if and (hasKey $ $ck) (ne (index $ $ck) $cv) -}}
-          {{- $conditionsMatch = false -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-    {{- if $conditionsMatch -}}
       {{- $matchMode := "exact" -}}
       {{- if hasKey $rule "bashMatchMode" -}}
         {{- $matchMode = $rule.bashMatchMode -}}
@@ -36,7 +27,6 @@
           {{- $confirm = append $confirm $regex -}}
         {{- end -}}
       {{- end -}}
-    {{- end -}}
   {{- end -}}
 {{- end -}}
 "default": "confirm",
