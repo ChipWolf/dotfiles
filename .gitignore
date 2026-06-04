@@ -1,6 +1,7 @@
 *.swp
 .DS_Store
 **/*.local.*
+.pi-lens/
 reviews.local/
 home/dot_config/opencode/private_mcp-atlassian.env
 home/dot_config/opencode/private_slack-mcp.env
@@ -9,5 +10,4 @@ install.sh
 install.ps1
 home/Brewfile
 megalinter-reports/
-docs/superpowers/
 
