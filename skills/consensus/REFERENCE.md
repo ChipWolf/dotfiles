@@ -174,17 +174,20 @@ vs. stability, detail vs. big-picture). Make them distinct and human; no two ide
   resolves; `normalizeStance()` backfills defaults and flags the member as abstaining (logged via
   `logAbstentions`), so one degenerate agent costs a single abstention instead of hanging the
   meeting. If you re-tighten the schema, you reintroduce the hang.
-- **The empty-args culprit is the long-context flagship.** The empty-`{}` submissions correlate
-  cleanly with the `opus` tier resolving to a long-context (`[1m]`) build: across runs the opus
-  agents emitted empty tool args (one 145×, and a facilitator abstained every round) while sonnet
-  and haiku agents populated their stance first try, every time. The model knew the values — one
-  opus agent wrote "I am clearly failing to attach the arguments" then spelled them out in prose —
-  it just failed to attach them to the call. `agent()` exposes only coarse tiers (`opus`/`sonnet`/
-  `haiku`), so the script cannot request a non-long-context opus; the model guidance therefore
-  keeps the facilitator and any strict-schema role on sonnet and reserves opus for at most one
-  non-facilitator deliberation voice (where an empty stance degrades to a logged abstention rather
-  than a hang). `ROUND_SCHEMA` and `DECISION_SCHEMA` are deliberately left strict, so this
-  facilitator-model choice is what keeps the convergence check and synthesis from hanging.
+- **The empty-args culprit is the long-context flagship build.** The empty-`{}` submissions
+  correlate cleanly with the `opus` tier resolving to the long-context 4.8 `[1m]` build: across
+  runs the opus members emitted empty tool args (one looped 145×; in three separate runs the opus
+  member abstained every round) while sonnet and haiku members populated their stance first try,
+  every time. The model knew the values — one opus agent wrote "I am clearly failing to attach the
+  arguments" then spelled them out in prose — it just failed to attach them to the call. It is
+  **context-dependent**: an isolated single structured-output call from the same `[1m]` build was
+  fine (0/5 empty in a probe); the failure only surfaces under the consensus load (long persona
+  prompt + prior ToolSearch grounding + rich schema + parallel fan-out). `agent()` *does* accept
+  concrete model IDs (verified by probe), so the script pins the opus tier to `OPUS_MODEL_ID`
+  (`claude-opus-4-7`, a non-long-context build) via `resolveModel()` at every call site, keeping
+  the panel off the `[1m]` build entirely. Note: pinning is the durable guard, but `STANCE_SCHEMA`
+  stays relaxed and `normalizeStance` stays in place as the safety net, since the in-context
+  trigger is not fully characterised and `ROUND_SCHEMA`/`DECISION_SCHEMA` remain strict.
 
 ## Adapting the Workflow script
 

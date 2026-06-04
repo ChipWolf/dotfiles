@@ -35,6 +35,19 @@ const MAX_ROUNDS = _args.maxRounds || 4
 
 const MODEL_ENUM = ['opus', 'sonnet', 'haiku']
 
+// agent() accepts concrete model IDs, not just coarse tiers (verified). The bare
+// `opus` tier resolves to the session model, which can be the long-context 4.8
+// `[1m]` build; in the consensus context (long persona prompt + prior tool use +
+// rich schema) that build repeatedly failed to attach its StructuredOutput
+// arguments and abstained every round, while a one-shot call was fine. Pin the
+// opus tier to a non-1m opus so the panel never lands on that build. sonnet and
+// haiku tiers are reliable as-is, so they pass through unchanged. To move off
+// 4.7, change OPUS_MODEL_ID here (e.g. 'claude-opus-4-6').
+const OPUS_MODEL_ID = 'claude-opus-4-7'
+function resolveModel(tier) {
+  return tier === 'opus' ? OPUS_MODEL_ID : tier
+}
+
 const BRIEF_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -168,7 +181,7 @@ function briefPrompt() {
     'Then convene a panel sized to the decision (3-8 members). Model each member as a REAL person in a REAL role this decision would actually pull into a room: a job/function (e.g. "platform reliability engineer", "security engineer", "developer-experience lead", "person who owns the cost line", "the maintainer who is on call"). Do NOT use abstract debate-roles like "pragmatist", "optimist", or "devil\'s advocate" — those are caricatures, not people.',
     'For each member set: `role` (the realistic title), `focus` (2-4 concrete things someone in that role tends to weigh — these are EXAMPLES to orient them, not orders to argue a side), and `disposition` (one line placing them at a believable point on a spectrum: risk appetite, change vs. stability, detail vs. big-picture). Make every disposition distinct and human; NO caricatures, NO "extreme" anyone — real colleagues are all just somewhere on the scale. Do NOT assign anyone the job of opposing or cheerleading; let their role and disposition produce genuine views. Do not give members names; the meeting assigns those.',
     'Exactly ONE member has `facilitator: true` — the person who will run the room and write up the decision. They hold real views too; facilitator is a duty, not a neutral chairhood.',
-    'Assign each member a model, and mind the mix: DEFAULT members to sonnet; use haiku for lighter-weight perspectives; reserve opus for AT MOST ONE non-facilitator deliberation voice where deep reasoning genuinely pays. Keep the FACILITATOR on sonnet — it runs every convergence check and the synthesis under strict schemas, and the opus tier here resolves to a long-context build that intermittently emits empty tool-call arguments (it would hang those strict calls or abstain its own stance). An all-opus panel is wrong three ways over: it wastes the flagship model, collapses the diversity of priors the panel exists to create, AND is the least reliable at the forced structured output every member must emit. Set chairModel to the facilitator\'s model (sonnet).',
+    'Assign each member a model, and mind the mix: DEFAULT members to sonnet; use haiku for lighter-weight perspectives; reserve opus for AT MOST ONE pivotal voice where deep reasoning genuinely pays. An all-opus panel is wrong two ways over: it wastes the flagship model AND collapses the diversity of priors the panel exists to create — the point of a panel is varied minds, not one model many times. Set chairModel to the facilitator\'s model. (The script maps the opus tier to a pinned non-long-context build, so opus is safe for the facilitator if you want it there; just do not make it the default for everyone.)',
   ].filter(Boolean).join('\n\n')
 }
 
@@ -293,7 +306,7 @@ function logAbstentions(label, stances) {
 }
 
 phase('Frame')
-const brief = await agent(briefPrompt(), { label: 'chair:frame', phase: 'Frame', schema: BRIEF_SCHEMA, model: 'opus' })
+const brief = await agent(briefPrompt(), { label: 'chair:frame', phase: 'Frame', schema: BRIEF_SCHEMA, model: resolveModel('opus') })
 
 // Assign neutral names here, decoupled from the role profiles the chair wrote.
 const _off = nameOffset(brief.question || question)
@@ -306,7 +319,7 @@ let slate = brief.options
 
 phase('Prep')
 let stances = (await parallel(members.map(m => () =>
-  agent(prepPrompt(m, brief), { label: `prep:${m.name}`, phase: 'Prep', schema: STANCE_SCHEMA, model: m.model })
+  agent(prepPrompt(m, brief), { label: `prep:${m.name}`, phase: 'Prep', schema: STANCE_SCHEMA, model: resolveModel(m.model) })
     .then(s => normalizeStance(s, m))
 ))).filter(Boolean)
 logAbstentions('Prep', stances)
@@ -321,12 +334,12 @@ while (!converged && round < MAX_ROUNDS) {
   const transcript = transcriptOf(prev)
   const slateText = slateOf(slate)
   const updated = (await parallel(members.map(m => () =>
-    agent(crosstalkPrompt(m, brief, transcript, round, chairSummary, slateText), { label: `round${round}:${m.name}`, phase: 'Meeting', schema: STANCE_SCHEMA, model: m.model })
+    agent(crosstalkPrompt(m, brief, transcript, round, chairSummary, slateText), { label: `round${round}:${m.name}`, phase: 'Meeting', schema: STANCE_SCHEMA, model: resolveModel(m.model) })
       .then(s => normalizeStance(s, m))
   ))).filter(Boolean)
   logAbstentions(`Round ${round}`, updated)
 
-  const check = await agent(chairCheckPrompt(brief, prev, updated, round, slateText), { label: `chair:round${round}`, phase: 'Meeting', schema: ROUND_SCHEMA, model: brief.chairModel })
+  const check = await agent(chairCheckPrompt(brief, prev, updated, round, slateText), { label: `chair:round${round}`, phase: 'Meeting', schema: ROUND_SCHEMA, model: resolveModel(brief.chairModel) })
   chairSummary = check.summary
   stances = updated
   if (check.optionSlate && check.optionSlate.length) slate = check.optionSlate
@@ -338,6 +351,6 @@ while (!converged && round < MAX_ROUNDS) {
 
 phase('Synthesis')
 const provisional = !converged
-const decision = await agent(synthPrompt(brief, stances, chairSummary, provisional, slateOf(slate)), { label: 'chair:synthesis', phase: 'Synthesis', schema: DECISION_SCHEMA, model: facilitator.model })
+const decision = await agent(synthPrompt(brief, stances, chairSummary, provisional, slateOf(slate)), { label: 'chair:synthesis', phase: 'Synthesis', schema: DECISION_SCHEMA, model: resolveModel(facilitator.model) })
 
 return { brief, panel: members.map(m => ({ name: m.name, role: m.role, model: m.model, facilitator: !!m.facilitator })), finalSlate: slate, finalStances: stances, rounds: round, converged, decision }

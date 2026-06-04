@@ -72,13 +72,14 @@ over**: it burns the most expensive model, collapses the diversity of priors tha
 point of a panel, AND — observed in practice — is the *least reliable* at the forced structured
 output every member must emit.
 
-**Keep the facilitator off the flagship.** The facilitator runs every convergence check and the
-synthesis, all under strict schemas. In testing, the `opus` tier resolved to a long-context build
-that intermittently emitted **empty tool-call arguments** (it knew the values but failed to attach
-them), which would hang those strict calls. `agent()` exposes only coarse tiers, so you cannot pin
-a non-long-context opus from the script; the practical guard is to keep the facilitator (and any
-strict-schema role) on sonnet. This is guidance, not a tier table — a thorny call may deserve a
-top-tier deliberation voice; just don't make *everyone*, or the facilitator, top-tier by default.
+**Mind which opus build you get.** In testing, the bare `opus` tier resolved to the long-context
+4.8 `[1m]` build, which in the consensus context (long persona prompt + prior tool use + rich
+schema) repeatedly emitted **empty tool-call arguments** — it knew the values but failed to attach
+them, so the opus member abstained every round (an isolated one-shot call was fine; the failure is
+context-dependent). `agent()` *does* accept concrete model IDs, so the Workflow script pins the
+opus tier to a non-long-context build (`OPUS_MODEL_ID`, currently `claude-opus-4-7`) to keep the
+panel off the `[1m]` build. With that pin, opus is safe to use, including for the facilitator;
+the standing advice is just don't make *everyone* opus. This is guidance, not a tier table.
 
 ## How to run it (portable + fast-path)
 
