@@ -5,6 +5,7 @@
 # Usage:
 #   ./audit.sh                       # all installed clients, table to stdout
 #   ./audit.sh --raw                 # also keep raw captures in $AGENT_AUDIT_OUT_DIR
+#   ./audit.sh --breakdown           # also print per-category composition tables
 #   ./audit.sh claude codex          # subset of clients
 #
 # Env overrides:
@@ -21,14 +22,17 @@ TS="$(date +%Y%m%d-%H%M%S)"
 OUT_DIR="${AGENT_AUDIT_OUT_DIR:-${TMPDIR:-/tmp}/agent-audit-$TS}"
 KEEP_RAW=0
 
+BREAKDOWN=0
+
 ALL_CLIENTS=(claude opencode codex pi cursor)
 SELECTED=()
 
 for arg in "$@"; do
 	case "$arg" in
 	--raw) KEEP_RAW=1 ;;
+	--breakdown | -b) BREAKDOWN=1 ;;
 	--help | -h)
-		sed -n '2,12p' "$0"
+		sed -n '2,13p' "$0"
 		exit 0
 		;;
 	claude | opencode | codex | pi | cursor) SELECTED+=("$arg") ;;
@@ -335,6 +339,20 @@ printf '\n'
 while IFS=$'\t' read -r client version chars tokens note; do
 	printf '%-9s %-12s %10s %10s  %s\n' "$client" "$version" "$chars" "$tokens" "$note"
 done <"$RESULTS_FILE"
+
+# ---------- per-category breakdown ----------
+if [ "$BREAKDOWN" -eq 1 ]; then
+	if ! have node; then
+		printf '\n(breakdown skipped: node not on PATH)\n'
+	else
+		printf '\nPer-category composition (where the bytes go):\n'
+		while IFS=$'\t' read -r client _version chars _tokens _note; do
+			# Skip clients that never captured anything (e.g. cursor, not installed).
+			[ "$chars" = "0" ] && continue
+			node "$LIB_DIR/categorize.mjs" "$client" "$OUT_DIR" || true
+		done <"$RESULTS_FILE"
+	fi
+fi
 
 if [ "$KEEP_RAW" -eq 1 ] || [ -n "${AGENT_AUDIT_OUT_DIR:-}" ]; then
 	printf '\nRaw captures: %s\n' "$OUT_DIR"
