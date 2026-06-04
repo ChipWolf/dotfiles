@@ -1,26 +1,6 @@
-{{- $permission := dict -}}
-{{- if hasKey . "agentPermissions" -}}
-  {{- $permission = .agentPermissions -}}
-{{- end -}}
-{{- $rules := list -}}
-{{- if hasKey $permission "rules" -}}
-  {{- $rules = concat $rules (default (list) (index $permission "rules")) -}}
-{{- end -}}
-{{- $ruleSets := default (dict) (index $permission "ruleSets") -}}
-{{- range $setName := (keys $ruleSets | sortAlpha) -}}
-  {{- $ruleSet := index $ruleSets $setName -}}
-  {{- $setEnabled := true -}}
-  {{- if hasKey $ruleSet "conditions" -}}
-    {{- range $ck, $cv := $ruleSet.conditions -}}
-      {{- if and (hasKey $ $ck) (ne (index $ $ck) $cv) -}}
-        {{- $setEnabled = false -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-  {{- if $setEnabled -}}
-    {{- $rules = concat $rules (default (list) (index $ruleSet "rules")) -}}
-  {{- end -}}
-{{- end -}}
+{{- /* Collected rules (top-level + enabled ruleSets) come from the shared prep partial;
+       the per-rule conditions gate below is kept local (Zed uses the loose ne style). */ -}}
+{{- $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson -}}
 {{- $allow := list -}}
 {{- $deny := list -}}
 {{- $confirm := list -}}

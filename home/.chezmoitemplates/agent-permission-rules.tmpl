@@ -1,0 +1,45 @@
+{{- /*
+  Shared agent-permission rule-collection partial (single source of truth for the
+  "boring prep" every per-target permission render template used to duplicate).
+
+  Input  : a dict with .ctx = the chezmoi root data context (pass the template's ".").
+  Output : a JSON array of collected permission rules, in deterministic order:
+             1. top-level agentPermissions.rules (source order)
+             2. agentPermissions.ruleSets, in sortAlpha order of set name, each
+                included only when its set-level conditions all match .ctx
+           Rules are passed through unchanged (kind/pattern/op/bashMatchMode/conditions).
+
+  Intentionally NOT done here (left to each caller, because it varies per target):
+    - per-rule conditions filtering (opencode uses a strict eq/else gate; cursor and
+      zed use a loose ne gate) — kept in the adapters to preserve exact output
+    - kind selection, matchMode expansion, namespaced vs top_level destinations,
+      and homeDir substitution
+
+  Consume with:
+    {{ $rules := includeTemplate ".chezmoitemplates/agent-permission-rules.tmpl" (dict "ctx" .) | fromJson }}
+*/ -}}
+{{- $ctx := .ctx -}}
+{{- $permission := dict -}}
+{{- if hasKey $ctx "agentPermissions" -}}
+  {{- $permission = $ctx.agentPermissions -}}
+{{- end -}}
+{{- $rules := list -}}
+{{- if hasKey $permission "rules" -}}
+  {{- $rules = concat $rules (default (list) (index $permission "rules")) -}}
+{{- end -}}
+{{- $ruleSets := default (dict) (index $permission "ruleSets") -}}
+{{- range $setName := (keys $ruleSets | sortAlpha) -}}
+  {{- $ruleSet := index $ruleSets $setName -}}
+  {{- $setEnabled := true -}}
+  {{- if hasKey $ruleSet "conditions" -}}
+    {{- range $ck, $cv := $ruleSet.conditions -}}
+      {{- if and (hasKey $ctx $ck) (ne (index $ctx $ck) $cv) -}}
+        {{- $setEnabled = false -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $setEnabled -}}
+    {{- $rules = concat $rules (default (list) (index $ruleSet "rules")) -}}
+  {{- end -}}
+{{- end -}}
+{{ $rules | toJson }}
