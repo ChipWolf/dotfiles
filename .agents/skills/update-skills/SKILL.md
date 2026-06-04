@@ -1,6 +1,6 @@
 ---
 name: update-skills
-description: Update declared agent skills for this chezmoi repo: edit the skills manifest, run the apply-time installer, and reconcile drift via skills-review. Use when editing home/.chezmoidata/skills/*.yaml, the skills install scripts, the local skills/ directory, or when reviewing drift with ~/.scripts/skills-review.
+description: "Update declared agent skills for this chezmoi repo: edit the skills manifest, run the apply-time installer, and reconcile drift via skills-review. Use when editing home/.chezmoidata/skills/*.yaml, the skills install scripts, the local skills/ directory, or when reviewing drift with ~/.scripts/skills-review."
 ---
 
 # Update Skills
