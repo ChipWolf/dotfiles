@@ -65,12 +65,20 @@ must be stable too (no freshly proposed option still gathering backers).
 ## Model guidance (soft, not rigid)
 
 Diversify models across the panel so priors don't collapse into one model's biases — and watch the
-mix in both directions. **Default members to a mid-tier model** (e.g. sonnet); reserve the
-flagship (opus) for the facilitator and at most one genuinely pivotal role; use a light model
-(haiku) for lighter perspectives. An **all-flagship panel is the wrong call twice over**: it burns
-the most expensive model AND collapses the diversity of priors that is the whole point of a panel.
-This is guidance, not a tier table — a thorny security or cost call may deserve a top-tier voice;
-just don't make *everyone* top-tier by default.
+mix in both directions. **Default members to a mid-tier model** (e.g. sonnet); use a light model
+(haiku) for lighter perspectives; reserve the flagship (opus) for at most one *non-facilitator*
+deliberation voice where deep reasoning genuinely pays. An **all-flagship panel is wrong three ways
+over**: it burns the most expensive model, collapses the diversity of priors that is the whole
+point of a panel, AND — observed in practice — is the *least reliable* at the forced structured
+output every member must emit.
+
+**Keep the facilitator off the flagship.** The facilitator runs every convergence check and the
+synthesis, all under strict schemas. In testing, the `opus` tier resolved to a long-context build
+that intermittently emitted **empty tool-call arguments** (it knew the values but failed to attach
+them), which would hang those strict calls. `agent()` exposes only coarse tiers, so you cannot pin
+a non-long-context opus from the script; the practical guard is to keep the facilitator (and any
+strict-schema role) on sonnet. This is guidance, not a tier table — a thorny call may deserve a
+top-tier deliberation voice; just don't make *everyone*, or the facilitator, top-tier by default.
 
 ## How to run it (portable + fast-path)
 
