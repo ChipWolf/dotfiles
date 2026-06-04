@@ -14,7 +14,7 @@
       "type": "array",
       "minItems": 2,
       "maxItems": 6,
-      "description": "Concrete candidate options. Do not invent — derive from the question and context.",
+      "description": "Concrete OPENING options that seed the slate. Do not invent — derive from the question and context. The panel can add, reframe, split, or merge options as it deliberates; this is a starting menu, not a closed ballot.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -43,25 +43,34 @@
       "type": "array",
       "minItems": 3,
       "maxItems": 8,
-      "description": "Roster sized to the decision: core members plus the specialists this question needs.",
+      "description": "Real people in real roles this decision would pull into a room. NOT debate-archetypes (no 'pragmatist'/'devils-advocate'). No names here: the script assigns neutral names decoupled from role.",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "role", "charter", "model"],
+        "required": ["role", "focus", "disposition", "model", "facilitator"],
         "properties": {
-          "name": { "type": "string", "description": "Display name for this voice." },
           "role": {
             "type": "string",
-            "enum": ["chair", "pragmatist", "devils-advocate", "scribe", "specialist"]
+            "description": "Realistic role/title, e.g. 'platform reliability engineer', 'person who owns the cost line'."
           },
-          "charter": {
+          "focus": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Example things someone in this role tends to weigh. Orientation, not orders to argue a side."
+          },
+          "disposition": {
             "type": "string",
-            "description": "What this member optimizes for and the deliberate bias they bring."
+            "description": "One line placing them at a believable point on a spectrum (risk appetite, change vs. stability...). Distinct and human; never a caricature, never 'extreme'."
           },
           "model": {
             "type": "string",
             "enum": ["opus", "sonnet", "haiku"],
-            "description": "Soft guidance: diversify across the panel; heavier reasoning for pivotal roles."
+            "description": "Default to sonnet; reserve opus for the facilitator and at most one pivotal role; haiku for lighter voices. An all-opus panel both wastes the flagship and collapses prior diversity."
+          },
+          "facilitator": {
+            "type": "boolean",
+            "description": "Exactly one member is true: they run the room and write up the decision (and still hold real views)."
           }
         }
       }
@@ -69,7 +78,7 @@
     "chairModel": {
       "type": "string",
       "enum": ["opus", "sonnet", "haiku"],
-      "description": "Model for the chair's compile/convergence/synthesis calls. Usually the strongest available."
+      "description": "Model for the facilitator's compile/convergence/synthesis calls. Equals the facilitator's own model."
     }
   }
 }

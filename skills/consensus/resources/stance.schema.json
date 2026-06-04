@@ -4,11 +4,12 @@
   "description": "A panel member's current position, emitted in Phase 1 (prep) and after each Phase 2 round.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["preferredOption", "confidence", "reasons", "concerns", "changedFromLastRound"],
+  "required": [],
+  "$comment": "No fields are required on purpose. A required list makes the host reject an empty {} submission and re-prompt; a degenerate model then re-submits empty forever (no agent-layer retry cap), hanging the round. With nothing required, an empty stance validates and is normalized into a logged abstention. The prompt still asks for every field; this is the safety net.",
   "properties": {
     "preferredOption": {
       "type": "string",
-      "description": "The option this member currently favors (must match a brief option name)."
+      "description": "The option this member currently favors. May be one already on the slate OR one they put forward in proposedOptions."
     },
     "confidence": {
       "type": "number",
@@ -37,9 +38,22 @@
       "items": { "type": "string" },
       "description": "What this member still needs answered to commit."
     },
+    "proposedOptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "summary"],
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "description": "Options this member puts on the table (new, reframed, or split/merged). The facilitator folds these into the live slate between rounds."
+    },
     "changedFromLastRound": {
       "type": "boolean",
-      "description": "Did the preferred option or a material reason change since the previous round? Used by the chair's convergence check. Always false in the Phase 1 prep stance."
+      "description": "Did the preferred option or a material reason change since the previous round? Used by the facilitator's convergence check. Always false in the Phase 1 prep stance."
     }
   }
 }

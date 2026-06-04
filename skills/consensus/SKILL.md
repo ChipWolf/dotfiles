@@ -21,17 +21,24 @@ for trivial or already-decided questions — it is deliberately expensive (panel
    relevant code — and query any internal-docs MCP. Produce a **Decision Brief**: question,
    candidate options, constraints, success criteria, condensed context pack, and a **panel
    roster**. See [REFERENCE.md](REFERENCE.md) for the brief shape.
-2. **Convene** the panel: a small **core** (Chair, Pragmatist, Devil's Advocate, Scribe) plus
-   **dynamic specialists** chosen for *this* decision (cost, SRE, security, product, future
-   planning, blue-sky, non-technical…). Give each a persona charter, a context subset, the
-   tools/MCPs it needs, and a model (see model guidance below).
-3. **Prep round (Phase 1, isolated):** each member mulls privately (inner monologue) and emits a
-   **Stance** (preferred option, confidence, grounded reasons, blocking concerns). Members do
-   NOT see each other yet — independent priors are the point.
-4. **Meeting rounds (Phase 2, loop):** chair shares a transcript of all stances + tensions; each
-   member reacts and updates its stance (cross-talk); the Devil's Advocate stress-tests the
-   front-runner. Chair writes a round summary and a convergence check. Repeat until **converged**
-   or `maxRounds` (default 4).
+2. **Convene** the panel: model **real people in real roles** this decision would pull into a room
+   (a security engineer, the on-call maintainer, whoever owns the cost line, a product lead, an
+   SRE…), NOT abstract debate-roles like "pragmatist" or "devil's advocate". Give each a realistic
+   role, a few example focus areas (to orient, not to script a side), a distinct human disposition
+   somewhere on a normal spectrum (no caricatures, no "extreme" anyone), a context subset, and a
+   model (see model guidance below). One member is the **facilitator** (runs the room, writes up
+   the decision) and still holds real views. The meeting assigns **neutral names** decoupled from
+   role, so no one can read a colleague's leanings off their label.
+3. **Prep round (Phase 1, isolated):** each member mulls privately and emits a **Stance**
+   (preferred option, confidence, grounded reasons, blocking concerns, and any option they want to
+   **put on the table**). Members do NOT see each other yet — independent priors are the point. A
+   member's role, disposition, and private reasoning stay private; peers only ever see what each
+   one *chooses to share*.
+4. **Meeting rounds (Phase 2, loop):** the facilitator shares the table (each person's shared
+   stance + the live option slate + tensions); each member reacts, may propose/reframe/merge
+   options, and updates its stance (cross-talk). Pressure-testing the front-runner is **everyone's
+   job**, not one assigned skeptic's. The facilitator re-curates the option slate, writes a round
+   summary, and runs a convergence check. Repeat until **converged** or `maxRounds` (default 4).
 5. **Synthesis (Phase 3):** chair declares the decision: choice, rationale, rejected options +
    why, **dissent / minority report**, risks + mitigations, confidence, follow-ups.
 6. **Record (Phase 4):** write an ADR from [resources/adr-template.md](resources/adr-template.md)
@@ -49,17 +56,21 @@ shift *onto* the front-runner is the meeting working, but it is not yet stable: 
 followed by a quiet round (zero option changes, no new objection) to confirm. Never declare
 convergence on the same round that options moved.
 
-**Groupthink guard:** force one extra adversarial round (Devil's Advocate leads) before accepting
-consensus whenever agreement looks too easy — round-1 unanimity, near-unanimity, or unanimity at
-low confidence. The Devil's Advocate stress-tests the front-runner *every* round regardless.
+**Groupthink guard:** force one extra adversarial round before accepting consensus whenever
+agreement looks too easy — round-1 unanimity, near-unanimity, or unanimity at low confidence. The
+scrutiny is shared: every member is asked to pressure-test the front-runner where their own
+perspective sees a weakness, the facilitator holds the room there for one more pass, and the slate
+must be stable too (no freshly proposed option still gathering backers).
 
 ## Model guidance (soft, not rigid)
 
-Diversify models across the panel so priors don't collapse into one model's biases: spread roles
-across families/versions where the host exposes them. Give heavier reasoning to the chair and to
-pivotal specialists; lighter models suit the scribe/summarizer. This is guidance — a thorny cost
-or security call may well deserve a top-tier specialist. Do not starve a decision of quality to
-satisfy a tier table.
+Diversify models across the panel so priors don't collapse into one model's biases — and watch the
+mix in both directions. **Default members to a mid-tier model** (e.g. sonnet); reserve the
+flagship (opus) for the facilitator and at most one genuinely pivotal role; use a light model
+(haiku) for lighter perspectives. An **all-flagship panel is the wrong call twice over**: it burns
+the most expensive model AND collapses the diversity of priors that is the whole point of a panel.
+This is guidance, not a tier table — a thorny security or cost call may deserve a top-tier voice;
+just don't make *everyone* top-tier by default.
 
 ## How to run it (portable + fast-path)
 
