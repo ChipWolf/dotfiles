@@ -10,6 +10,14 @@ if command -v brew >/dev/null 2>&1; then
     exit 0
   fi
 
+  BREWFILE_RENDERED="$(mktemp)"
+  trap 'rm -f "$BREWFILE_RENDERED"' EXIT INT TERM
+  cat >"$BREWFILE_RENDERED" <<'EOF'
+{{ includeTemplate "Brewfile.tmpl" . }}
+EOF
+  {{ includeTemplate "brew-trust-declared.sh.tmpl" . | nindent 2 }}
+  trust_declared_brew_tap_packages "$BREWFILE_RENDERED"
+
   brew update
   brew doctor || true
   brew upgrade --cask --greedy

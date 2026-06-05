@@ -40,6 +40,12 @@ Use this skill before changing Homebrew-related files in this repo.
 - After editing overlay/template files, validate render output:
   - `chezmoi execute-template --file home/Brewfile.tmpl | ruby -c`
 
+## Brewfile trust rule
+
+- Declared `brew` and `cask` package names that include an explicit tap path (`owner/tap/name`) are implicitly trusted by `home/.chezmoiscripts/run_after_90_homebrew_update.sh.tmpl` before `brew update` runs.
+- Trust should stay package-scoped (`brew trust --formula` / `--cask`), not whole-tap scoped, so Homebrew's tap trust enforcement only allows what the overlay declares.
+- Do not add per-package trust flags to overlay YAML unless we need exceptions later.
+
 ## Brewfile env var rule
 
 Homebrew adds a `HOMEBREW_` prefix to env vars in Brewfile Ruby evaluation:

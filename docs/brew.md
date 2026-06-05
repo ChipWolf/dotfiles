@@ -37,6 +37,8 @@ bundle at runtime for `brew bundle` and drift review.
 
 The template prefixes env conditions with `HOMEBREW_` during render because Homebrew evaluates Brewfile entries in its own bundle context and exposes passed env vars with a `HOMEBREW_` prefix (for example, script `CODESPACES=1` becomes Brewfile `ENV["HOMEBREW_CODESPACES"]`).
 
+Declared `brew` and `cask` entries whose names include an explicit tap path (`owner/tap/name`) are implicitly trusted by the Homebrew update script before `brew update` runs, using `brew trust --formula` or `brew trust --cask`. This trusts only the declared formulae/casks needed by the bundle, not the whole tap.
+
 ## Runtime usage
 
 Bootstrap script:

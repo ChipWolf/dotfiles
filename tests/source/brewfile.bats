@@ -5,6 +5,7 @@ setup() {
   REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   BREWFILE_TMPL="$REPO_ROOT/home/Brewfile.tmpl"
   BOOTSTRAP_TMPL="$REPO_ROOT/home/.chezmoiscripts/run_onchange_after_bootstrap.sh.tmpl"
+  HOMEBREW_UPDATE_TMPL="$REPO_ROOT/home/.chezmoiscripts/run_after_90_homebrew_update.sh.tmpl"
   BREWFILE_RENDERED="$BATS_TEST_TMPDIR/Brewfile.rendered"
 }
 
@@ -23,6 +24,12 @@ render_bootstrap_template_ci() {
   env CI=1 HOMEBREW_CI=1 chezmoi --source "$REPO_ROOT/home" execute-template --init \
     --override-data '{"codespaces":false}' \
     --file "$BOOTSTRAP_TMPL"
+}
+
+render_homebrew_update_template() {
+  chezmoi --source "$REPO_ROOT/home" execute-template --init \
+    --override-data '{"codespaces":false}' \
+    --file "$HOMEBREW_UPDATE_TMPL"
 }
 
 @test "Brewfile template renders valid Ruby syntax" {
@@ -54,6 +61,24 @@ render_bootstrap_template_ci() {
   render_brewfile_to_tmp
   line=$(grep -E '^brew "tmux"' "$BREWFILE_RENDERED")
   echo "$line" | grep -Fq 'OS.mac?'
+}
+
+@test "Brewfile render does not shell out for tap trust" {
+  render_brewfile_to_tmp
+  ! echo "$output" | grep -Fq 'system "brew", "trust"'
+}
+
+@test "homebrew update trusts declared third-party tap packages before brew update" {
+  if [ "${OS:-}" = "Windows_NT" ]; then
+    skip "unix homebrew update script is empty on Windows hosts"
+  fi
+  run render_homebrew_update_template
+  [ "$status" -eq 0 ]
+  trust_line=$(printf "%s\n" "$output" | grep -n 'trust_declared_brew_tap_packages "$BREWFILE_RENDERED"' | cut -d: -f1)
+  update_line=$(printf "%s\n" "$output" | grep -n 'brew update' | cut -d: -f1)
+  [ -n "$trust_line" ]
+  [ -n "$update_line" ]
+  [ "$trust_line" -lt "$update_line" ]
 }
 
 @test "Brewfile render preserves mixed condition expression formatting" {
