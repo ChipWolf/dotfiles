@@ -43,3 +43,14 @@ skills:
     # the plugin to avoid name collisions with the symlinked/copied install.
     obra-superpowers:
       repo: obra/superpowers
+
+    # Vendored third-party: 0xNyk/council-of-high-intelligence. Claude Code ONLY
+    # (its 18 council-* personas are vendored as Claude agents under
+    # home/dot_claude/agents/, which only Claude Code reads). Source vendored at
+    # the repo root in vendor/council/ rather than fetched from the upstream repo
+    # or installed via its install.sh. Kept out of the all-targets `local` source
+    # by living under its own path.
+    council:
+      path: vendor
+      targets:
+        - claude-code
