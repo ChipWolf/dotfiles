@@ -27,6 +27,7 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 | **tmux**                | Terminal multiplexer                     |   x   |       |         |            |
 | **Neovim (LazyVim)**    | Editor                                   |   x   |   x   |    x    |     x      |
 | **OpenCode**            | AI coding agent                          |   x   |   x   |    x    |     x      |
+| **Claude Desktop**      | AI assistant                             |   x   |       |    x    |            |
 | **tree-sitter CLI**     | Treesitter parser generator              |       |       |    x    |            |
 | **WakaTime CLI**        | Coding activity tracker                  |   x   |   x   |         |            |
 | **Git**                 | Version control config                   |   x   |   x   |    x    |     x      |

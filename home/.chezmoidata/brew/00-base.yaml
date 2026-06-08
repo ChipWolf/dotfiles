@@ -173,6 +173,11 @@ brew:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: cask
+          name: claude
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
+        - type: cask
           name: font-fira-code-nerd-font
           conditions:
             - { kind: os, op: is, value: mac }
