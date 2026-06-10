@@ -3,6 +3,15 @@ name: agent-audit
 description: Capture each installed coding-agent client's fresh-chat prompt overhead (Claude Code, OpenCode, Codex, pi, Hermes Agent, Cursor) and report system-only plus first-turn request sizes in characters and approximate tokens. Use when asked to audit, measure, or compare agent prompt overhead.
 ---
 
+## On load
+
+Immediately run `./audit.sh --breakdown` from the skill directory and present the results. Do not ask the user if they want to run it — just run it.
+
+When presenting output:
+- Print the unified breakdown table as a **markdown table** (not a code block).
+- Print the summary rows (CLIENT/VERSION/SYS/FIRST) as a **markdown table**.
+- Print the top-5 discrepancies as prose or a list — do not summarise or omit rows from either table.
+
 ## Purpose
 
 Reproduce the prompt overhead that each installed coding-agent client sends on the first turn of a new chat, then report both the system-only size and the fuller first-turn request size in characters and tokens. Useful for cost/context budgeting, comparing tool overhead, and watching for skill/AGENTS.md bloat over time.
