@@ -16,7 +16,7 @@
 // Tool definitions and the skills catalogue live off the system prompt, so
 // SYS_* is intentionally much smaller than FIRST_* for Claude.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const [, , client, outDir] = process.argv;
@@ -110,10 +110,44 @@ function categorizeClaude() {
 		.map(([cat, chars]) => ({ cat, chars }));
 }
 
+function openaiRequestToolChars(file) {
+	if (!existsSync(join(outDir, file))) return 0;
+	const req = readJSON(file);
+	return Array.isArray(req.tools)
+		? req.tools.reduce((a, t) => a + JSON.stringify(t).length, 0)
+		: 0;
+}
+
+function openaiContentChars(content) {
+	if (typeof content === "string") return content.length;
+	if (!Array.isArray(content)) return 0;
+	return content.reduce((a, c) => a + (c?.text || c?.content || "").length, 0);
+}
+
+function openaiRequestUserChars(file) {
+	if (!existsSync(join(outDir, file))) return 0;
+	const req = readJSON(file);
+	let total = 0;
+	for (const m of req.input || req.messages || []) {
+		if (m.role === "user") total += openaiContentChars(m.content);
+	}
+	return total;
+}
+
+function openaiRequestTextAndToolChars(file) {
+	if (!existsSync(join(outDir, file))) return 0;
+	const req = readJSON(file);
+	let total = (req.instructions || "").length;
+	for (const m of req.input || req.messages || [])
+		total += openaiContentChars(m.content);
+	total += openaiRequestToolChars(file);
+	return total;
+}
+
 function categorizeOpencode() {
 	const j = readJSON("opencode-prompt.json");
 	const text = (j.system || []).join("\n\n");
-	return spanBreakdown(text, [
+	const rows = spanBreakdown(text, [
 		["environment (<env>)", "<env>", "</env>"],
 		["memory (AGENTS.md)", "Instructions from:", "Skills provide specialized"],
 		[
@@ -123,40 +157,90 @@ function categorizeOpencode() {
 		],
 		["context-window protection", "<context_window_protection>", null],
 	]);
+	const toolChars = openaiRequestToolChars("opencode-request.json");
+	if (toolChars > 0)
+		rows.push({ cat: "provider tool schemas", chars: toolChars });
+	const userChars = openaiRequestUserChars("opencode-request.json");
+	if (userChars > 0) rows.push({ cat: "audit user msg", chars: userChars });
+	const expected = openaiRequestTextAndToolChars("opencode-request.json");
+	const actual = rows.reduce((a, r) => a + r.chars, 0);
+	const drift = actual - expected;
+	if (expected > 0 && drift !== 0) {
+		// The plugin joins system pieces with separators that are not necessarily
+		// sent on the wire. Keep the named buckets, but make the total match the
+		// captured first-turn request.
+		const base = rows.find((r) => r.cat === "base prompt");
+		if (base) base.chars -= drift;
+	}
+	return rows;
 }
 
 function categorizeCodex() {
-	const j = readJSON("codex-prompt-input.json");
-	const arr = Array.isArray(j) ? j : j.input || [];
-	const out = [];
-	for (const m of arr) {
-		if (m && m.role === "developer" && Array.isArray(m.content)) {
-			for (const c of m.content)
-				out.push(c.text || (typeof c === "string" ? c : ""));
+	let text = "";
+	const rows = [];
+	if (existsSync(join(outDir, "codex-request.json"))) {
+		const req = readJSON("codex-request.json");
+		if (req.instructions)
+			rows.push({
+				cat: "base instructions (wire)",
+				chars: req.instructions.length,
+			});
+		const dev = (req.input || []).filter((m) => m.role === "developer");
+		for (const m of dev) {
+			if (Array.isArray(m.content)) {
+				for (const c of m.content) text += c.text || "";
+			} else if (typeof m.content === "string") {
+				text += m.content;
+			}
 		}
+	} else {
+		const j = readJSON("codex-prompt-input.json");
+		const arr = Array.isArray(j) ? j : j.input || [];
+		const out = [];
+		for (const m of arr) {
+			if (m && m.role === "developer" && Array.isArray(m.content)) {
+				for (const c of m.content)
+					out.push(c.text || (typeof c === "string" ? c : ""));
+			}
+		}
+		text = out.join("\n\n");
 	}
-	const text = out.join("\n\n");
-	return spanBreakdown(text, [
-		[
-			"permissions instructions",
-			"<permissions instructions>",
-			"</permissions instructions>",
-		],
-		[
-			"skills (<skills_instructions>)",
-			"<skills_instructions>",
-			"</skills_instructions>",
-		],
-	]);
+	rows.push(
+		...spanBreakdown(text, [
+			[
+				"permissions instructions",
+				"<permissions instructions>",
+				"</permissions instructions>",
+			],
+			[
+				"skills (<skills_instructions>)",
+				"<skills_instructions>",
+				"</skills_instructions>",
+			],
+		]),
+	);
+	const toolChars = openaiRequestToolChars("codex-request.json");
+	if (toolChars > 0)
+		rows.push({ cat: "provider tool schemas", chars: toolChars });
+	const userChars = openaiRequestUserChars("codex-request.json");
+	if (userChars > 0)
+		rows.push({ cat: "audit user/environment msg", chars: userChars });
+	return rows;
 }
 
 function categorizePi() {
 	const text = readText("pi-system.txt");
-	return spanBreakdown(text, [
+	const rows = spanBreakdown(text, [
 		["tools list", "Available tools:", "Guidelines:"],
 		["guidelines & pi docs", "Guidelines:", "Current date:"],
 		["environment", "Current date:", null],
 	]);
+	const toolChars = openaiRequestToolChars("pi-request.json");
+	if (toolChars > 0)
+		rows.push({ cat: "provider tool schemas", chars: toolChars });
+	const userChars = openaiRequestUserChars("pi-request.json");
+	if (userChars > 0) rows.push({ cat: "audit user msg", chars: userChars });
+	return rows;
 }
 
 const dispatch = {
@@ -174,7 +258,7 @@ if (!fn) {
 
 let rows;
 try {
-	rows = fn();
+	rows = fn().filter((r) => r.chars > 0);
 } catch (e) {
 	console.error(`categorize ${client}: ${e.message}`);
 	process.exit(1);
@@ -184,9 +268,9 @@ const total = rows.reduce((a, r) => a + r.chars, 0);
 if (total === 0) process.exit(1);
 
 const heading =
-	client === "claude"
-		? "claude — first-turn request composition"
-		: `${client} — system prompt composition`;
+	client === "cursor"
+		? "cursor — unavailable"
+		: `${client} — first-turn request composition`;
 const labelW = Math.max(24, ...rows.map((r) => r.cat.length));
 const rule = "  " + "─".repeat(labelW + 26);
 

@@ -83,20 +83,34 @@ claude_system_chars() {
 }
 
 claude_first_turn_chars() {
-	# Count all first-turn request text/schemas Claude sends: system payload,
-	# tool definitions, MCP definitions, injected memory/skills/reminders, and
-	# the audit user text. This matches lib/categorize.mjs' Claude total.
-	node -e '
-		const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
-		let total = 0;
-		for (const b of j.system || []) total += (typeof b === "string" ? b : (b.text || "")).length;
-		for (const t of j.tools || []) total += JSON.stringify(t).length;
-		for (const m of j.messages || []) {
-		  const content = Array.isArray(m.content) ? m.content : [{ text: m.content }];
-		  for (const c of content) total += (c.text || (typeof c === "string" ? c : "")).length;
-		}
-		process.stdout.write(String(total));
-	' "$1"
+	node "$LIB_DIR/count-request.mjs" claude "$1"
+}
+
+openai_first_turn_chars() {
+	node "$LIB_DIR/count-request.mjs" openai "$1"
+}
+
+start_openai_loopback() {
+	# start_openai_loopback <capture> <port_file> <log_file>
+	SKIP_TITLE_REQUEST="${SKIP_TITLE_REQUEST:-}" CAPTURE_OUT="$1" node "$LIB_DIR/openai-loopback.mjs" >"$2" 2>"$3" &
+	printf '%s\n' "$!"
+}
+
+wait_for_port() {
+	# wait_for_port <port_file> <pid>
+	local port_file="$1" pid="$2" port=""
+	for _ in $(seq 1 50); do
+		if [ -s "$port_file" ]; then
+			port="$(head -n1 "$port_file")"
+			break
+		fi
+		sleep 0.1
+	done
+	if [ -z "$port" ]; then
+		kill "$pid" 2>/dev/null || true
+		return 1
+	fi
+	printf '%s\n' "$port"
 }
 
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -177,11 +191,11 @@ audit_claude() {
 
 	# Invoke claude with the loopback as the API endpoint. -p forces one-shot mode.
 	# `|| true` because the dummy response may make claude exit non-zero on some versions.
-	(cd "$cwd" &&
+	(cd "$cwd" && \
 		ANTHROPIC_BASE_URL="http://127.0.0.1:$port" \
-			ANTHROPIC_AUTH_TOKEN="audit-dummy" \
-			ANTHROPIC_API_KEY="audit-dummy" \
-			mise_x claude -p "hi" --output-format json >"$OUT_DIR/claude-stdout.json" 2>"$OUT_DIR/claude-stderr.log") || true
+		ANTHROPIC_AUTH_TOKEN="audit-dummy" \
+		ANTHROPIC_API_KEY="audit-dummy" \
+		mise_x claude -p "hi" --output-format json >"$OUT_DIR/claude-stdout.json" 2>"$OUT_DIR/claude-stderr.log") || true
 
 	# Loopback should have exited after capturing. Give it a moment.
 	wait "$server_pid" 2>/dev/null || true
@@ -229,24 +243,52 @@ audit_opencode() {
 	version="$(opencode --version 2>/dev/null | head -n1)"
 	[ -z "$version" ] && version="unknown"
 
-	local cwd capture model
+	local cwd system_capture request_capture model port_file log_file server_pid port
 	cwd="$(throwaway_cwd opencode)"
-	capture="$OUT_DIR/opencode-prompt.json"
-	model="${OPENCODE_AUDIT_MODEL:-opencode/deepseek-v4-flash-free}"
+	system_capture="$OUT_DIR/opencode-prompt.json"
+	request_capture="$OUT_DIR/opencode-request.json"
+	model="${OPENCODE_AUDIT_MODEL:-audit/audit-model}"
+	port_file="$OUT_DIR/opencode.port"
+	log_file="$OUT_DIR/opencode-loopback.log"
 
-	# Pass the plugin via the escape-hatch env var. The plugin exits before any
-	# tokens are spent; model just needs to resolve to a registered provider.
+	SKIP_TITLE_REQUEST=1 server_pid="$(start_openai_loopback "$request_capture" "$port_file" "$log_file")"
+	if ! port="$(wait_for_port "$port_file" "$server_pid")"; then
+		emit opencode "$version" 0 0 0 0 "loopback failed to bind"
+		return
+	fi
+
+	# Capture BOTH views from the same run:
+	# - plugin: system/developer text assembled by OpenCode before provider call
+	# - loopback: actual OpenAI-compatible first request, including tool schemas
 	local plugin_url config
 	plugin_url="file://$LIB_DIR/opencode-plugin.ts"
-	config=$(printf '{"$schema":"https://opencode.ai/config.json","plugin":["%s"]}' "$plugin_url")
+	config=$(printf '{"$schema":"https://opencode.ai/config.json","model":"%s","plugin":["%s"],"provider":{"audit":{"npm":"@ai-sdk/openai-compatible","name":"Audit Loopback","options":{"baseURL":"http://127.0.0.1:%s/v1","apiKey":"audit-dummy"},"models":{"audit-model":{"name":"Audit Model"}}}}}' "$model" "$plugin_url" "$port")
 
-	(cd "$cwd" &&
-		OC_AUDIT_OUT="$capture" \
+	(
+		cd "$cwd" && \
+			OC_AUDIT_OUT="$system_capture" \
+			OC_AUDIT_NO_EXIT=1 \
 			OPENCODE_CONFIG_CONTENT="$config" \
-			opencode run --model "$model" "hi" >"$OUT_DIR/opencode-stdout.log" 2>"$OUT_DIR/opencode-stderr.log") || true
+			opencode run --model "$model" "hi" >"$OUT_DIR/opencode-stdout.log" 2>"$OUT_DIR/opencode-stderr.log"
+	) || true &
+	local opencode_pid=$!
+	for _ in $(seq 1 200); do
+		[ -s "$system_capture" ] && [ -s "$request_capture" ] && break
+		if ! kill -0 "$opencode_pid" 2>/dev/null && [ ! -s "$request_capture" ]; then
+			break
+		fi
+		sleep 0.1
+	done
+	kill "$opencode_pid" 2>/dev/null || true
+	wait "$opencode_pid" 2>/dev/null || true
+	wait "$server_pid" 2>/dev/null || true
 
-	if [ ! -s "$capture" ]; then
+	if [ ! -s "$system_capture" ]; then
 		emit opencode "$version" 0 0 0 0 "plugin did not capture; check stderr"
+		return
+	fi
+	if [ ! -s "$request_capture" ]; then
+		emit opencode "$version" 0 0 0 0 "provider request not captured; check loopback/stderr"
 		return
 	fi
 
@@ -255,15 +297,17 @@ audit_opencode() {
 		const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
 		const sys = j.system || [];
 		process.stdout.write(sys.join("\n\n"));
-	' "$capture" >"$prompt_file"; then
+	' "$system_capture" >"$prompt_file"; then
 		emit opencode "$version" 0 0 0 0 "could not parse plugin output"
 		return
 	fi
 
-	local chars tokens
-	chars=$(count_chars <"$prompt_file")
-	tokens=$(estimate_tokens "$chars")
-	emit opencode "$version" "$chars" "$tokens" "$chars" "$tokens" "captured via plugin hook"
+	local system_chars system_tokens first_turn_chars first_turn_tokens
+	system_chars=$(count_chars <"$prompt_file")
+	system_tokens=$(estimate_tokens "$system_chars")
+	first_turn_chars=$(openai_first_turn_chars "$request_capture")
+	first_turn_tokens=$(estimate_tokens "$first_turn_chars")
+	emit opencode "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "captured via plugin + provider loopback"
 }
 
 # ---------- Codex ----------
@@ -276,12 +320,17 @@ audit_codex() {
 	version="$(mise_x codex --version 2>/dev/null | awk '{print $NF}')"
 	[ -z "$version" ] && version="unknown"
 
-	local cwd dump_file prompt_file
+	local cwd dump_file prompt_file request_capture port_file log_file server_pid port codex_home
 	cwd="$(throwaway_cwd codex)"
+	codex_home="$OUT_DIR/codex-home"
+	mkdir -p "$codex_home"
 	dump_file="$OUT_DIR/codex-prompt-input.json"
 	prompt_file="$OUT_DIR/codex-system.txt"
+	request_capture="$OUT_DIR/codex-request.json"
+	port_file="$OUT_DIR/codex.port"
+	log_file="$OUT_DIR/codex-loopback.log"
 
-	if ! (cd "$cwd" && mise_x codex debug prompt-input "hi" >"$dump_file" 2>"$OUT_DIR/codex-stderr.log"); then
+	if ! (cd "$cwd" && mise_x codex debug prompt-input "hi" >"$dump_file" 2>"$OUT_DIR/codex-debug-stderr.log"); then
 		emit codex "$version" 0 0 0 0 "codex debug prompt-input failed"
 		return
 	fi
@@ -309,10 +358,43 @@ audit_codex() {
 		return
 	fi
 
-	local chars tokens
-	chars=$(count_chars <"$prompt_file")
-	tokens=$(estimate_tokens "$chars")
-	emit codex "$version" "$chars" "$tokens" "$chars" "$tokens" "captured via debug prompt-input"
+	server_pid="$(start_openai_loopback "$request_capture" "$port_file" "$log_file")"
+	if ! port="$(wait_for_port "$port_file" "$server_pid")"; then
+		emit codex "$version" 0 0 0 0 "loopback failed to bind"
+		return
+	fi
+	cat >"$codex_home/config.toml" <<EOF
+model = "audit-model"
+model_provider = "audit"
+approval_policy = "never"
+sandbox_mode = "read-only"
+
+[model_providers.audit]
+name = "Audit Loopback"
+base_url = "http://127.0.0.1:$port/v1"
+env_key = "AGENT_AUDIT_DUMMY_KEY"
+wire_api = "responses"
+request_max_retries = 0
+stream_max_retries = 0
+EOF
+
+	(cd "$cwd" && \
+		CODEX_HOME="$codex_home" \
+		AGENT_AUDIT_DUMMY_KEY="audit-dummy" \
+		mise_x codex exec --skip-git-repo-check --ephemeral --model audit-model "hi" >"$OUT_DIR/codex-stdout.log" 2>"$OUT_DIR/codex-stderr.log") || true
+	wait "$server_pid" 2>/dev/null || true
+
+	if [ ! -s "$request_capture" ]; then
+		emit codex "$version" 0 0 0 0 "provider request not captured; check loopback/stderr"
+		return
+	fi
+
+	local system_chars system_tokens first_turn_chars first_turn_tokens
+	system_chars=$(count_chars <"$prompt_file")
+	system_tokens=$(estimate_tokens "$system_chars")
+	first_turn_chars=$(openai_first_turn_chars "$request_capture")
+	first_turn_tokens=$(estimate_tokens "$first_turn_chars")
+	emit codex "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "captured via debug + provider loopback"
 }
 
 # ---------- pi ----------
@@ -330,19 +412,26 @@ audit_pi() {
 	version="$(mise_x pi --version 2>&1 | tail -n1 | awk '{print $NF}')"
 	[ -z "$version" ] && version="unknown"
 
-	local cwd prompt_file
+	local cwd prompt_file request_capture
 	cwd="$(throwaway_cwd pi)"
 	prompt_file="$OUT_DIR/pi-system.txt"
+	request_capture="$OUT_DIR/pi-request.json"
 
 	if ! (cd "$cwd" && node "$LIB_DIR/pi-dump.mjs" >"$prompt_file" 2>"$OUT_DIR/pi-stderr.log"); then
 		emit pi "$version" 0 0 0 0 "pi-dump.mjs failed; see stderr"
 		return
 	fi
+	if ! (cd "$cwd" && node "$LIB_DIR/pi-request-dump.mjs" >"$request_capture" 2>>"$OUT_DIR/pi-stderr.log"); then
+		emit pi "$version" 0 0 0 0 "pi-request-dump.mjs failed; see stderr"
+		return
+	fi
 
-	local chars tokens
-	chars=$(count_chars <"$prompt_file")
-	tokens=$(estimate_tokens "$chars")
-	emit pi "$version" "$chars" "$tokens" "$chars" "$tokens" "rendered via buildSystemPrompt"
+	local system_chars system_tokens first_turn_chars first_turn_tokens
+	system_chars=$(count_chars <"$prompt_file")
+	system_tokens=$(estimate_tokens "$system_chars")
+	first_turn_chars=$(openai_first_turn_chars "$request_capture")
+	first_turn_tokens=$(estimate_tokens "$first_turn_chars")
+	emit pi "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "rendered system + tool request locally"
 }
 
 # ---------- Cursor ----------

@@ -30,7 +30,9 @@ export default (async () => {
         return; // wait for the build-agent call
       }
       writeFileSync(OUT, JSON.stringify(capture, null, 2));
-      process.exit(0);
+      if (process.env.OC_AUDIT_NO_EXIT !== "1") {
+        process.exit(0);
+      }
     },
   };
 }) satisfies Plugin;
