@@ -45,9 +45,9 @@ Per-client raw categories and source files:
 | Client   | Source read              | Raw categories surfaced                                                             |
 |----------|--------------------------|-------------------------------------------------------------------------------------|
 | Claude   | `claude-request.json`    | base prompt (system), built-in tools, MCP tool definitions, memory (CLAUDE.md chain), skills catalogue, MCP server instructions, reminders & user msg |
-| OpenCode | `opencode-prompt.json` + `opencode-request.json` | base prompt, environment (`<env>`), memory (AGENTS.md), skills (`<available_skills>`), context-window protection, provider tool schemas |
+| OpenCode | `opencode-prompt.json` + `opencode-request.json` | base prompt, environment (`<env>`), memory (AGENTS.md), skills (`<available_skills>`), context-window protection, MCP tools (mcpproxy, split from built-in tools by `mcpproxy_*` prefix on `t.function.name`), provider tool schemas |
 | Codex    | `codex-prompt-input.json` + `codex-request.json` | wire base instructions, permissions instructions, skills (`<skills_instructions>`), provider tool schemas |
-| pi       | `pi-system.txt` + `pi-request.json` | base prompt, tools list, guidelines & pi docs, environment, provider tool schemas |
+| pi       | `pi-system.txt` + `pi-request.json` | base prompt, memory (project context from `<project_context>` block when run from a project dir), tools list, guidelines & pi docs, environment, provider tool schemas |
 | Hermes   | `hermes-request.json`    | base prompt (preamble), skills (`<available_skills>`), memory (project context injected from cwd), provider tool schemas |
 
 The `FIRST_*` columns now use captured or locally-rendered first-turn request material consistently: prompt text plus provider tool/function schemas. `SYS_*` preserves the narrower local system/developer text for debugging client prompt changes. Categorization is marker-driven (XML tags, section headers); if a client reorders or renames a section, the affected category falls back into "base prompt" rather than erroring — watch for an implausibly large base bucket after a CLI upgrade.
@@ -75,7 +75,8 @@ The `--breakdown` view is a post-processing pass over those captures, not a sepa
 - OpenCode's `FIRST_*` comes from a loopback OpenAI-compatible provider and skips the hidden title-generator request so it captures the build-agent request. Its `SYS_*` comes from the plugin system-transform hook.
 - Codex's `FIRST_*` comes from a temporary custom provider in `CODEX_HOME` pointed at the loopback server. Its `SYS_*` still uses `codex debug prompt-input` for the local developer payload.
 - pi has no provider loopback in the audit yet; `FIRST_*` is rendered locally from pi's system prompt plus the active tool definitions, so it is comparable for prompt/tool overhead but not a wire capture.
-- pi walks ancestor directories for `AGENTS.md`/`CLAUDE.md` so its size scales with cwd. The throwaway cwd gives the baseline; rerun from a real project root to compare.
+- pi walks ancestor directories for `AGENTS.md`/`CLAUDE.md` so its size scales with cwd. The throwaway cwd gives the baseline; rerun from a real project root to compare. The local render (`pi-request-dump.mjs`) calls `buildSystemPrompt` directly and does NOT go through pi's extension/plugin stack, so skills injected via extensions (the `<available_skills>` block visible in live sessions) are absent from the local render. The skills row for pi will therefore always be blank even when skills are configured.
+- OpenCode sends tools in OpenAI format (`{type: "function", function: {name, description, parameters}}`). The categorizer reads `t.function.name` (not `t.name`) to detect the `mcpproxy_*` prefix and separate those tools into the MCP tool definitions row. Non-mcpproxy tools go into Tool schemas.
 - Hermes: uses `HERMES_HOME` env var to isolate to a temp dir so the real `~/.hermes/config.yaml` is never touched. Hermes injects AGENTS.md/CLAUDE.md from the cwd as "Project Context" — the throwaway cwd gives the baseline (no project context). The version is read from Python package metadata (`importlib.metadata`). Hermes sends non-streaming OpenAI chat/completions requests; the loopback detects `stream: undefined` and returns a plain JSON response (not SSE).
 
 ## Caveats

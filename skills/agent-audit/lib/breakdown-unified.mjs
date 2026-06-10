@@ -153,9 +153,23 @@ function categorizeOpencode() {
 		],
 		["context-window protection", "<context_window_protection>", null],
 	]);
-	const toolChars = openaiRequestToolChars("opencode-request.json");
-	if (toolChars > 0)
-		rows.push({ cat: "provider tool schemas", chars: toolChars });
+	// Split mcpproxy_* tools (OpenAI format: name is at t.function.name) from built-in tools.
+	if (fileExists("opencode-request.json")) {
+		const req = readJSON("opencode-request.json");
+		if (Array.isArray(req.tools)) {
+			const getName = (t) => t.function?.name || t.name || "";
+			const mcpChars = req.tools
+				.filter((t) => getName(t).startsWith("mcpproxy"))
+				.reduce((a, t) => a + JSON.stringify(t).length, 0);
+			const otherChars = req.tools
+				.filter((t) => !getName(t).startsWith("mcpproxy"))
+				.reduce((a, t) => a + JSON.stringify(t).length, 0);
+			if (mcpChars > 0)
+				rows.push({ cat: "MCP tools (mcpproxy)", chars: mcpChars });
+			if (otherChars > 0)
+				rows.push({ cat: "provider tool schemas", chars: otherChars });
+		}
+	}
 	const userChars = openaiRequestUserChars("opencode-request.json");
 	if (userChars > 0) rows.push({ cat: "audit user msg", chars: userChars });
 	const expected = openaiRequestTextAndToolChars("opencode-request.json");
@@ -265,6 +279,7 @@ function categorizeHermes() {
 function categorizePi() {
 	const text = readText("pi-system.txt");
 	const rows = spanBreakdown(text, [
+		["memory (project context)", "<project_context>", "</project_context>"],
 		["tools list", "Available tools:", "Guidelines:"],
 		["guidelines & pi docs", "Guidelines:", "Current date:"],
 		["environment", "Current date:", null],
@@ -290,6 +305,7 @@ const TO_CANONICAL = {
 	"memory (CLAUDE.md chain)": "Memory",
 	"memory (AGENTS.md)": "Memory",
 	"memory (project context)": "Memory",
+	"MCP tools (mcpproxy)": "MCP tool definitions",
 	"skills catalogue": "Skills catalogue",
 	"skills (<available_skills>)": "Skills catalogue",
 	"skills (<skills_instructions>)": "Skills catalogue",
