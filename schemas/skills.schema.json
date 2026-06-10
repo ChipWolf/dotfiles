@@ -37,7 +37,7 @@
   "$defs": {
     "agentId": {
       "type": "string",
-      "enum": ["claude-code", "opencode", "cursor", "codex", "pi"]
+      "enum": ["claude-code", "opencode", "cursor", "codex", "pi", "hermes-agent"]
     },
     "skillSource": {
       "type": "object",

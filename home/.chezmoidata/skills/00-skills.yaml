@@ -7,9 +7,9 @@
 # vercel-labs/skills CLI (`npx skills add ...`). The CLI owns any per-agent
 # links/copies; these dotfiles do not gap-fill missing agent directories.
 #
-# Supported agent IDs: claude-code, opencode, cursor, codex, pi.
-# Adding a new agent requires editing both schemas/skills.schema.json and the
-# install scripts under home/.chezmoiscripts/run_onchange_after_skills*.tmpl.
+# Supported agent IDs: claude-code, opencode, cursor, codex, pi, hermes-agent.
+# Adding a new agent requires editing schemas/skills.schema.json and confirming
+# the install scripts support its lifecycle.
 #
 # Sources: exactly one of `path` (local, relative to chezmoi sourceDir) or
 # `repo` (GitHub shorthand or full git URL).
@@ -28,6 +28,7 @@ skills:
       - opencode
       - cursor
       - codex
+      - hermes-agent
   sources:
     # Local universal skills (formerly home/dot_agents/skills/).
     # Source lives at the repo root in skills/ (not under home/, not chezmoi state).

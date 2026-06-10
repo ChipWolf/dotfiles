@@ -39,6 +39,16 @@ brew:
             - { kind: env, name: CODESPACES, op: unset }
             - { kind: env, name: PRIVATE, op: set }
         - type: brew
+          name: hermes-agent # self-improving AI agent
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
+        - type: brew
+          name: sheeki03/tap/tirith # pre-exec command security scanner for hermes-agent
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
+        - type: brew
           name: thefuck
           conditions:
             - { kind: env, name: CODESPACES, op: unset }
@@ -113,3 +123,9 @@ brew:
         #   conditions:
         #     - { kind: os, op: is, value: mac }
         # yamllint enable comments-indentation
+
+        - type: tap
+          name: sheeki03/tap
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }

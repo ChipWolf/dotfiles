@@ -28,6 +28,7 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 | **Neovim (LazyVim)**    | Editor                                   |   x   |   x   |    x    |     x      |
 | **OpenCode**            | AI coding agent                          |   x   |   x   |    x    |     x      |
 | **Claude Desktop**      | AI assistant                             |   x   |       |    x    |            |
+| **Hermes Agent**        | Self-improving AI agent                  |   x   |       |         |            |
 | **Discord**             | Chat and voice                           |   x   |       |    x    |            |
 | **tree-sitter CLI**     | Treesitter parser generator              |       |       |    x    |            |
 | **WakaTime CLI**        | Coding activity tracker                  |   x   |   x   |         |            |

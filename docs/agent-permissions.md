@@ -119,6 +119,20 @@ Generates top-level permission keys (same level as `bash`/`external_directory`),
     private: false
 ```
 
+## Excluded agents
+
+### Hermes Agent
+
+Hermes is intentionally excluded from this permission system. Hermes' approval model
+is detection-based, not policy-based: a hardcoded `DANGEROUS_PATTERNS` regex list
+flags risky commands at runtime and prompts the user; a hardcoded hardline floor
+unconditionally blocks catastrophic commands (`rm -rf /`, `mkfs`, `shutdown`, etc.).
+The only configurable surface is `command_allowlist` in `~/.hermes/config.yaml`,
+which pre-approves commands that *already matched* a dangerous pattern so the user
+isn't prompted again. Commands that don't match any dangerous pattern run without
+approval — so pre-seeding our `allow` rules (which are almost entirely non-dangerous
+commands like `ls`, `cat`, `git status`) into the allowlist would be a no-op.
+
 ## Overlay strategy
 
 Use the same split pattern as Brew and MCP:

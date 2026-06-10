@@ -38,6 +38,11 @@ Documents
 Library
 {{ end }}
 
+{{ if or (ne .chezmoi.os "darwin") (not .private) }}
+# Private macOS-only targets
+.hermes
+{{ end }}
+
 {{ if not .codespaces }}
 # Codespaces-only targets — not applicable outside Codespaces
 .gitconfig.overrides

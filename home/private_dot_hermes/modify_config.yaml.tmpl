@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# Managed by chezmoi. Merge Hermes Agent MCP config into ~/.hermes/config.yaml
+# while preserving unrelated Hermes settings managed by `hermes setup`.
+{{ $mcpServers := dict -}}
+{{- $eligible := includeTemplate ".chezmoitemplates/mcp-eligible-servers.tmpl" (dict "ctx" . "target" "hermes") | fromJson -}}
+{{- range $serverId := (keys $eligible | sortAlpha) -}}
+  {{- $server := index $eligible $serverId -}}
+  {{- if hasKey $server "local" -}}
+    {{- $entry := dict "command" $server.local.command "args" $server.local.args "enabled" true -}}
+    {{- if and (hasKey $server.local "env") $server.local.env -}}
+      {{- $_ := set $entry "env" $server.local.env -}}
+    {{- end -}}
+    {{- $_ := set $mcpServers $serverId $entry -}}
+  {{- else if hasKey $server "remote" -}}
+    {{- $entry := dict "url" $server.remote.url "enabled" true -}}
+    {{- if hasKey $server.remote "transport" -}}
+      {{- $_ := set $entry "transport" $server.remote.transport -}}
+    {{- end -}}
+    {{- if and (hasKey $server.remote "headers") $server.remote.headers -}}
+      {{- $_ := set $entry "headers" $server.remote.headers -}}
+    {{- end -}}
+    {{- $_ := set $mcpServers $serverId $entry -}}
+  {{- end -}}
+{{- end -}}
+{{- $payload := dict "mcp_servers" $mcpServers -}}
+
+require "json"
+require "yaml"
+
+managed = JSON.parse({{ $payload | toJson | quote }})
+input = STDIN.read
+
+config = if input.strip.empty?
+  {}
+else
+  YAML.safe_load(input, aliases: true) || {}
+end
+config = {} unless config.is_a?(Hash)
+
+config["mcp_servers"] = managed.fetch("mcp_servers")
+
+puts config.to_yaml

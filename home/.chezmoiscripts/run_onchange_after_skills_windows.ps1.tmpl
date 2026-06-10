@@ -19,6 +19,7 @@ if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
 {{- else if hasKey $source "repo" }}{{ $spec = $source.repo }}
 {{- end }}
 {{- range $target := $targets }}
+{{- if and (eq $target "hermes-agent") (or (ne $.chezmoi.os "darwin") (not $.private)) }}{{- continue }}{{- end }}
 {{- if and (hasKey $source "skills") $source.skills }}
 & mise x -- npx -y skills@latest add {{ $spec }} -a {{ $target }} -g -y -s '{{ join "," $source.skills }}'
 {{- else }}

@@ -11,11 +11,11 @@
 #   mcpproxy       -> ~/.mcpproxy/mcp_config.json (smart-mcp-proxy upstreams)
 #   pi             -> ~/.pi/agent/mcp.json
 #   zed            -> ~/.config/zed/settings.json (context_servers)
+#   hermes         -> ~/.hermes/config.yaml (mcp_servers)
 #   claudeDesktop  -> %APPDATA%/Claude/claude_desktop_config.json (Windows Claude app)
 #   claudeCode     -> ~/.claude.json (Claude Code CLI user-scope mcpServers)
 mcp:
   serversById:
-
     # --- Servers proxied by mcpproxy ---------------------------------
     # These render only into mcpproxy's upstream list. Clients reach
     # them via the mcpproxy entry below.
@@ -116,6 +116,8 @@ mcp:
         pi:
           enabled: true
         zed:
+          enabled: true
+        hermes:
           enabled: true
         claudeCode:
           enabled: true
