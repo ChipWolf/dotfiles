@@ -1,11 +1,11 @@
 ---
 name: agent-audit
-description: Capture the system prompt of each installed coding-agent client (Claude Code, OpenCode, Codex, pi, Cursor) on a fresh chat and report sizes in characters and approximate tokens. Use when asked to audit, measure, or compare agent system prompts.
+description: Capture each installed coding-agent client's fresh-chat prompt overhead (Claude Code, OpenCode, Codex, pi, Cursor) and report system-only plus first-turn request sizes in characters and approximate tokens. Use when asked to audit, measure, or compare agent prompt overhead.
 ---
 
 ## Purpose
 
-Reproduce the system prompt that each installed coding-agent client sends on the first turn of a new chat, then report how many characters and tokens each one weighs. Useful for cost/context budgeting, comparing tool overhead, and watching for skill/AGENTS.md bloat over time.
+Reproduce the prompt overhead that each installed coding-agent client sends on the first turn of a new chat, then report both the system-only size and the fuller first-turn request size in characters and tokens. Useful for cost/context budgeting, comparing tool overhead, and watching for skill/AGENTS.md bloat over time.
 
 ## Run it
 
@@ -26,7 +26,7 @@ Defaults:
 
 ## Per-category breakdown (`--breakdown`)
 
-The summary table reports a single comparable number per client (see "What the size figures cover"). `--breakdown` adds a second view: how each prompt divides into named categories — the same "where do the bytes go" decomposition Cursor and Claude Desktop surface in their UIs (base prompt vs tool defs vs MCP vs skills vs memory). Implemented in `lib/categorize.mjs`, which re-reads the raw capture audit.sh already wrote into the out dir.
+The summary table reports both system-only size (`SYS_*`) and fuller first-turn request overhead (`FIRST_*`; see "What the size figures cover"). `--breakdown` adds a second view: how each prompt divides into named categories — the same "where do the bytes go" decomposition Cursor and Claude Desktop surface in their UIs (base prompt vs tool defs vs MCP vs skills vs memory). Implemented in `lib/categorize.mjs`, which re-reads the raw capture audit.sh already wrote into the out dir.
 
 | Client   | Source read              | Categories surfaced                                                                 |
 |----------|--------------------------|-------------------------------------------------------------------------------------|
@@ -35,7 +35,7 @@ The summary table reports a single comparable number per client (see "What the s
 | Codex    | `codex-prompt-input.json`| base prompt, permissions instructions, skills (`<skills_instructions>`)             |
 | pi       | `pi-system.txt`          | base prompt, tools list, guidelines & pi docs, environment                          |
 
-Important scope difference: **the Claude breakdown covers the whole first-turn request** (system + tools + MCP + memory + skills, ~155 KB), not just the ~6 KB system payload the summary measures. Tool definitions and the skills catalogue live off the system prompt, so the breakdown is the only place their weight is shown — which is exactly the "how much is MCP / skills" question this view answers. The OpenCode/Codex/pi breakdowns segment the same text the summary measures, so their category totals match the summary row (modulo byte-vs-char-length on multi-byte content). Categorization is marker-driven (XML tags, section headers); if a client reorders or renames a section, the affected category falls back into "base prompt" rather than erroring — watch for an implausibly large base bucket after a CLI upgrade.
+Important scope difference: **Claude has a much larger first-turn request than its system payload** because tool definitions, MCP definitions, memory, and skills live outside the base system string. The summary's `FIRST_*` columns and the Claude breakdown both surface that fuller overhead; `SYS_*` preserves the narrower system-only number for debugging client prompt changes. The OpenCode/Codex/pi breakdowns segment the same text used for both their `SYS_*` and `FIRST_*` columns (modulo byte-vs-char-length on multi-byte content). Categorization is marker-driven (XML tags, section headers); if a client reorders or renames a section, the affected category falls back into "base prompt" rather than erroring — watch for an implausibly large base bucket after a CLI upgrade.
 
 ## Capture mechanisms
 
@@ -53,10 +53,11 @@ The `--breakdown` view is a post-processing pass over those captures, not a sepa
 
 ## What the size figures cover
 
-- **Just the system role payload.** Tool definitions (Claude Code: ~128 KB per request), first-turn `<system-reminder>` injections, and skill catalogues passed as separate `system`-role messages are explicitly excluded so the numbers stay comparable across clients.
-- Claude Code's first-turn user message embeds the resolved `~/.claude/CLAUDE.md` chain plus 14 KB of skills metadata; that lives off the system prompt and is not measured here.
-- OpenCode embeds `~/.config/opencode/AGENTS.md` verbatim and only references `~/.agents/AGENTS.md` by path.
-- Codex inlines `<skills_instructions>` listing every SKILL.md under `~/.agents/skills` and `~/.codex/skills`.
+- `SYS_CHARS` / `SYS_TOK`: the narrow system-role/developer payload the client exposes locally. This is useful for detecting base prompt changes.
+- `FIRST_CH` / `FIRST_TOK`: the practical first-turn overhead that consumes context before the useful user task, including tool definitions, MCP definitions, injected memory, skills catalogues, reminders, and the audit message when the client sends it in the captured request.
+- Claude Code's `FIRST_*` includes the base system prompt, built-in tools, MCP tool definitions, resolved `~/.claude/CLAUDE.md` chain, skills catalogue, MCP server instructions, reminders, and the tiny audit user text.
+- OpenCode embeds `~/.config/opencode/AGENTS.md` verbatim and only references `~/.agents/AGENTS.md` by path, so its `SYS_*` and `FIRST_*` are currently the same.
+- Codex inlines `<skills_instructions>` listing every SKILL.md under `~/.agents/skills` and `~/.codex/skills`, so its `SYS_*` and `FIRST_*` are currently the same.
 - pi walks ancestor directories for `AGENTS.md`/`CLAUDE.md` so its size scales with cwd. The throwaway cwd gives the baseline; rerun from a real project root to compare.
 
 ## Caveats
