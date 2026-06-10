@@ -280,8 +280,6 @@ function categorizePi() {
 	const text = readText("pi-system.txt");
 	const rows = spanBreakdown(text, [
 		["memory (project context)", "<project_context>", "</project_context>"],
-		["tools list", "Available tools:", "Guidelines:"],
-		["guidelines & pi docs", "Guidelines:", "Current date:"],
 		["environment", "Current date:", null],
 	]);
 	const toolChars = openaiRequestToolChars("pi-request.json");
@@ -309,8 +307,7 @@ const TO_CANONICAL = {
 	"skills catalogue": "Skills catalogue",
 	"skills (<available_skills>)": "Skills catalogue",
 	"skills (<skills_instructions>)": "Skills catalogue",
-	"guidelines & pi docs": "Guidelines & pi docs",
-	"tools list": "Tools list (system)",
+
 	"environment (<env>)": "Environment",
 	environment: "Environment",
 	"context-window protection": "Context-window protection",
@@ -328,8 +325,6 @@ const CATEGORY_ORDER = [
 	"MCP tool definitions",
 	"Memory",
 	"Skills catalogue",
-	"Guidelines & pi docs",
-	"Tools list (system)",
 	"Environment",
 	"Context-window protection",
 	"Permissions",

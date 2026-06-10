@@ -246,9 +246,7 @@ function categorizePi() {
 	const text = readText("pi-system.txt");
 	const rows = spanBreakdown(text, [
 		["memory (project context)", "<project_context>", "</project_context>"],
-		["tools list", "Available tools:", "Guidelines:"],
-		["guidelines & pi docs", "Guidelines:", "Current date:"],
-		["environment", "Current date:", null],
+			["environment", "Current date:", null],
 	]);
 	const toolChars = openaiRequestToolChars("pi-request.json");
 	if (toolChars > 0)
