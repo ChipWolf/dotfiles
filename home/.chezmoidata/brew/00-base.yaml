@@ -168,12 +168,17 @@ brew:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: cask
+          name: claude
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
+        - type: cask
           name: cursor
           conditions:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: cask
-          name: claude
+          name: discord
           conditions:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
