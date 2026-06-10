@@ -24,7 +24,7 @@ KEEP_RAW=0
 
 BREAKDOWN=0
 
-ALL_CLIENTS=(claude opencode codex pi cursor)
+ALL_CLIENTS=(claude opencode codex pi hermes cursor)
 SELECTED=()
 
 for arg in "$@"; do
@@ -35,7 +35,7 @@ for arg in "$@"; do
 		sed -n '2,13p' "$0"
 		exit 0
 		;;
-	claude | opencode | codex | pi | cursor) SELECTED+=("$arg") ;;
+	claude | opencode | codex | pi | hermes | cursor) SELECTED+=("$arg") ;;
 	*)
 		echo "agent-audit: unknown argument: $arg" >&2
 		exit 2
@@ -191,11 +191,11 @@ audit_claude() {
 
 	# Invoke claude with the loopback as the API endpoint. -p forces one-shot mode.
 	# `|| true` because the dummy response may make claude exit non-zero on some versions.
-	(cd "$cwd" && \
+	(cd "$cwd" &&
 		ANTHROPIC_BASE_URL="http://127.0.0.1:$port" \
-		ANTHROPIC_AUTH_TOKEN="audit-dummy" \
-		ANTHROPIC_API_KEY="audit-dummy" \
-		mise_x claude -p "hi" --output-format json >"$OUT_DIR/claude-stdout.json" 2>"$OUT_DIR/claude-stderr.log") || true
+			ANTHROPIC_AUTH_TOKEN="audit-dummy" \
+			ANTHROPIC_API_KEY="audit-dummy" \
+			mise_x claude -p "hi" --output-format json >"$OUT_DIR/claude-stdout.json" 2>"$OUT_DIR/claude-stderr.log") || true
 
 	# Loopback should have exited after capturing. Give it a moment.
 	wait "$server_pid" 2>/dev/null || true
@@ -265,11 +265,11 @@ audit_opencode() {
 	config=$(printf '{"$schema":"https://opencode.ai/config.json","model":"%s","plugin":["%s"],"provider":{"audit":{"npm":"@ai-sdk/openai-compatible","name":"Audit Loopback","options":{"baseURL":"http://127.0.0.1:%s/v1","apiKey":"audit-dummy"},"models":{"audit-model":{"name":"Audit Model"}}}}}' "$model" "$plugin_url" "$port")
 
 	(
-		cd "$cwd" && \
+		cd "$cwd" &&
 			OC_AUDIT_OUT="$system_capture" \
-			OC_AUDIT_NO_EXIT=1 \
-			OPENCODE_CONFIG_CONTENT="$config" \
-			opencode run --model "$model" "hi" >"$OUT_DIR/opencode-stdout.log" 2>"$OUT_DIR/opencode-stderr.log"
+				OC_AUDIT_NO_EXIT=1 \
+				OPENCODE_CONFIG_CONTENT="$config" \
+				opencode run --model "$model" "hi" >"$OUT_DIR/opencode-stdout.log" 2>"$OUT_DIR/opencode-stderr.log"
 	) || true &
 	local opencode_pid=$!
 	for _ in $(seq 1 200); do
@@ -378,10 +378,10 @@ request_max_retries = 0
 stream_max_retries = 0
 EOF
 
-	(cd "$cwd" && \
+	(cd "$cwd" &&
 		CODEX_HOME="$codex_home" \
-		AGENT_AUDIT_DUMMY_KEY="audit-dummy" \
-		mise_x codex exec --skip-git-repo-check --ephemeral --model audit-model "hi" >"$OUT_DIR/codex-stdout.log" 2>"$OUT_DIR/codex-stderr.log") || true
+			AGENT_AUDIT_DUMMY_KEY="audit-dummy" \
+			mise_x codex exec --skip-git-repo-check --ephemeral --model audit-model "hi" >"$OUT_DIR/codex-stdout.log" 2>"$OUT_DIR/codex-stderr.log") || true
 	wait "$server_pid" 2>/dev/null || true
 
 	if [ ! -s "$request_capture" ]; then
@@ -434,6 +434,82 @@ audit_pi() {
 	emit pi "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "rendered system + tool request locally"
 }
 
+# ---------- Hermes ----------
+audit_hermes() {
+	local cmd=""
+	if have hermes; then
+		cmd="hermes"
+	elif have hermes-agent; then
+		cmd="hermes-agent"
+	else
+		emit hermes "not installed" 0 0 0 0 "no hermes on PATH"
+		return
+	fi
+	if ! have node; then
+		emit hermes "?" 0 0 0 0 "node required for loopback"
+		return
+	fi
+
+	local version
+	version="$(python3 -c "import importlib.metadata; print(importlib.metadata.version('hermes-agent'))" 2>/dev/null ||
+		ls -d /opt/homebrew/Cellar/hermes-agent/*/ 2>/dev/null | head -1 | xargs basename ||
+		echo "unknown")"
+	[ -z "$version" ] && version="unknown"
+
+	local hermes_home cwd capture port_file log_file server_pid port
+	hermes_home="$OUT_DIR/hermes-home"
+	mkdir -p "$hermes_home"
+	cwd="$(throwaway_cwd hermes)"
+	capture="$OUT_DIR/hermes-request.json"
+	port_file="$OUT_DIR/hermes.port"
+	log_file="$OUT_DIR/hermes-loopback.log"
+
+	server_pid="$(start_openai_loopback "$capture" "$port_file" "$log_file")"
+	if ! port="$(wait_for_port "$port_file" "$server_pid")"; then
+		emit hermes "$version" 0 0 0 0 "loopback failed to bind"
+		return
+	fi
+
+	# Minimal config: redirect to loopback, disable retries, cap at 1 turn
+	cat >"$hermes_home/config.yaml" <<EOF
+model:
+  provider: custom
+  default: audit-model
+  base_url: http://127.0.0.1:$port/v1
+  api_key: audit-dummy
+agent:
+  max_turns: 1
+  api_max_retries: 0
+EOF
+
+	(cd "$cwd" &&
+		HERMES_HOME="$hermes_home" \
+			"$cmd" chat -q "hi" >"$OUT_DIR/hermes-stdout.log" 2>"$OUT_DIR/hermes-stderr.log") || true
+	wait "$server_pid" 2>/dev/null || true
+
+	if [ ! -s "$capture" ]; then
+		emit hermes "$version" 0 0 0 0 "provider request not captured; check hermes-stderr.log"
+		return
+	fi
+
+	# Extract the system message text for SYS_* columns
+	local prompt_file="$OUT_DIR/hermes-system.txt"
+	node -e '
+		const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+		const sys = (j.messages || []).find(m => m.role === "system");
+		const text = typeof sys?.content === "string" ? sys.content
+			: (sys?.content || []).map(c => c.text || "").join("");
+		process.stdout.write(text);
+	' "$capture" >"$prompt_file" 2>/dev/null || true
+
+	local system_chars system_tokens first_turn_chars first_turn_tokens
+	system_chars=$(count_chars <"$prompt_file")
+	system_tokens=$(estimate_tokens "$system_chars")
+	first_turn_chars=$(openai_first_turn_chars "$capture")
+	first_turn_tokens=$(estimate_tokens "$first_turn_chars")
+	emit hermes "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "captured via loopback"
+}
+
 # ---------- Cursor ----------
 audit_cursor() {
 	# Cursor has no headless CLI mode and the app may not be installed.
@@ -467,12 +543,15 @@ if [ "$BREAKDOWN" -eq 1 ]; then
 	if ! have node; then
 		printf '\n(breakdown skipped: node not on PATH)\n'
 	else
-		printf '\nPer-category composition (where the bytes go):\n'
+		# Collect only clients that captured data, then render unified table + top-5.
+		CAPTURED_CLIENTS=()
 		while IFS=$'\t' read -r client _version _system_chars _system_tokens first_turn_chars _first_turn_tokens _note; do
-			# Skip clients that never captured anything (e.g. cursor, not installed).
 			[ "$first_turn_chars" = "0" ] && continue
-			node "$LIB_DIR/categorize.mjs" "$client" "$OUT_DIR" || true
+			CAPTURED_CLIENTS+=("$client")
 		done <"$RESULTS_FILE"
+		if [ ${#CAPTURED_CLIENTS[@]} -gt 0 ]; then
+			node "$LIB_DIR/breakdown-unified.mjs" "$OUT_DIR" "${CAPTURED_CLIENTS[@]}" || true
+		fi
 	fi
 fi
 

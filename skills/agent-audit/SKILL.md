@@ -1,6 +1,6 @@
 ---
 name: agent-audit
-description: Capture each installed coding-agent client's fresh-chat prompt overhead (Claude Code, OpenCode, Codex, pi, Cursor) and report system-only plus first-turn request sizes in characters and approximate tokens. Use when asked to audit, measure, or compare agent prompt overhead.
+description: Capture each installed coding-agent client's fresh-chat prompt overhead (Claude Code, OpenCode, Codex, pi, Hermes Agent, Cursor) and report system-only plus first-turn request sizes in characters and approximate tokens. Use when asked to audit, measure, or compare agent prompt overhead.
 ---
 
 ## Purpose
@@ -15,7 +15,7 @@ From the skill directory, or wherever the dir is mounted:
 ./audit.sh                 # All detected clients, summary table to stdout
 ./audit.sh --raw           # Also write captured prompts under $AGENT_AUDIT_OUT_DIR
 ./audit.sh --breakdown     # Also print per-category composition tables (base/tools/MCP/skills/memory)
-./audit.sh claude codex    # Only the named clients (claude, opencode, codex, pi, cursor)
+./audit.sh claude codex    # Only the named clients (claude, opencode, codex, pi, hermes, cursor)
 ```
 
 Defaults:
@@ -26,14 +26,20 @@ Defaults:
 
 ## Per-category breakdown (`--breakdown`)
 
-The summary table reports both system-only size (`SYS_*`) and fuller first-turn request overhead (`FIRST_*`; see "What the size figures cover"). `--breakdown` adds a second view: how each prompt divides into named categories — the same "where do the bytes go" decomposition Cursor and Claude Desktop surface in their UIs (base prompt vs tool defs vs MCP vs skills vs memory). Implemented in `lib/categorize.mjs`, which re-reads the raw capture audit.sh already wrote into the out dir.
+The summary table reports both system-only size (`SYS_*`) and fuller first-turn request overhead (`FIRST_*`; see "What the size figures cover"). `--breakdown` adds two further views rendered by `lib/breakdown-unified.mjs`:
 
-| Client   | Source read              | Categories surfaced                                                                 |
+1. **Unified table** — one column per agent, mapping per-client raw category labels to a shared canonical set so rows align across agents.
+2. **Top-5 discrepancies** — the five canonical categories (or the overall total) with the largest absolute spread across agents, with per-agent values and a plain-English note.
+
+Per-client raw categories and source files:
+
+| Client   | Source read              | Raw categories surfaced                                                             |
 |----------|--------------------------|-------------------------------------------------------------------------------------|
 | Claude   | `claude-request.json`    | base prompt (system), built-in tools, MCP tool definitions, memory (CLAUDE.md chain), skills catalogue, MCP server instructions, reminders & user msg |
 | OpenCode | `opencode-prompt.json` + `opencode-request.json` | base prompt, environment (`<env>`), memory (AGENTS.md), skills (`<available_skills>`), context-window protection, provider tool schemas |
 | Codex    | `codex-prompt-input.json` + `codex-request.json` | wire base instructions, permissions instructions, skills (`<skills_instructions>`), provider tool schemas |
 | pi       | `pi-system.txt` + `pi-request.json` | base prompt, tools list, guidelines & pi docs, environment, provider tool schemas |
+| Hermes   | `hermes-request.json`    | base prompt (preamble), skills (`<available_skills>`), memory (project context injected from cwd), provider tool schemas |
 
 The `FIRST_*` columns now use captured or locally-rendered first-turn request material consistently: prompt text plus provider tool/function schemas. `SYS_*` preserves the narrower local system/developer text for debugging client prompt changes. Categorization is marker-driven (XML tags, section headers); if a client reorders or renames a section, the affected category falls back into "base prompt" rather than erroring — watch for an implausibly large base bucket after a CLI upgrade.
 
@@ -47,9 +53,10 @@ Each client requires a different trick because none expose "dump my system promp
 | OpenCode     | Throwaway TS plugin for system text + OpenAI-compatible loopback provider for the actual build-agent request | `lib/opencode-plugin.ts`, `lib/openai-loopback.mjs` |
 | Codex        | Built-in `codex debug prompt-input` for system text + temporary `CODEX_HOME` custom provider pointed at loopback | `lib/openai-loopback.mjs` |
 | pi           | Node ESM importing `buildSystemPrompt` and tool definitions from pi's `dist/core/` | `lib/pi-dump.mjs`, `lib/pi-request-dump.mjs` |
+| Hermes       | Temporary `HERMES_HOME` dir with `config.yaml` pointing at loopback; one-shot via `hermes chat -q "hi"`; OpenAI chat/completions format (non-streaming) | `lib/openai-loopback.mjs` |
 | Cursor       | Detect install only; no CLI ships on macOS today                    | none                         |
 
-The `--breakdown` view is a post-processing pass over those captures, not a separate capture: `lib/categorize.mjs` re-reads each client's raw JSON/text from the out dir.
+The `--breakdown` view is a post-processing pass over those captures, not a separate capture: `lib/breakdown-unified.mjs` re-reads each client's raw JSON from the out dir.
 
 ## What the size figures cover
 
@@ -60,6 +67,7 @@ The `--breakdown` view is a post-processing pass over those captures, not a sepa
 - Codex's `FIRST_*` comes from a temporary custom provider in `CODEX_HOME` pointed at the loopback server. Its `SYS_*` still uses `codex debug prompt-input` for the local developer payload.
 - pi has no provider loopback in the audit yet; `FIRST_*` is rendered locally from pi's system prompt plus the active tool definitions, so it is comparable for prompt/tool overhead but not a wire capture.
 - pi walks ancestor directories for `AGENTS.md`/`CLAUDE.md` so its size scales with cwd. The throwaway cwd gives the baseline; rerun from a real project root to compare.
+- Hermes: uses `HERMES_HOME` env var to isolate to a temp dir so the real `~/.hermes/config.yaml` is never touched. Hermes injects AGENTS.md/CLAUDE.md from the cwd as "Project Context" — the throwaway cwd gives the baseline (no project context). The version is read from Python package metadata (`importlib.metadata`). Hermes sends non-streaming OpenAI chat/completions requests; the loopback detects `stream: undefined` and returns a plain JSON response (not SSE).
 
 ## Caveats
 
