@@ -1,8 +1,9 @@
 {{ if ne .chezmoi.os "windows" -}}
 {{- if hasKey . "skills" -}}
 #!/usr/bin/env bash
-# Re-run when the declared skills manifest changes.
-# {{ include ".chezmoidata/skills/00-skills.yaml" | sha256sum }}
+# Re-run when the declared skills manifest or any skill file changes.
+# manifest: {{ include ".chezmoidata/skills/00-skills.yaml" | sha256sum }}
+# skillfiles: {{ output "sh" "-c" (printf "find '%s/skills' -type f | LC_ALL=C sort | xargs sha256sum | sha256sum" .chezmoi.workingTree) }}
 set -euo pipefail
 
 # Ensure brew-installed mise is on PATH for non-interactive shells (matches
