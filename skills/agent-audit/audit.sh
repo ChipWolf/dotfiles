@@ -412,26 +412,73 @@ audit_pi() {
 	version="$(mise_x pi --version 2>&1 | tail -n1 | awk '{print $NF}')"
 	[ -z "$version" ] && version="unknown"
 
-	local cwd prompt_file request_capture
+	local cwd pi_agent_dir prompt_file capture port_file log_file server_pid port
 	cwd="$(throwaway_cwd pi)"
+	pi_agent_dir="$OUT_DIR/pi-agent-dir"
+	mkdir -p "$pi_agent_dir"
 	prompt_file="$OUT_DIR/pi-system.txt"
-	request_capture="$OUT_DIR/pi-request.json"
+	capture="$OUT_DIR/pi-request.json"
+	port_file="$OUT_DIR/pi.port"
+	log_file="$OUT_DIR/pi-loopback.log"
 
+	# SYS_* column: local render of the system prompt text (no network call).
 	if ! (cd "$cwd" && node "$LIB_DIR/pi-dump.mjs" >"$prompt_file" 2>"$OUT_DIR/pi-stderr.log"); then
 		emit pi "$version" 0 0 0 0 "pi-dump.mjs failed; see stderr"
 		return
 	fi
-	if ! (cd "$cwd" && node "$LIB_DIR/pi-request-dump.mjs" >"$request_capture" 2>>"$OUT_DIR/pi-stderr.log"); then
-		emit pi "$version" 0 0 0 0 "pi-request-dump.mjs failed; see stderr"
+
+	# FIRST_* column: wire-capture via Anthropic loopback.
+	# Write the loopback extension into the throwaway agent dir.
+	cp "$LIB_DIR/pi-loopback-ext.mjs" "$pi_agent_dir/loopback-ext.mjs"
+
+	# Write a minimal settings.json that loads the extension and points at a
+	# real Anthropic model so pi selects the built-in anthropic provider.
+	cat >"$pi_agent_dir/settings.json" <<EOF
+{
+  "extensions": ["$pi_agent_dir/loopback-ext.mjs"],
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-3-5-haiku-20241022",
+  "defaultProjectTrust": "never",
+  "quietStartup": true,
+  "retry": { "provider": { "maxRetries": 0 } }
+}
+EOF
+
+	# Dummy API key so pi doesn't bail before making the request.
+	printf '{"anthropic":{"type":"api_key","key":"audit-dummy"}}\n' \
+		>"$pi_agent_dir/auth.json"
+	chmod 600 "$pi_agent_dir/auth.json"
+
+	# Start the Anthropic-format loopback (same helper used for Claude Code).
+	CAPTURE_OUT="$capture" node "$LIB_DIR/claude-loopback.mjs" >"$port_file" 2>"$log_file" &
+	server_pid=$!
+
+	if ! port="$(wait_for_port "$port_file" "$server_pid")"; then
+		emit pi "$version" 0 0 0 0 "loopback failed to bind"
+		return
+	fi
+
+	(cd "$cwd" &&
+		PI_CODING_AGENT_DIR="$pi_agent_dir" \
+		PI_AUDIT_LOOPBACK_PORT="$port" \
+		PI_OFFLINE=1 \
+		ANTHROPIC_API_KEY="audit-dummy" \
+		mise_x pi -p "hi" --approve \
+			>"$OUT_DIR/pi-stdout.log" 2>"$OUT_DIR/pi-stderr.log") || true
+
+	wait "$server_pid" 2>/dev/null || true
+
+	if [ ! -s "$capture" ]; then
+		emit pi "$version" 0 0 0 0 "provider request not captured; check pi-stderr.log"
 		return
 	fi
 
 	local system_chars system_tokens first_turn_chars first_turn_tokens
 	system_chars=$(count_chars <"$prompt_file")
 	system_tokens=$(estimate_tokens "$system_chars")
-	first_turn_chars=$(openai_first_turn_chars "$request_capture")
+	first_turn_chars=$(claude_first_turn_chars "$capture")
 	first_turn_tokens=$(estimate_tokens "$first_turn_chars")
-	emit pi "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "rendered system + tool request locally"
+	emit pi "$version" "$system_chars" "$system_tokens" "$first_turn_chars" "$first_turn_tokens" "captured via loopback"
 }
 
 # ---------- Hermes ----------

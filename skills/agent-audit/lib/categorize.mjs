@@ -242,18 +242,46 @@ function categorizeCodex() {
 	return rows;
 }
 
+function claudeContentChars(content) {
+	if (typeof content === "string") return content.length;
+	if (!Array.isArray(content)) return 0;
+	return content.reduce((a, c) => a + (c?.text || "").length, 0);
+}
+
 function categorizePi() {
-	const text = readText("pi-system.txt");
-	const rows = spanBreakdown(text, [
-		["memory (project context)", "<project_context>", "</project_context>"],
+	// If a wire capture exists (post-loopback), derive breakdown from it.
+	// pi sends Anthropic /v1/messages format: { system: [{type,text}], messages, tools }.
+	if (existsSync(join(outDir, "pi-request.json"))) {
+		const req = readJSON("pi-request.json");
+		// Reconstruct the full system text so span anchors work correctly.
+		const systemText =
+			typeof req.system === "string"
+				? req.system
+				: (req.system || []).map((b) => b.text || "").join("");
+		const rows = spanBreakdown(systemText, [
+			["memory (project context)", "<project_context>", "</project_context>"],
+			["skills (<available_skills>)", "<available_skills>", "</available_skills>"],
 			["environment", "Current date:", null],
+		]);
+		const toolChars = (req.tools || []).reduce(
+			(a, t) => a + JSON.stringify(t).length,
+			0,
+		);
+		if (toolChars > 0)
+			rows.push({ cat: "provider tool schemas", chars: toolChars });
+		let userChars = 0;
+		for (const m of req.messages || []) {
+			if (m.role === "user") userChars += claudeContentChars(m.content);
+		}
+		if (userChars > 0) rows.push({ cat: "audit user msg", chars: userChars });
+		return rows;
+	}
+	// Fallback: local-render system text (no wire capture available).
+	const text = readText("pi-system.txt");
+	return spanBreakdown(text, [
+		["memory (project context)", "<project_context>", "</project_context>"],
+		["environment", "Current date:", null],
 	]);
-	const toolChars = openaiRequestToolChars("pi-request.json");
-	if (toolChars > 0)
-		rows.push({ cat: "provider tool schemas", chars: toolChars });
-	const userChars = openaiRequestUserChars("pi-request.json");
-	if (userChars > 0) rows.push({ cat: "audit user msg", chars: userChars });
-	return rows;
 }
 
 const dispatch = {
