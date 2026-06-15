@@ -205,6 +205,19 @@ Finicky's built-in auto-reload does NOT work when the config is managed by chezm
 
 ---
 
+## Hammerspoon (macOS Spaces)
+
+Hammerspoon provides direct macOS Space switching: `⌥1`–`⌥5` (Option, matching Komorebi's `alt`+number on Windows) jump to the Nth Space on the focused screen, including full-screen-app spaces, and create a new empty Space when the target position does not exist yet. Cask in `home/.chezmoidata/brew/00-base.yaml` (macOS-gated); config at `home/dot_hammerspoon/{init.lua,spaces.lua,space_indicator.lua}` (→ `~/.hammerspoon/`), gated to darwin in `home/.chezmoiignore`. A menu bar badge (`space_indicator.lua`) shows the active Space's position. Gotchas that have bitten us:
+
+- **Bind number-row Space switches with `hs.eventtap`, not `hs.hotkey.bind`.** The keys are `⌥1`..`⌥5` (Option, matching Komorebi's `alt`+number). Two reasons the tap is needed: (1) on macOS `⌥`+number normally types special characters (`¡™£¢∞`), and the tap returns `true` to swallow the keystroke before the input system inserts the character, so the Space switches and nothing is typed (verified by reading a focused text field after a synthetic `⌥1`); (2) `⌃`+number can't go through `hs.hotkey` at all: macOS reserves `⌃1`..`⌃N` as Carbon hotkeys for "Switch to Desktop" by the number of Mission Control *user* desktops even when the System Settings checkboxes are off, so `RegisterEventHotKey` rejects them (`hs.hotkey:enable()` returns nil, console logs `-9878 ... already registered`). Diagnose hotkey issues with `hs -c 'return #hs.hotkey.getHotkeys()'` plus the Hammerspoon console.
+- **`hs.spaces` reaches full-screen spaces.** `hs.spaces.spacesForScreen(uuid)` lists every Space (user and full screen/tiled, per `hs.spaces.spaceType`) in Mission Control order, and `hs.spaces.gotoSpace(id)` activates one by driving its Mission Control thumbnail, so it can land on full-screen spaces (the native `⌃`+number shortcuts cannot). Map "Space N" by indexing that list by position.
+- **Space positions are not stable while "rearrange by most recent use" is on.** With `com.apple.dock` `mru-spaces` unset or true (the macOS default), visiting a full-screen space reorders it in Mission Control, so the index `⌥N` and the menu bar indicator use drifts (the order is stable only while idle). `defaults write com.apple.dock mru-spaces -bool false && killall Dock` gives stable positions; this is applied declaratively by `home/.chezmoiscripts/run_onchange_after_macos_defaults.sh.tmpl` (darwin-guarded, restarts the Dock only when it is running). The indicator (`hs.menubar` badge driven by `hs.spaces.watcher`) recomputes ~0.25s after a change so it reads the settled order, not a mid-transition one; the watcher fires before `activeSpaceOnScreen` settles otherwise.
+- **Auto-reload works**, unlike Finicky above: `hs.pathwatcher` uses FSEvents (path-based), so it survives chezmoi's atomic-rename writes (new inode each apply).
+- **`hs.ipc` is enabled** in `init.lua`, so the running config is queryable from the `hs` CLI (`hs -c '...'`), the main way to debug Spaces and hotkeys.
+- **Requires Accessibility** permission (System Settings → Privacy & Security → Accessibility); `gotoSpace` drives Mission Control through the Accessibility API. One-time manual grant, cannot be automated by chezmoi.
+
+---
+
 ## Rancher Desktop / Docker (Windows)
 
 - Rancher Desktop provides the Docker daemon on Windows via a WSL2 backend (`rancher-desktop` distro).

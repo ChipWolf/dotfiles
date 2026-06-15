@@ -21,8 +21,14 @@ render_brewfile_to_tmp() {
 }
 
 render_bootstrap_template_ci() {
+  # execute-template --init does not promote the config template's [data] to
+  # top-level template vars, so every data key the bootstrap template reads must
+  # be supplied via --override-data. The bootstrap script gates a block on
+  # `.private` (`.chezmoi.toml.tmpl` derives it from `~/.private`); without it the
+  # render dies with `map has no entry for key "private"` on a fresh checkout
+  # (e.g. CI), while passing locally where the key exists in on-disk config data.
   env CI=1 HOMEBREW_CI=1 chezmoi --source "$REPO_ROOT/home" execute-template --init \
-    --override-data '{"codespaces":false}' \
+    --override-data '{"codespaces":false,"private":false}' \
     --file "$BOOTSTRAP_TMPL"
 }
 

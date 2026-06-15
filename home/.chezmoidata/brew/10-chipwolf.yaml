@@ -114,10 +114,10 @@ brew:
         #   name: slack
         #   conditions:
         #     - { kind: os, op: is, value: mac }
-        # - type: cask
-        #   name: yubico-authenticator
-        #   conditions:
-        #     - { kind: os, op: is, value: mac }
+        - type: cask
+          name: yubico-authenticator
+          conditions:
+            - { kind: os, op: is, value: mac }
         # - type: cask
         #   name: zoom
         #   conditions:

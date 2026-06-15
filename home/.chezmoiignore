@@ -35,6 +35,7 @@ Documents
 .config/tmux
 .config/ghostty
 .config/finicky.js
+.hammerspoon
 Library
 {{ end }}
 

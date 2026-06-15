@@ -15,7 +15,7 @@ DISABLE_LINTERS:
 
 SARIF_REPORTER: true
 
-LUA_LUACHECK_ARGUMENTS: "--globals vim"
+LUA_LUACHECK_ARGUMENTS: "--globals vim hs"
 
 CSS_STYLELINT_FILTER_REGEX_EXCLUDE: "(yasb/styles\\.css)"
 
