@@ -4,6 +4,10 @@
 -- Hammerspoon configuration. Currently this only sets up direct macOS Space
 -- switching; see spaces.lua for the keybindings and rationale.
 
+-- Enable the `hs` command-line tool (talks to this instance over a message
+-- port) so the config can be queried/scripted from a shell.
+require("hs.ipc")
+
 require("spaces")
 
 -- Auto-reload the configuration whenever any .lua file under ~/.hammerspoon
