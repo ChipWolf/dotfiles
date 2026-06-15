@@ -37,8 +37,7 @@ Three refinements that fall out of the line-level analysis:
 - **The `## Windows support` section is split, not moved wholesale.** Cross-platform OS-gating
   mechanics fire on *any* new-file edit (a macOS session adding a chezmoiscript needs the
   `{{ if ne .chezmoi.os "windows" }}` guard rule) and **stay inline**. Only the
-  Windows-operational internals move to `windows-internals`. Exact line mapping lives in the
-  implementation spec.
+  Windows-operational internals move to `windows-internals`.
 - **The mislabeled OpenCode/Atlassian bullet is removed.** It sits under "Windows support" but
   describes a *cross-platform* MCP/overlay `conditions` gate. Moving it into a Windows skill
   would hide it from macOS/Linux sessions; the behaviour is already covered by the condition-gate
