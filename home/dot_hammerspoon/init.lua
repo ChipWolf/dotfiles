@@ -9,6 +9,7 @@
 require("hs.ipc")
 
 require("spaces")
+require("space_indicator")
 
 -- Auto-reload the configuration whenever any .lua file under ~/.hammerspoon
 -- changes. hs.pathwatcher uses FSEvents, which is path-based, so it survives

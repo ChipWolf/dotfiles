@@ -1,0 +1,82 @@
+-- ~/.hammerspoon/space_indicator.lua
+-- Managed by chezmoi (source: home/dot_hammerspoon/space_indicator.lua). Do not edit directly.
+--
+-- Menu bar indicator showing which Space is currently active, by its position
+-- on the focused screen. That position is the same 1-based index Ctrl+1..Ctrl+5
+-- use (see spaces.lua), so the badge matches the switch keys. Full-screen-app
+-- spaces are counted too. The dropdown lists every Space; click one to jump.
+--
+-- Space changes are detected with hs.spaces.watcher. The badge is recomputed
+-- from hs.spaces.spacesForScreen + activeSpaceOnScreen rather than trusting the
+-- watcher's (deprecated) space-number argument.
+
+-- Compact badges for positions 1..9; plain number beyond that.
+local badges = { "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨" }
+
+-- Keep the menu bar item in a global so it is not garbage collected.
+spaceIndicatorMenubar = hs.menubar.new()
+
+local function focusedScreenSpaces()
+  local screen = hs.screen.mainScreen()
+  if not screen then
+    return nil
+  end
+  local uuid = screen:getUUID()
+  return uuid, hs.spaces.spacesForScreen(uuid), hs.spaces.activeSpaceOnScreen(uuid)
+end
+
+local function activeIndex()
+  local _, spaces, active = focusedScreenSpaces()
+  if not spaces then
+    return nil
+  end
+  for i, id in ipairs(spaces) do
+    if id == active then
+      return i
+    end
+  end
+  return nil
+end
+
+local function updateIndicator()
+  if not spaceIndicatorMenubar then
+    return
+  end
+  local idx = activeIndex()
+  spaceIndicatorMenubar:setTitle(idx and (badges[idx] or tostring(idx)) or "•")
+end
+
+if spaceIndicatorMenubar then
+  -- Dropdown: every Space on the focused screen, current one checked, click to jump.
+  spaceIndicatorMenubar:setMenu(function()
+    local _, spaces, active = focusedScreenSpaces()
+    local items = {}
+    if spaces then
+      for i, id in ipairs(spaces) do
+        local suffix = (hs.spaces.spaceType(id) == "fullscreen") and " (full screen)" or ""
+        items[#items + 1] = {
+          title = "Space " .. i .. suffix,
+          checked = (id == active),
+          fn = function()
+            hs.spaces.gotoSpace(id)
+          end,
+        }
+      end
+    else
+      items[#items + 1] = { title = "Spaces unavailable", disabled = true }
+    end
+    return items
+  end)
+end
+
+-- Recompute when the active Space changes: covers Ctrl+number, trackpad swipes,
+-- and entering/leaving full-screen apps. The recompute is deferred briefly so it
+-- reads once macOS has finished the transition and any most-recent-use
+-- reordering, otherwise activeSpaceOnScreen can still report the old Space.
+-- Keep the watcher in a global too.
+spaceIndicatorWatcher = hs.spaces.watcher.new(function()
+  hs.timer.doAfter(0.25, updateIndicator)
+end)
+spaceIndicatorWatcher:start()
+
+updateIndicator()
