@@ -1,0 +1,20 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Apply macOS system defaults the dotfiles depend on.
+# run_onchange: chezmoi hashes this script's rendered content and re-runs it
+# only when the content below changes, so it is not re-applied every apply.
+set -euo pipefail
+
+# Keep Mission Control Space positions stable: do not reorder Spaces by most
+# recent use. This keeps the Hammerspoon Ctrl+1..Ctrl+5 direct-Space switches
+# and the menu bar Space indicator (see home/dot_hammerspoon/) pointing at
+# consistent positions, including full-screen-app spaces.
+defaults write com.apple.dock mru-spaces -bool false
+
+# Restart the Dock so the change takes effect immediately, but only when it is
+# actually running (it is not in headless/CI sessions, where there is nothing
+# to restart and the write above already persisted).
+if pgrep -x Dock >/dev/null 2>&1; then
+  killall Dock
+fi
+{{ end -}}
