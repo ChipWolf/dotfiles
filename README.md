@@ -40,6 +40,7 @@ Opinionated dotfiles managed with [chezmoi](https://chezmoi.io). One repo config
 | **Homebrew**            | Package manager                          |   x   |   x   |         |     x      |
 | **mise**                | Runtime manager (node, python, go, etc.) |   x   |   x   |    x    |     x      |
 | **Finicky**             | Default browser router                   |   x   |       |         |            |
+| **Hammerspoon**         | Direct macOS Space switching             |   x   |       |         |            |
 | **Steam**               | Game platform (Windows)                  |       |       |    x    |            |
 | **Sysinternals**        | Windows diagnostics utilities            |       |       |    x    |            |
 | **GlazeWM**             | Windows tiling window manager            |       |       |    x    |            |

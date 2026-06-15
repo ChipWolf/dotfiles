@@ -195,6 +195,10 @@ brew:
           conditions:
             - { kind: os, op: is, value: mac }
         - type: cask
+          name: hammerspoon # lua desktop automation (direct Space switching)
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
           name: jordanbaird-ice # menu bar
           conditions:
             - { kind: os, op: is, value: mac }
