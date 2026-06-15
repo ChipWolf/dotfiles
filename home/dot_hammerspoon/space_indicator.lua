@@ -1,17 +1,15 @@
 -- ~/.hammerspoon/space_indicator.lua
 -- Managed by chezmoi (source: home/dot_hammerspoon/space_indicator.lua). Do not edit directly.
 --
--- Menu bar indicator showing which Space is currently active, by its position
--- on the focused screen. That position is the same 1-based index Ctrl+1..Ctrl+5
--- use (see spaces.lua), so the badge matches the switch keys. Full-screen-app
--- spaces are counted too. The dropdown lists every Space; click one to jump.
+-- Menu bar indicator showing which Space is currently active on the focused
+-- screen: one dot per Space, the current one filled (●) and the rest hollow
+-- (○), in Mission Control order (the same order Ctrl+1..Ctrl+5 use, see
+-- spaces.lua). Full-screen-app spaces are counted too. The dropdown lists every
+-- Space; click one to jump.
 --
 -- Space changes are detected with hs.spaces.watcher. The badge is recomputed
 -- from hs.spaces.spacesForScreen + activeSpaceOnScreen rather than trusting the
 -- watcher's (deprecated) space-number argument.
-
--- Compact badges for positions 1..9; plain number beyond that.
-local badges = { "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨" }
 
 -- Keep the menu bar item in a global so it is not garbage collected.
 spaceIndicatorMenubar = hs.menubar.new()
@@ -25,25 +23,21 @@ local function focusedScreenSpaces()
   return uuid, hs.spaces.spacesForScreen(uuid), hs.spaces.activeSpaceOnScreen(uuid)
 end
 
-local function activeIndex()
-  local _, spaces, active = focusedScreenSpaces()
-  if not spaces then
-    return nil
-  end
-  for i, id in ipairs(spaces) do
-    if id == active then
-      return i
-    end
-  end
-  return nil
-end
-
+-- One dot per Space on the focused screen, the active one filled.
 local function updateIndicator()
   if not spaceIndicatorMenubar then
     return
   end
-  local idx = activeIndex()
-  spaceIndicatorMenubar:setTitle(idx and (badges[idx] or tostring(idx)) or "•")
+  local _, spaces, active = focusedScreenSpaces()
+  if not spaces or #spaces == 0 then
+    spaceIndicatorMenubar:setTitle("•")
+    return
+  end
+  local dots = {}
+  for i, id in ipairs(spaces) do
+    dots[i] = (id == active) and "●" or "○"
+  end
+  spaceIndicatorMenubar:setTitle(table.concat(dots))
 end
 
 if spaceIndicatorMenubar then
