@@ -1,11 +1,11 @@
 ---
 name: windows-internals
-description: Windows-operational internals for this chezmoi repo — WSL cloud-init provisioning, Rancher Desktop/Docker, ssh-tpm-agent commit signing, the dual gpg.exe split, WezTerm, and the Windows bootstrap/elevation block. Triggers — Windows internals, WSL, cloud-init, rsync --delete, Rancher Desktop, moby, rdctl, Docker daemon pipe, ssh-tpm-agent, TPM, two gpg.exe, WezTerm, Windows bootstrap, elevation, YASB. Load before changing Windows-operational scripts/data.
+description: Windows-operational internals for this chezmoi repo: WSL cloud-init provisioning, Rancher Desktop/Docker, ssh-tpm-agent commit signing, the dual gpg.exe split, WezTerm, and the Windows bootstrap/elevation block. Triggers: Windows internals, WSL, cloud-init, rsync --delete, Rancher Desktop, moby, rdctl, Docker daemon pipe, ssh-tpm-agent, TPM, two gpg.exe, WezTerm, Windows bootstrap, elevation, YASB. Load before changing Windows-operational scripts/data.
 ---
 
 # Windows internals
 
-**Scope:** `home/.chezmoiscripts/*windows*.ps1.tmpl` (except the mise-shim scripts — see the `mise-on-windows` skill), `home/.chezmoiscripts/run_after_96_rancher_desktop_windows.ps1.tmpl`, `home/.chezmoidata/wsl/`, `home/.chezmoidata/ssh-tpm-agent.yaml`, `home/.chezmoidata/ssh-signing.yaml`, `home/private_dot_ssh/allowed_signers.tmpl`, `home/.chezmoitemplates/wsl-*.tmpl`, `home/dot_config/wezterm/`.
+**Scope:** `home/.chezmoiscripts/*windows*.ps1.tmpl` (except the mise-shim scripts; see the `mise-on-windows` skill), `home/.chezmoiscripts/run_onchange_after_bootstrap_windows.ps1.tmpl` (shared with `mise-on-windows`), `home/.chezmoiscripts/run_after_96_rancher_desktop_windows.ps1.tmpl`, `home/.chezmoidata/wsl/`, `home/.chezmoidata/ssh-tpm-agent.yaml`, `home/.chezmoidata/ssh-signing.yaml`, `home/private_dot_ssh/allowed_signers.tmpl`, `home/.chezmoitemplates/wsl-*.tmpl`, `home/dot_config/wezterm/`.
 
 ## Windows bootstrap / elevation
 

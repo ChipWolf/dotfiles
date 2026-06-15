@@ -1,6 +1,6 @@
 ---
 name: finicky
-description: Finicky browser-router config for this chezmoi repo (macOS). Covers the mandatory restart-after-apply procedure and why Finicky's auto-reload fails under chezmoi. Triggers — Finicky, browser router, auto-reload, inode, kqueue, fsnotify, restart required. Load before changing home/dot_config/finicky.js.tmpl.
+description: Finicky browser-router config for this chezmoi repo (macOS). Covers the mandatory restart-after-apply procedure and why Finicky's auto-reload fails under chezmoi. Triggers: Finicky, browser router, auto-reload, inode, kqueue, fsnotify, restart required, macOS. Load before changing home/dot_config/finicky.js.tmpl.
 ---
 
 # Finicky (macOS)

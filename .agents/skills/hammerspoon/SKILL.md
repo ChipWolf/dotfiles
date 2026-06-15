@@ -1,6 +1,6 @@
 ---
 name: hammerspoon
-description: Hammerspoon macOS Space-switching config for this chezmoi repo. Covers eventtap-vs-hotkey.bind, full-screen spaces, Accessibility, and debugging via the hs CLI. Triggers — Hammerspoon, macOS Spaces, Space switching, eventtap, hotkey.bind, Ctrl+1, Mission Control, Carbon hotkey reservation, hs.spaces, hs.ipc, Accessibility. Load before changing home/dot_hammerspoon/*.
+description: Hammerspoon macOS Space-switching config for this chezmoi repo. Covers eventtap-vs-hotkey.bind, full-screen spaces, Accessibility, and debugging via the hs CLI. Triggers: Hammerspoon, macOS Spaces, Space switching, eventtap, hotkey.bind, Ctrl+1, Mission Control, Carbon hotkey reservation, hs.spaces, hs.ipc, Accessibility. Load before changing home/dot_hammerspoon/*.
 ---
 
 # Hammerspoon (macOS Spaces)

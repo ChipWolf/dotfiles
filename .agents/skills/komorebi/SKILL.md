@@ -1,6 +1,6 @@
 ---
 name: komorebi
-description: Komorebi Windows tiling-WM config for this chezmoi repo. Covers KOMOREBI_CONFIG_HOME, manage/layered/ignore rules, the never-Stop-Process-Force socket trap, whkd quirks, and reload. Triggers — Komorebi, Windows tiling WM, whkd, KOMOREBI_CONFIG_HOME, Stop-Process, sock file, AF_UNIX, layered_applications, FancyZones, reload-configuration. Load before changing home/dot_config/komorebi/* or home/dot_config/whkdrc.
+description: Komorebi Windows tiling-WM config for this chezmoi repo. Covers KOMOREBI_CONFIG_HOME, manage/layered/ignore rules, the never-Stop-Process-Force socket trap, whkd quirks, and reload. Triggers: Komorebi, Windows tiling WM, whkd, KOMOREBI_CONFIG_HOME, Stop-Process, sock file, AF_UNIX, layered_applications, FancyZones, reload-configuration. Load before changing home/dot_config/komorebi/* or home/dot_config/whkdrc.
 ---
 
 # Komorebi (Windows tiling)
