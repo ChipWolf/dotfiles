@@ -55,7 +55,7 @@ platform/app-specific gotchas (Windows support, Finicky, Hammerspoon, Rancher De
 mise-on-Windows), paid for in every session regardless of relevance. The hard-won gotchas must
 not be lost, only made reachable on demand.
 
-This decision was reached by two independent `consensus`-skill panels — one seeded with candidate
+This decision was reached by two independent `consensus`-skill panels, one seeded with candidate
 options, one unseeded so the panel derived its own framing. Both converged with **no dissent**
 (confidence 0.87 and 0.90) on per-subsystem repo-local skills. The unseeded panel additionally
 caught the OpenCode/Atlassian mislabel and rejected the trigger-table idea.
@@ -65,44 +65,44 @@ caught the OpenCode/Atlassian mislabel and rejected the trigger-table idea.
 - **Per-subsystem repo-local skills (chosen).** Proportional load: editing a Komorebi config
   pulls only Komorebi gotchas, not Rancher Desktop trivia. Reuses an established, zero-incident
   pattern; no new machinery.
-- **Platform-grouped skills (`windows-config` / `macos-config`) — rejected.** Skill loading is
+- **Platform-grouped skills (`windows-config` / `macos-config`), rejected.** Skill loading is
   triggered by which file the agent opens, not by an OS-session initialiser; bundling forces every
   focused edit to carry the whole platform's unrelated context.
-- **Aggressive: also move core chezmoi reference into the `dotfiles` skill — rejected,
+- **Aggressive: also move core chezmoi reference into the `dotfiles` skill, rejected,
   unanimously.** Core chezmoi facts (source-state attributes, removal safety, the `modify_` JSON
   diff caveat, `.chezmoiroot` layout) are needed in essentially every session under `home/`.
   Putting them behind a skill trigger breaks the repo's primary "never guess about chezmoi"
   safety property.
-- **Inline trim / status quo — rejected.** Compression recovers at most 20–30 lines, leaving the
+- **Inline trim / status quo, rejected.** Compression recovers at most 20–30 lines, leaving the
   file over its own ceiling, and strips the incident-history "why" that makes the gotchas
   enforceable.
-- **Single `subsystem-gotchas` mega-skill — rejected.** Loading all six sections to read one rule
+- **Single `subsystem-gotchas` mega-skill, rejected.** Loading all six sections to read one rule
   just moves the context-waste behind a trigger.
-- **`docs/` reference files — rejected.** Markdown in `docs/` has no path-glob trigger semantics;
+- **`docs/` reference files, rejected.** Markdown in `docs/` has no path-glob trigger semantics;
   ADRs are decision records, not operational gotchas.
 
 ## Consequences
 
 - **Positive:** ~60–75 lines leave the always-on file; the file lands back under its ~200-line
-  ceiling (expect ~195–210 lines once blank lines and the new pointer bullets are counted — the
+  ceiling (expect ~195–210 lines once blank lines and the new pointer bullets are counted, the
   ceiling is a soft "propose splitting" trigger, not a hard limit). Focused edits load only the
   relevant subsystem. The pattern is uniform and extends to future subsystems by default.
 - **Cross-reference repair:** the Finicky↔Hammerspoon auto-reload contrast (FSEvents survives
   chezmoi's atomic-rename inode swap; kqueue does not) currently relies on section adjacency. Each
   skill must restate it self-contained so it does not silently break when the sections separate.
-- **Risk — pointer-path staleness:** a new subsystem file added with a non-matching name silently
+- **Risk, pointer-path staleness:** a new subsystem file added with a non-matching name silently
   misses its skill. Mitigation: pointer path globs are enumerated explicitly (not a single
   wildcard) and updated in the **same commit** as any new subsystem file. The shared
   `run_onchange_after_bootstrap_windows.ps1.tmpl` is listed in **both** the `mise-on-windows` and
   `windows-internals` pointers.
-- **Risk — skill-not-triggered:** an agent that opens a subsystem file without first reading
+- **Risk, skill-not-triggered:** an agent that opens a subsystem file without first reading
   `AGENTS.md` has only the pointer as discovery. This is inherent to the existing convention
   (zero reported incidents across four skills) and is partially mitigated by the "never guess"
   norm and fuzzy-match descriptions.
 - **Rollback:** if a regression is ever traced to a missed skill load (e.g. an agent reintroduces
   `hs.hotkey.bind`, runs `Stop-Process -Force` on komorebi, or writes a chezmoiscript without an
   OS guard), move that subsystem's content back inline above its pointer in a single commit. No
-  data loss — the skills live in the same repo.
+  data loss, the skills live in the same repo.
 
 ## Dissent / minority report
 
