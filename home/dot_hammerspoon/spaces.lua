@@ -30,76 +30,77 @@ local spaceCount = 5
 -- Map the physical keycodes for "1".."spaceCount" to their 1-based index.
 local codeToIndex = {}
 for i = 1, spaceCount do
-  local code = hs.keycodes.map[tostring(i)]
-  if code then
-    codeToIndex[code] = i
-  end
+	local code = hs.keycodes.map[tostring(i)]
+	if code then
+		codeToIndex[code] = i
+	end
 end
 
 -- Switch to the index-th (1-based) Space on the screen that currently has focus.
 -- If that position does not exist yet, create a new empty Space and switch to
 -- it rather than doing nothing.
 local function gotoSpaceIndex(index)
-  local screen = hs.screen.mainScreen()
-  if not screen then
-    return
-  end
-  local uuid = screen:getUUID()
+	local screen = hs.screen.mainScreen()
+	if not screen then
+		return
+	end
+	local uuid = screen:getUUID()
 
-  local spaces = hs.spaces.spacesForScreen(uuid)
-  if not spaces then
-    hs.alert.show("Spaces: could not read Spaces for the focused screen")
-    return
-  end
+	local spaces = hs.spaces.spacesForScreen(uuid)
+	if not spaces then
+		hs.alert.show("Spaces: could not read Spaces for the focused screen")
+		return
+	end
 
-  local target = spaces[index]
-  if target then
-    hs.spaces.gotoSpace(target)
-    return
-  end
+	local target = spaces[index]
+	if target then
+		hs.spaces.gotoSpace(target)
+		return
+	end
 
-  -- Position index does not exist yet: add an empty Space and go to it.
-  -- addSpaceToScreen does not return the new id, and a new desktop is not always
-  -- appended last, so diff the Space list before and after to find it.
-  local existed = {}
-  for _, id in ipairs(spaces) do
-    existed[id] = true
-  end
+	-- Position index does not exist yet: add an empty Space and go to it.
+	-- addSpaceToScreen does not return the new id, and a new desktop is not always
+	-- appended last, so diff the Space list before and after to find it.
+	local existed = {}
+	for _, id in ipairs(spaces) do
+		existed[id] = true
+	end
 
-  local ok, err = hs.spaces.addSpaceToScreen(uuid)
-  if not ok then
-    hs.alert.show("Could not add a Space: " .. tostring(err))
-    return
-  end
+	local ok, err = hs.spaces.addSpaceToScreen(uuid)
+	if not ok then
+		hs.alert.show("Could not add a Space: " .. tostring(err))
+		return
+	end
 
-  local updated = hs.spaces.spacesForScreen(uuid)
-  if updated then
-    for _, id in ipairs(updated) do
-      if not existed[id] then
-        hs.spaces.gotoSpace(id)
-        return
-      end
-    end
-  end
+	local updated = hs.spaces.spacesForScreen(uuid)
+	if updated then
+		for _, id in ipairs(updated) do
+			if not existed[id] then
+				hs.spaces.gotoSpace(id)
+				return
+			end
+		end
+	end
 end
 
 -- Keep the tap in a global so it is not garbage collected.
+-- luacheck: globals spaceSwitchTap
 spaceSwitchTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
-  -- Option must be the only modifier, so Option+Shift+1 and friends pass through.
-  if not event:getFlags():containExactly({ "alt" }) then
-    return false
-  end
+	-- Option must be the only modifier, so Option+Shift+1 and friends pass through.
+	if not event:getFlags():containExactly({ "alt" }) then
+		return false
+	end
 
-  local index = codeToIndex[event:getKeyCode()]
-  if not index then
-    return false
-  end
+	local index = codeToIndex[event:getKeyCode()]
+	if not index then
+		return false
+	end
 
-  -- Defer the switch so the Mission Control animation does not block the tap.
-  hs.timer.doAfter(0, function()
-    gotoSpaceIndex(index)
-  end)
-  return true -- swallow the keystroke
+	-- Defer the switch so the Mission Control animation does not block the tap.
+	hs.timer.doAfter(0, function()
+		gotoSpaceIndex(index)
+	end)
+	return true -- swallow the keystroke
 end)
 
 spaceSwitchTap:start()
