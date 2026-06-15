@@ -50,7 +50,7 @@ mcp:
           - "--"
           - "npx"
           - "-y"
-          - "chrome-devtools-mcp@1.0.1"
+          - "chrome-devtools-mcp@1.2.0"
         env: {}
 
     context7:
