@@ -62,7 +62,12 @@ _load_overlay_map() {
 
 	while IFS=$'\t' read -r overlay_id overlay_file; do
 		[ -z "$overlay_id" ] && continue
-		[ "$overlay_id" = "base" ] && continue
+		# base is never listed in the menu, but record its file so the
+		# hidden "0" option can target it (see _choose_overlay_id).
+		if [ "$overlay_id" = "base" ]; then
+			BASE_OVERLAY_FILE="$overlay_file"
+			continue
+		fi
 		OVERLAY_IDS+=("$overlay_id")
 		OVERLAY_FILES+=("$overlay_file")
 	done < <(
@@ -82,6 +87,11 @@ _load_overlay_map() {
 _overlay_file_for_id() {
 	local overlay_id="$1"
 	local i
+	if [ "$overlay_id" = "base" ]; then
+		[ -n "${BASE_OVERLAY_FILE:-}" ] || return 1
+		printf '%s\n' "$BASE_OVERLAY_FILE"
+		return 0
+	fi
 	for ((i = 0; i < ${#OVERLAY_IDS[@]}; i++)); do
 		if [ "${OVERLAY_IDS[$i]}" = "$overlay_id" ]; then
 			printf '%s\n' "${OVERLAY_FILES[$i]}"
@@ -111,6 +121,12 @@ _choose_overlay_id() {
 		printf "  Overlay number [%d]: " "$default_index" >&2
 		read -r overlay_choice </dev/tty
 		[ -z "$overlay_choice" ] && overlay_choice="$default_index"
+		# Hidden option: 0 targets the base overlay, which is intentionally
+		# not listed in the menu above.
+		if [ "$overlay_choice" = "0" ] && [ -n "${BASE_OVERLAY_FILE:-}" ]; then
+			printf '%s\n' "base"
+			return 0
+		fi
 		if [[ "$overlay_choice" =~ ^[0-9]+$ ]] && [ "$overlay_choice" -ge 1 ] && [ "$overlay_choice" -le "${#OVERLAY_IDS[@]}" ]; then
 			printf '%s\n' "${OVERLAY_IDS[$((overlay_choice - 1))]}"
 			return 0
@@ -197,6 +213,7 @@ echo ""
 if [ ${#extras[@]} -gt 0 ]; then
 	OVERLAY_IDS=()
 	OVERLAY_FILES=()
+	BASE_OVERLAY_FILE=""
 	if ! _load_overlay_map; then
 		echo "brew-review: no non-base brew overlays found in $BREW_DATA_DIR" >&2
 		exit 1
