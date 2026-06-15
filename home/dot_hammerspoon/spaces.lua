@@ -35,25 +35,50 @@ for i = 1, spaceCount do
 end
 
 -- Switch to the index-th (1-based) Space on the screen that currently has focus.
+-- If that position does not exist yet, create a new empty Space and switch to
+-- it rather than doing nothing.
 local function gotoSpaceIndex(index)
   local screen = hs.screen.mainScreen()
   if not screen then
     return
   end
+  local uuid = screen:getUUID()
 
-  local spaces = hs.spaces.spacesForScreen(screen:getUUID())
+  local spaces = hs.spaces.spacesForScreen(uuid)
   if not spaces then
     hs.alert.show("Spaces: could not read Spaces for the focused screen")
     return
   end
 
   local target = spaces[index]
-  if not target then
-    hs.alert.show(string.format("No Space %d on this screen", index))
+  if target then
+    hs.spaces.gotoSpace(target)
     return
   end
 
-  hs.spaces.gotoSpace(target)
+  -- Position index does not exist yet: add an empty Space and go to it.
+  -- addSpaceToScreen does not return the new id, and a new desktop is not always
+  -- appended last, so diff the Space list before and after to find it.
+  local existed = {}
+  for _, id in ipairs(spaces) do
+    existed[id] = true
+  end
+
+  local ok, err = hs.spaces.addSpaceToScreen(uuid)
+  if not ok then
+    hs.alert.show("Could not add a Space: " .. tostring(err))
+    return
+  end
+
+  local updated = hs.spaces.spacesForScreen(uuid)
+  if updated then
+    for _, id in ipairs(updated) do
+      if not existed[id] then
+        hs.spaces.gotoSpace(id)
+        return
+      end
+    end
+  end
 end
 
 -- Keep the tap in a global so it is not garbage collected.
