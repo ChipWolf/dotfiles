@@ -1,18 +1,20 @@
 -- ~/.hammerspoon/spaces.lua
 -- Managed by chezmoi (source: home/dot_hammerspoon/spaces.lua). Do not edit directly.
 --
--- Jump directly to the Nth Space on the focused screen with Ctrl+1 .. Ctrl+5,
--- INCLUDING full-screen-app spaces.
+-- Jump directly to the Nth Space on the focused screen with Option+1 .. Option+5
+-- (matching Komorebi's alt+number Workspace switches on Windows), INCLUDING
+-- full-screen-app spaces. If a position does not exist yet an empty Space is
+-- created and focused (see gotoSpaceIndex below).
 --
--- Why an event tap instead of hs.hotkey.bind:
---   macOS reserves Ctrl+1 .. Ctrl+N as Carbon hotkeys for "Switch to Desktop"
---   whenever N Mission Control *user* desktops exist, even when the System
---   Settings shortcut checkboxes are turned off. RegisterEventHotKey then
---   rejects those combos (error -9878 "already registered"), so hs.hotkey.bind
---   silently fails for the low-numbered keys (e.g. Ctrl+1/Ctrl+2 with two
---   desktops) while the higher ones work. An hs.eventtap sees the keystroke in
---   the event stream before hotkey dispatch, so it handles every Ctrl+number
---   uniformly and can swallow it.
+-- Why an event tap rather than hs.hotkey.bind:
+--   On macOS, Option+1 .. Option+5 normally type the special characters
+--   ¡ ™ £ ¢ ∞. The event tap returns true to swallow the keystroke before the
+--   input system translates it, so the Space switches and no character is
+--   inserted. (An event tap is also the only workable approach for Ctrl+number,
+--   which we do not use: macOS reserves Ctrl+1 .. Ctrl+N as Carbon hotkeys for
+--   "Switch to Desktop" based on the number of Mission Control user desktops
+--   even when the System Settings checkboxes are off, so RegisterEventHotKey
+--   rejects them with -9878 and hs.hotkey.bind cannot register them.)
 --
 -- Why this reaches full-screen spaces:
 --   hs.spaces.spacesForScreen() lists every Space (user and full screen / tiled,
@@ -83,8 +85,8 @@ end
 
 -- Keep the tap in a global so it is not garbage collected.
 spaceSwitchTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
-  -- Control must be the only modifier, so Ctrl+Shift+1 and friends pass through.
-  if not event:getFlags():containExactly({ "ctrl" }) then
+  -- Option must be the only modifier, so Option+Shift+1 and friends pass through.
+  if not event:getFlags():containExactly({ "alt" }) then
     return false
   end
 

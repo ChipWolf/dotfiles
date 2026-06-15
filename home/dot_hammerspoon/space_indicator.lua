@@ -3,7 +3,7 @@
 --
 -- Menu bar indicator showing which Space is currently active on the focused
 -- screen: one dot per Space, the current one filled (●) and the rest hollow
--- (○), in Mission Control order (the same order Ctrl+1..Ctrl+5 use, see
+-- (○), in Mission Control order (the same order Option+1..Option+5 use, see
 -- spaces.lua). Full-screen-app spaces are counted too. The dropdown lists every
 -- Space; click one to jump.
 --
