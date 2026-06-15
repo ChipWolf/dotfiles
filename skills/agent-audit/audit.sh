@@ -262,6 +262,7 @@ audit_opencode() {
 	# - loopback: actual OpenAI-compatible first request, including tool schemas
 	local plugin_url config
 	plugin_url="file://$LIB_DIR/opencode-plugin.ts"
+	# shellcheck disable=SC2016  # JSON keys like $schema are literal text, not shell expansions
 	config=$(printf '{"$schema":"https://opencode.ai/config.json","model":"%s","plugin":["%s"],"provider":{"audit":{"npm":"@ai-sdk/openai-compatible","name":"Audit Loopback","options":{"baseURL":"http://127.0.0.1:%s/v1","apiKey":"audit-dummy"},"models":{"audit-model":{"name":"Audit Model"}}}}}' "$model" "$plugin_url" "$port")
 
 	(
@@ -498,6 +499,7 @@ audit_hermes() {
 	fi
 
 	local version
+	# shellcheck disable=SC2012  # Homebrew Cellar version dirs have controlled names; ls -d is fine here
 	version="$(python3 -c "import importlib.metadata; print(importlib.metadata.version('hermes-agent'))" 2>/dev/null ||
 		ls -d /opt/homebrew/Cellar/hermes-agent/*/ 2>/dev/null | head -1 | xargs basename ||
 		echo "unknown")"
