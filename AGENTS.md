@@ -191,5 +191,5 @@ When adding or changing attributes, scripts, or templates, verify behavior again
 - Before ending a session, check that the git working directory is clean. If it is not clean, either commit/apply/push when appropriate, or ask the user via the question tool when intent is unclear.
 - Never remove rules without explicit user confirmation.
 - Keep this file concise — if it grows beyond ~200 lines of rules (excluding vault context), propose splitting into topic-specific files.
-- New platform/app-specific subsystem gotchas go in a `.agents/skills/<name>/` skill with a one-line `Load …/SKILL.md before changing <globs>` pointer in Repo-specific conventions, not as a new inline `##` section. See [ADR-0003](docs/adr/0003-extract-subsystem-gotchas-to-repo-local-skills.md).
+- New platform/app-specific subsystem gotchas go in a `.agents/skills/<name>/` skill with a one-line `Load .agents/skills/<name>/SKILL.md before changing <globs>` pointer in Repo-specific conventions, not as a new inline `##` section. See [ADR-0003](docs/adr/0003-extract-subsystem-gotchas-to-repo-local-skills.md).
 - When in doubt, append a new rule rather than silently adopting a convention that isn't written down.
