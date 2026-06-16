@@ -8,6 +8,12 @@
   ],
   schedule: ["after 11am and before 1pm on Friday"],
   prHourlyLimit: 0,
+  // Hand merging to GitHub's native auto-merge so green PRs merge the moment
+  // checks pass, on any day, rather than being gated by the Friday `schedule`
+  // window above (Renovate's own merge only runs during scheduled processing).
+  // Requires the repo's "Allow auto-merge" setting plus branch protection on
+  // `main` with the CI checks marked required (MegaLinter, source-tests).
+  platformAutomerge: true,
   customManagers: [
     {
       customType: "regex",
