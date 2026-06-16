@@ -44,6 +44,8 @@ brew:
             - { kind: os, op: is, value: mac }
             - { kind: env, name: PRIVATE, op: set }
         - type: brew
+          name: hf # hugging face cli
+        - type: brew
           name: sheeki03/tap/tirith # pre-exec command security scanner for hermes-agent
           conditions:
             - { kind: os, op: is, value: mac }
@@ -53,6 +55,11 @@ brew:
           conditions:
             - { kind: env, name: CODESPACES, op: unset }
 
+        - type: cask
+          name: claude-code # anthropic claude code (private machines only)
+          conditions:
+            - { kind: os, op: is, value: mac }
+            - { kind: env, name: PRIVATE, op: set }
         - type: cask
           name: eqmac
           conditions:
@@ -66,7 +73,31 @@ brew:
           conditions:
             - { kind: os, op: is, value: mac }
         - type: cask
+          name: google-chrome
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
+          name: lm-studio
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
           name: lookaway # screen breaks
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
+          name: mullvad-vpn
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
+          name: prismlauncher
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
+          name: slack
+          conditions:
+            - { kind: os, op: is, value: mac }
+        - type: cask
+          name: yubico-authenticator
           conditions:
             - { kind: os, op: is, value: mac }
 
@@ -103,21 +134,9 @@ brew:
         #   conditions:
         #     - { kind: os, op: is, value: mac }
         # - type: cask
-        #   name: lm-studio
-        #   conditions:
-        #     - { kind: os, op: is, value: mac }
-        # - type: cask
         #   name: macwhisper
         #   conditions:
         #     - { kind: os, op: is, value: mac }
-        # - type: cask
-        #   name: slack
-        #   conditions:
-        #     - { kind: os, op: is, value: mac }
-        - type: cask
-          name: yubico-authenticator
-          conditions:
-            - { kind: os, op: is, value: mac }
         # - type: cask
         #   name: zoom
         #   conditions:
