@@ -2,7 +2,11 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
     "config:recommended",
-    "helpers:pinGitHubActionDigests",
+    // Pin Action digests AND write the full semver (e.g. `# v6.0.2`) as the
+    // comment, not the major (`# v6`). zizmor's `ref-version-mismatch` audit
+    // (run via MegaLinter) fails when the comment doesn't match the exact tag
+    // the pinned SHA resolves to.
+    "helpers:pinGitHubActionDigestsToSemver",
     ":semanticCommits",
     ":timezone(Europe/London)",
   ],
