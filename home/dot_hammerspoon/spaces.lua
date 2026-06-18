@@ -6,15 +6,19 @@
 -- full-screen-app spaces. If a position does not exist yet an empty Space is
 -- created and focused (see gotoSpaceIndex below).
 --
+-- Option+0 consolidates every window onto each screen's currently-focused Space,
+-- un-full-screening any full-screen apps on the way (see consolidateWindows).
+--
 -- Why an event tap rather than hs.hotkey.bind:
 --   On macOS, Option+1 .. Option+5 normally type the special characters
---   ¡ ™ £ ¢ ∞. The event tap returns true to swallow the keystroke before the
---   input system translates it, so the Space switches and no character is
---   inserted. (An event tap is also the only workable approach for Ctrl+number,
---   which we do not use: macOS reserves Ctrl+1 .. Ctrl+N as Carbon hotkeys for
---   "Switch to Desktop" based on the number of Mission Control user desktops
---   even when the System Settings checkboxes are off, so RegisterEventHotKey
---   rejects them with -9878 and hs.hotkey.bind cannot register them.)
+--   ¡ ™ £ ¢ ∞ (and Option+0 types º). The event tap returns true to swallow the
+--   keystroke before the input system translates it, so the Space switches (or
+--   consolidates) and no character is inserted. (An event tap is also the only
+--   workable approach for Ctrl+number, which we do not use: macOS reserves
+--   Ctrl+1 .. Ctrl+N as Carbon hotkeys for "Switch to Desktop" based on the
+--   number of Mission Control user desktops even when the System Settings
+--   checkboxes are off, so RegisterEventHotKey rejects them with -9878 and
+--   hs.hotkey.bind cannot register them.)
 --
 -- Why this reaches full-screen spaces:
 --   hs.spaces.spacesForScreen() lists every Space (user and full screen / tiled,
@@ -35,6 +39,9 @@ for i = 1, spaceCount do
 		codeToIndex[code] = i
 	end
 end
+
+-- Keycode for "0", which triggers consolidateWindows below.
+local consolidateCode = hs.keycodes.map["0"]
 
 -- Switch to the index-th (1-based) Space on the screen that currently has focus.
 -- If that position does not exist yet, create a new empty Space and switch to
@@ -83,6 +90,65 @@ local function gotoSpaceIndex(index)
 	end
 end
 
+-- Pull every standard window onto each screen's currently-focused Space,
+-- un-full-screening any full-screen apps first so their dedicated full-screen
+-- spaces collapse back into normal windows.
+--
+-- Per screen: hs.spaces.moveWindowToSpace cannot move a window across displays,
+-- so each screen collects its own windows onto its own active Space.
+--
+-- hs.window.allWindows() reaches windows on Spaces other than the focused one
+-- (the macOS Accessibility API only enumerates the current Space, but
+-- Hammerspoon works around that), and hs.spaces.windowSpaces(win) reports which
+-- Space(s) a window lives on so already-placed windows are left untouched.
+local function consolidateWindows()
+	-- 1) Un-full-screen everything; this dissolves the dedicated full-screen
+	--    spaces back into user spaces.
+	local hadFullscreen = false
+	for _, win in ipairs(hs.window.allWindows()) do
+		if win:isFullScreen() then
+			win:setFullScreen(false)
+			hadFullscreen = true
+		end
+	end
+
+	local function gather()
+		-- Resolve each screen's active Space after any full-screen spaces have
+		-- collapsed, since positions can shift.
+		local targetForScreen = {}
+		for _, screen in ipairs(hs.screen.allScreens()) do
+			targetForScreen[screen:getUUID()] = hs.spaces.activeSpaceOnScreen(screen:getUUID())
+		end
+
+		local moved = 0
+		for _, win in ipairs(hs.window.allWindows()) do
+			local screen = win:isStandard() and win:screen()
+			local target = screen and targetForScreen[screen:getUUID()]
+			if target then
+				local onTarget = false
+				for _, s in ipairs(hs.spaces.windowSpaces(win) or {}) do
+					if s == target then
+						onTarget = true
+						break
+					end
+				end
+				if not onTarget then
+					hs.spaces.moveWindowToSpace(win:id(), target)
+					moved = moved + 1
+				end
+			end
+		end
+		hs.alert.show(string.format("Consolidated %d window(s)", moved))
+	end
+
+	-- Give macOS a moment to tear down full-screen spaces before moving windows.
+	if hadFullscreen then
+		hs.timer.doAfter(1.0, gather)
+	else
+		gather()
+	end
+end
+
 -- Keep the tap in a global so it is not garbage collected.
 -- luacheck: globals spaceSwitchTap
 spaceSwitchTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
@@ -91,7 +157,15 @@ spaceSwitchTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(e
 		return false
 	end
 
-	local index = codeToIndex[event:getKeyCode()]
+	local keyCode = event:getKeyCode()
+
+	-- Option+0 consolidates all windows onto each screen's focused Space.
+	if keyCode == consolidateCode then
+		hs.timer.doAfter(0, consolidateWindows)
+		return true -- swallow the keystroke
+	end
+
+	local index = codeToIndex[keyCode]
 	if not index then
 		return false
 	end
