@@ -90,62 +90,62 @@ local function gotoSpaceIndex(index)
 	end
 end
 
--- Pull every standard window onto each screen's currently-focused Space,
+-- Consolidate every window onto each screen's currently-focused Space,
 -- un-full-screening any full-screen apps first so their dedicated full-screen
 -- spaces collapse back into normal windows.
 --
--- Per screen: hs.spaces.moveWindowToSpace cannot move a window across displays,
--- so each screen collects its own windows onto its own active Space.
+-- Why this is built on removeSpace rather than moveWindowToSpace:
+--   On macOS 26 (Tahoe), hs.spaces.moveWindowToSpace is a no-op: it returns
+--   true but never moves the window (verified on both off-Space and active-Space
+--   windows). So instead of carrying windows to one Space, we delete the other
+--   Spaces: hs.spaces.removeSpace() migrates a removed Space's windows onto an
+--   adjacent Space, so removing every Space except the focused one funnels all
+--   windows onto the one that remains.
 --
--- hs.window.allWindows() reaches windows on Spaces other than the focused one
--- (the macOS Accessibility API only enumerates the current Space, but
--- Hammerspoon works around that), and hs.spaces.windowSpaces(win) reports which
--- Space(s) a window lives on so already-placed windows are left untouched.
+-- Why hs.window.filter and not hs.window.allWindows():
+--   allWindows() (the AX API) only enumerates the *current* Space, so it cannot
+--   see or un-full-screen apps living on other Spaces. An all-Spaces window
+--   filter (setCurrentSpace(nil)) does enumerate every Space, and setFullScreen
+--   works on the windows it returns even when they are off-Space.
 local function consolidateWindows()
-	-- 1) Un-full-screen everything; this dissolves the dedicated full-screen
-	--    spaces back into user spaces.
+	-- 1) Un-full-screen everything; this dissolves each app's dedicated
+	--    full-screen Space back into a user Space. allWindows() can't see
+	--    off-Space windows, so enumerate via an all-Spaces window filter.
+	local filter = hs.window.filter.new(nil):setCurrentSpace(nil):setDefaultFilter()
 	local hadFullscreen = false
-	for _, win in ipairs(hs.window.allWindows()) do
+	for _, win in ipairs(filter:getWindows()) do
 		if win:isFullScreen() then
 			win:setFullScreen(false)
 			hadFullscreen = true
 		end
 	end
 
-	local function gather()
-		-- Resolve each screen's active Space after any full-screen spaces have
-		-- collapsed, since positions can shift.
-		local targetForScreen = {}
+	local function collapse()
+		-- 2) Per screen: keep the focused Space and remove the other user
+		--    Spaces. Each removeSpace migrates that Space's windows onto a
+		--    neighbour, so removing all but the target funnels everything onto
+		--    it. Leftover full-screen Spaces (if an un-full-screen failed) are
+		--    skipped rather than removed.
+		local removed = 0
 		for _, screen in ipairs(hs.screen.allScreens()) do
-			targetForScreen[screen:getUUID()] = hs.spaces.activeSpaceOnScreen(screen:getUUID())
-		end
-
-		local moved = 0
-		for _, win in ipairs(hs.window.allWindows()) do
-			local screen = win:isStandard() and win:screen()
-			local target = screen and targetForScreen[screen:getUUID()]
-			if target then
-				local onTarget = false
-				for _, s in ipairs(hs.spaces.windowSpaces(win) or {}) do
-					if s == target then
-						onTarget = true
-						break
-					end
-				end
-				if not onTarget then
-					hs.spaces.moveWindowToSpace(win:id(), target)
-					moved = moved + 1
+			local uuid = screen:getUUID()
+			local target = hs.spaces.activeSpaceOnScreen(uuid)
+			for _, sp in ipairs(hs.spaces.spacesForScreen(uuid) or {}) do
+				if sp ~= target and hs.spaces.spaceType(sp) == "user" then
+					hs.spaces.removeSpace(sp)
+					removed = removed + 1
 				end
 			end
 		end
-		hs.alert.show(string.format("Consolidated %d window(s)", moved))
+		hs.alert.show(string.format("Consolidated (removed %d Space(s))", removed))
 	end
 
-	-- Give macOS a moment to tear down full-screen spaces before moving windows.
+	-- Give macOS a moment to tear down full-screen spaces before removing the
+	-- now-empty user spaces.
 	if hadFullscreen then
-		hs.timer.doAfter(1.0, gather)
+		hs.timer.doAfter(1.0, collapse)
 	else
-		gather()
+		collapse()
 	end
 end
 
