@@ -1,6 +1,6 @@
 ---
 name: hammerspoon
-description: Hammerspoon macOS Space-switching config for this chezmoi repo. Covers the Option number-row keybinds (⌥1..⌥5) via eventtap, full-screen spaces, the menu-bar Space indicator, mru-spaces position stability, Accessibility, and debugging via the hs CLI. Triggers: Hammerspoon, macOS Spaces, Space switching, Option+1, eventtap, hotkey.bind, Carbon hotkey reservation, hs.spaces, space_indicator, mru-spaces, menu bar, hs.ipc, Accessibility. Load before changing home/dot_hammerspoon/*.
+description: "Hammerspoon macOS Space-switching config for this chezmoi repo. Covers the Option number-row keybinds (⌥1..⌥5) via eventtap, full-screen spaces, the menu-bar Space indicator, mru-spaces position stability, Accessibility, and debugging via the hs CLI. Triggers: Hammerspoon, macOS Spaces, Space switching, Option+1, eventtap, hotkey.bind, Carbon hotkey reservation, hs.spaces, space_indicator, mru-spaces, menu bar, hs.ipc, Accessibility. Load before changing home/dot_hammerspoon/*."
 ---
 
 # Hammerspoon (macOS Spaces)

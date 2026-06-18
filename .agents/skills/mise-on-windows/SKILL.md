@@ -1,6 +1,6 @@
 ---
 name: mise-on-windows
-description: mise on Windows gotchas for this chezmoi repo: the Chocolatey mise package omits mise-shim.exe, breaking binary-path resolution for MCP servers/IDEs. Covers shim placement, the always-run recovery guard, PS 5.1 stderr promotion, and the claude-code-win32 optional-dep trap. Triggers: mise Windows, mise-shim.exe, binary path, file shim mode, MCP servers, cannot find binary path, Chocolatey mise, reshim, PS 5.1 stderr, claude-code-win32. Load before changing home/.chezmoitemplates/windows-mise-shim-placement.ps1.tmpl, home/.chezmoiscripts/run_after_97_mise_shim_windows.ps1.tmpl, or the mise parts of run_onchange_after_bootstrap_windows.ps1.tmpl.
+description: "mise on Windows gotchas for this chezmoi repo: the Chocolatey mise package omits mise-shim.exe, breaking binary-path resolution for MCP servers/IDEs. Covers shim placement, the always-run recovery guard, PS 5.1 stderr promotion, and the claude-code-win32 optional-dep trap. Triggers: mise Windows, mise-shim.exe, binary path, file shim mode, MCP servers, cannot find binary path, Chocolatey mise, reshim, PS 5.1 stderr, claude-code-win32. Load before changing home/.chezmoitemplates/windows-mise-shim-placement.ps1.tmpl, home/.chezmoiscripts/run_after_97_mise_shim_windows.ps1.tmpl, or the mise parts of run_onchange_after_bootstrap_windows.ps1.tmpl."
 ---
 
 # mise on Windows
