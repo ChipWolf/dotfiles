@@ -44,6 +44,8 @@ These constraints are unconditional. Apply them without being asked.
 
 Always edit the source, not the deployed file. When updating any memory file: review nearby rules for contradictions, duplication, and scope conflicts; reconcile in the same edit. Keep cross-cutting rules in global memory; keep project-specific rules in local memory.
 
+**Before committing a memory (or any dotfiles) update, verify the repo is on its default branch** with `git -C ~/.local/share/chezmoi branch --show-current`. The repo may be parked on an unrelated feature branch; committing there lands the rule off `main` and a `push` creates a stray remote branch. If it is not on the default branch, cherry-pick the change onto `main` (or switch before committing), and leave the feature branch as you found it.
+
 ---
 
 ## Git and commits
