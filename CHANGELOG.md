@@ -1,5 +1,95 @@
 # Changelog
 
+## [1.10.0](https://github.com/ChipWolf/dotfiles/compare/v1.9.0...v1.10.0) (2026-06-26)
+
+
+### Features
+
+* add Hermes Agent to private macOS ([a1ee3bc](https://github.com/ChipWolf/dotfiles/commit/a1ee3bc202711b9ef411da354d83b41cc3ae924a))
+* **agent-audit:** add Hermes Agent + unified breakdown table ([677993c](https://github.com/ChipWolf/dotfiles/commit/677993c9f3dc3ab78c6de6b2fb074e575cbb8d91))
+* **bootstrap:** export PRIVATE=1 on private machines ([c86e539](https://github.com/ChipWolf/dotfiles/commit/c86e5396103707a5b72372227de9d2ebb81f8c27))
+* **brew-review:** add hidden 0 option to target base overlay ([4d2b402](https://github.com/ChipWolf/dotfiles/commit/4d2b402d89f5ef8e880511d7cf14c715414aec35))
+* **brew:** add blockblock to private macOS systems ([5541548](https://github.com/ChipWolf/dotfiles/commit/5541548d8e033d38913ddb001ec7cd4f7727d6ed))
+* **brew:** add hf and macOS app casks to chipwolf overlay ([63666d5](https://github.com/ChipWolf/dotfiles/commit/63666d5bed55ea38f98a43dcebe6a52e421a412d))
+* **brew:** add Tailscale cask on macOS ([a3928b0](https://github.com/ChipWolf/dotfiles/commit/a3928b00ea7280021be2c412d7e050ba3fd38356))
+* **brew:** install Claude Desktop on private Macs ([da18352](https://github.com/ChipWolf/dotfiles/commit/da18352242ca4cf811fb3efae277a035b74b807f))
+* **brew:** install Discord on private Macs ([3043544](https://github.com/ChipWolf/dotfiles/commit/3043544dfe14d25cf599124687772e1cefa139b5))
+* **git:** enable rerere with autoupdate ([acff272](https://github.com/ChipWolf/dotfiles/commit/acff2720c0d63758ce9ca5f9bd1b9a49d739da19))
+* **hammerspoon:** add ⌥0 to consolidate all windows onto focused space ([d8874b9](https://github.com/ChipWolf/dotfiles/commit/d8874b9b810ad9b180423c57720500c610d259ba))
+* **mcp:** drop context-mode from Claude Code target ([659dcc6](https://github.com/ChipWolf/dotfiles/commit/659dcc6c7908fb83c7a366cfa3e70cdc491a2600))
+* **skills:** add --breakdown per-category view to agent-audit ([b7f1503](https://github.com/ChipWolf/dotfiles/commit/b7f1503e4a2a22f7dae5f0db5f1a7a501f0d7ce1))
+* **skills:** add agent-audit local skill ([0b18089](https://github.com/ChipWolf/dotfiles/commit/0b18089625f356c111d9342e9640f88829769703))
+* **skills:** add consensus decision-meeting skill ([4f9ec45](https://github.com/ChipWolf/dotfiles/commit/4f9ec4518f50bd98a1c2acd7c454a6ccefeecd59))
+* **skills:** consensus panel models real roles, not debate archetypes ([7af9a90](https://github.com/ChipWolf/dotfiles/commit/7af9a909a9f9244c2c68cee931d6cd227afefb99))
+* **skills:** consensus records ADRs only on human approval, never via subagents ([655de01](https://github.com/ChipWolf/dotfiles/commit/655de01e964b2ddc69cc7186f80d552d82d3a22f))
+* **skills:** vendor council for Claude Code ([46bcb95](https://github.com/ChipWolf/dotfiles/commit/46bcb95628c3e09e3633db104c5a6361e43d8ccf))
+
+
+### Bug Fixes
+
+* **agent-audit:** auto-run on load and output tables as markdown ([f43f9e3](https://github.com/ChipWolf/dotfiles/commit/f43f9e389bb7e5df8aeb6c96df979d2d766f7642))
+* **agent-audit:** capture first-turn request overhead ([6854be5](https://github.com/ChipWolf/dotfiles/commit/6854be5022e9628162c070e9253e0262814d7103))
+* **agent-audit:** fix categoriser blanks for OpenCode MCP tools and pi project context ([07f482f](https://github.com/ChipWolf/dotfiles/commit/07f482f68e204fc0b68a95aede13af635c5fa029))
+* **agent-audit:** fold pi tools-list and guidelines rows into base prompt ([1b64503](https://github.com/ChipWolf/dotfiles/commit/1b64503dac9f121009f8ab62385946279c693838))
+* **agent-audit:** report first-turn overhead ([27f890c](https://github.com/ChipWolf/dotfiles/commit/27f890c142b23b5241f9494d857ed4d13e133a98))
+* **brew:** retrigger bootstrap onchange when chezmoi config data changes ([ff271dd](https://github.com/ChipWolf/dotfiles/commit/ff271ddbe39387b37d21abe5119ed833ea403be3))
+* **brew:** trust declared tap packages before update ([dfde14d](https://github.com/ChipWolf/dotfiles/commit/dfde14dae8cd5c2c98253a95f54a27de43203e25))
+* **chezmoi:** gate Obsidian vault external on gh auth marker ([a48f1fb](https://github.com/ChipWolf/dotfiles/commit/a48f1fb83261fe21064d18263b2c8b65d801fa61))
+* **ci:** pin Action digests to exact semver to satisfy zizmor ([#112](https://github.com/ChipWolf/dotfiles/issues/112)) ([4df0d4c](https://github.com/ChipWolf/dotfiles/commit/4df0d4cf33897e59cc2479a5fa5173bf7fb62680))
+* **ci:** repair pre-existing main failures (source-tests + MegaLinter) ([#110](https://github.com/ChipWolf/dotfiles/issues/110)) ([202d912](https://github.com/ChipWolf/dotfiles/commit/202d91211fdaa6193bbdae3ddc15b8adbb3076f1))
+* **git:** stop git-lfs littering repos with %(prefix)/dev/null hooks dir ([e351952](https://github.com/ChipWolf/dotfiles/commit/e35195215221f31a870a910fc23bf4d68a1274a0))
+* **hammerspoon:** make ⌥0 consolidation work on macOS 26 (Tahoe) ([870749a](https://github.com/ChipWolf/dotfiles/commit/870749a59a2df115c5fac3742f0016b7cc63fd30))
+* **install:** give Homebrew installer a TTY and fail fast on errors ([150c2df](https://github.com/ChipWolf/dotfiles/commit/150c2dfc083f8bb608c03433ece9f55d7ed86721))
+* **nvim:** wait for mason installs during headless preload ([e3cf604](https://github.com/ChipWolf/dotfiles/commit/e3cf6045aba6f1d2fb0e698c97cf729755bd0bd8))
+* quote YAML description in update-skills skill to fix frontmatter parse error ([3293672](https://github.com/ChipWolf/dotfiles/commit/32936727b67e610522b488d34fcc85253319979b))
+* **skills:** clean up agent-audit tmp dirs via EXIT trap ([29221a0](https://github.com/ChipWolf/dotfiles/commit/29221a0f787ac0e5ed2f94bc3660e666ed96e936))
+* **skills:** keep consensus facilitator off the long-context opus tier ([c71729e](https://github.com/ChipWolf/dotfiles/commit/c71729ee6592397f1d644260dd3938d395bdb3a6))
+* **skills:** parse consensus args, break empty-stance hang structurally ([793ef79](https://github.com/ChipWolf/dotfiles/commit/793ef7919754e9600747f6104d85555346b7db62))
+* **skills:** pin consensus frame to caller question, guard empty-stance loop ([fd50734](https://github.com/ChipWolf/dotfiles/commit/fd50734fe670d296440c6b653617d079a68a557c))
+* **skills:** pin consensus opus tier to a non-1m build (claude-opus-4-7) ([6f71e84](https://github.com/ChipWolf/dotfiles/commit/6f71e840f42b3673f064663e047a05311e36e6a3))
+* **skills:** quote YAML descriptions ([04cfb9b](https://github.com/ChipWolf/dotfiles/commit/04cfb9b895c27d18c3a370365b6845980d4ed7be))
+* **skills:** re-run install script when skill files change ([69d2696](https://github.com/ChipWolf/dotfiles/commit/69d2696c166907ee0894fae4bee465f9b6a42792))
+* **skills:** sharpen consensus convergence, groupthink guard, prep independence ([2c80888](https://github.com/ChipWolf/dotfiles/commit/2c808881af2504efc1b6095544f455fe70376328))
+* **skills:** stop duplicating skills into ~/.pi/agent/skills/ ([02f6db6](https://github.com/ChipWolf/dotfiles/commit/02f6db6ac848f19e1ab473782706988f1b09321a))
+
+
+### Miscellaneous
+
+* **agents:** add CI-log-reading and doc-vs-enforcement rules ([a1edf5a](https://github.com/ChipWolf/dotfiles/commit/a1edf5ad10a481e6b8c12c39ee1b5cc34491f501))
+* **agents:** add instrument-contradictions and autonomous-repro rules ([37ba33b](https://github.com/ChipWolf/dotfiles/commit/37ba33bf23ee1b3a82162b1f9c5720aebae75487))
+* **agents:** add LFS raw-blob-blocks-pull rule and chezmoi apply-drift warning ([7ed7554](https://github.com/ChipWolf/dotfiles/commit/7ed755440abe3b5bff1e730df657b33ad505ab79))
+* **agents:** add rule to act on the operator's diagnosis, not re-litigate it ([4a27773](https://github.com/ChipWolf/dotfiles/commit/4a27773bfa996ce8903b7599eefd3e16ba17ce6d))
+* **agents:** note modify_ toPrettyJson diffs re-sort keys ([649a94e](https://github.com/ChipWolf/dotfiles/commit/649a94e40a88879719e270ef3a2e851c6ee0a025))
+* **agents:** note stale-local-branch-from-squash-merge git gotcha ([b837e8b](https://github.com/ChipWolf/dotfiles/commit/b837e8bb9c11099c6a1d75fa95f29a29b1610b48))
+* **agents:** require committing completed work ([eef8153](https://github.com/ChipWolf/dotfiles/commit/eef8153c169682132740fe17bf9b4fb97a12a7ba))
+* **agents:** require permissive stubs in API capture loopbacks ([54642a2](https://github.com/ChipWolf/dotfiles/commit/54642a231feb542937ec5760993de17f8f6973a7))
+* **agents:** verify default branch before committing memory ([243b36a](https://github.com/ChipWolf/dotfiles/commit/243b36a5da3a37fc6aa0541f41c8a1b2d96f5bb9))
+* **deps:** update actions/checkout action to v6.0.3 ([#114](https://github.com/ChipWolf/dotfiles/issues/114)) ([8987be5](https://github.com/ChipWolf/dotfiles/commit/8987be5e6cd004186ed41a367b97a46b510a8edd))
+* **deps:** update dependency chezmoi to v2.70.5 ([#104](https://github.com/ChipWolf/dotfiles/issues/104)) ([e52ffd3](https://github.com/ChipWolf/dotfiles/commit/e52ffd37a3583baa85506eb6472f54150d8e20d7))
+* **deps:** update dependency chrome-devtools-mcp to v1.2.0 ([#106](https://github.com/ChipWolf/dotfiles/issues/106)) ([734d4f5](https://github.com/ChipWolf/dotfiles/commit/734d4f5bc9db62e1e0b18e37a9fce19ec9d40535))
+* **deps:** update dependency chrome-devtools-mcp to v1.4.0 ([#118](https://github.com/ChipWolf/dotfiles/issues/118)) ([c1d2e82](https://github.com/ChipWolf/dotfiles/commit/c1d2e82ee93fe0eaf63e7b45bb031bb027714896))
+* **deps:** update dependency google/go-containerregistry to v0.21.7 ([#115](https://github.com/ChipWolf/dotfiles/issues/115)) ([2a65800](https://github.com/ChipWolf/dotfiles/commit/2a6580053612804919a7deb97fb8969bfc4c4571))
+* **deps:** update dependency smart-mcp-proxy/mcpproxy-go to v0.38.1 ([#107](https://github.com/ChipWolf/dotfiles/issues/107)) ([59fec3c](https://github.com/ChipWolf/dotfiles/commit/59fec3c418aa57b1683c819d5a59dba132f2d7a7))
+* **deps:** update dependency smart-mcp-proxy/mcpproxy-go to v0.46.0 ([#119](https://github.com/ChipWolf/dotfiles/issues/119)) ([3673c46](https://github.com/ChipWolf/dotfiles/commit/3673c466609754a0ac40e9a1dc69e7900c68ebe3))
+* **deps:** update dependency uv to v0.11.21 ([#105](https://github.com/ChipWolf/dotfiles/issues/105)) ([ef615ef](https://github.com/ChipWolf/dotfiles/commit/ef615efd515337b695c0b6bdb292ee31b1491669))
+* **deps:** update dependency uv to v0.11.24 ([#116](https://github.com/ChipWolf/dotfiles/issues/116)) ([79c2eb2](https://github.com/ChipWolf/dotfiles/commit/79c2eb28fa6a4e8ec2ed65eea916b6599f658db6))
+* **deps:** update docker/login-action action to v4.2.0 ([#120](https://github.com/ChipWolf/dotfiles/issues/120)) ([ecf5879](https://github.com/ChipWolf/dotfiles/commit/ecf58793761f9ea780c102fc803f466f82c150b1))
+* **deps:** update ghcr.io/chipwolf/badgesort docker digest to ca3fc7e ([#113](https://github.com/ChipWolf/dotfiles/issues/113)) ([ccf263f](https://github.com/ChipWolf/dotfiles/commit/ccf263f96dd3e44fba7d7056183f4f68fdf1d3f5))
+* **deps:** update github/codeql-action action to v4.36.2 ([#121](https://github.com/ChipWolf/dotfiles/issues/121)) ([4c4c5af](https://github.com/ChipWolf/dotfiles/commit/4c4c5afd7ba16347e6cdd5fafa789f1a59fbe142))
+* **deps:** update jdx/mise-action action to v4.2.0 ([#122](https://github.com/ChipWolf/dotfiles/issues/122)) ([a112072](https://github.com/ChipWolf/dotfiles/commit/a11207204bd154a141114c2af9b7b650fd291b70))
+* **deps:** update mcr.microsoft.com/devcontainers/universal docker tag to v6.0.6 ([#117](https://github.com/ChipWolf/dotfiles/issues/117)) ([4e5590c](https://github.com/ChipWolf/dotfiles/commit/4e5590c0fbe5ac6813f5f66d5003fa821c154850))
+* **gitignore:** ignore .pi-lens/, drop docs/superpowers/ ([15ca8c1](https://github.com/ChipWolf/dotfiles/commit/15ca8c1df04f66044d93021b56cb3d65a521f8bc))
+* **mise:** migrate pi-coding-agent to [@earendil-works](https://github.com/earendil-works) and auto-prune ([81a2951](https://github.com/ChipWolf/dotfiles/commit/81a29513f541ea28c7b21c22541e679a466b2ba1))
+* **opencode:** drop context-mode routing rules from AGENTS.md ([fccb382](https://github.com/ChipWolf/dotfiles/commit/fccb38245c213b7e3437b43b75d103a729497fd9))
+* **renovate:** enable platform auto-merge for green PRs ([#111](https://github.com/ChipWolf/dotfiles/issues/111)) ([edbbe96](https://github.com/ChipWolf/dotfiles/commit/edbbe9617fafb1a1fd9646a3ad3953716db18245))
+
+
+### Documentation
+
+* **hammerspoon:** document ⌥0 window consolidation ([84a597b](https://github.com/ChipWolf/dotfiles/commit/84a597b24ae6e2bd9dcfd07be74544c8259bd4b7))
+* name the config fan-out module (CONTEXT.md + ADR-0001) ([c14e82c](https://github.com/ChipWolf/dotfiles/commit/c14e82cae078039431eb9b81ac968a1ba86b245b))
+* refresh MCP/permission how-tos and skills to current reality ([a1db96e](https://github.com/ChipWolf/dotfiles/commit/a1db96e67d320c7f6e809d120bf1381e6b0a4a5a))
+
 ## [1.9.0](https://github.com/ChipWolf/dotfiles/compare/v1.8.1...v1.9.0) (2026-05-22)
 
 
