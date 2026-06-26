@@ -26,7 +26,23 @@ JSON_PRETTIER_FILTER_REGEX_EXCLUDE: "(home/.*modify_[^/]*\\.json)"
 
 # rtk.ts is vendored from https://github.com/rtk-ai/rtk and must not be modified
 # locally (see header comment in the file). Exclude it from ts-standard.
-TYPESCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(home/dot_config/opencode/plugins/rtk\\.ts)"
+# skills/agent-audit/lib/opencode-plugin.ts is a standalone skill resource (a
+# reference OpenCode plugin distributed via the skills CLI), not part of this
+# repo's TS project. It is outside tsconfig.json's `include`, so ts-standard's
+# parserOptions.project parse fails on it; exclude rather than pull an external
+# skill example into the maintained opencode plugin project.
+TYPESCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(home/dot_config/opencode/plugins/rtk\\.ts|skills/agent-audit/lib/opencode-plugin\\.ts)"
+
+# *.workflow.js files are Workflow-tool script bodies: the runtime wraps them in
+# an async function, so top-level `return`/`await` is valid there but parses as
+# `'return' outside of function` under standardjs. Exclude them from standard.
+JAVASCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(skills/.*\\.workflow\\.js)"
+
+# SchemaStore matches **/glazewm/config.yaml to schemastore.org/glazewm.json,
+# which is the GlazeWM v2 schema. This config targets GlazeWM v3 (restructured
+# config; v3 ships no authoritative JSON schema), so v8r reports every v3 key as
+# an unknown property. Exclude until SchemaStore publishes a v3 schema.
+YAML_V8R_FILTER_REGEX_EXCLUDE: "(home/dot_glzr/glazewm/config\\.yaml)"
 
 REPOSITORY_KICS_ARGUMENTS: "--exclude-paths .github/workflows/e2e-install.yml"
 
