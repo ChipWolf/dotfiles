@@ -64,6 +64,16 @@
   longpaths = true
 {{- end }}
 [core]
-  hooksPath = %(prefix)//dev/null
+  # Disable git hooks globally (husky/pre-commit opt-out) by pointing hooksPath
+  # at the OS null device. Must be the absolute null device, not the older
+  # `%(prefix)//dev/null`: git expanded that fine, but git-lfs does not expand
+  # `%(prefix)` and instead `mkdir`s the literal relative path, littering every
+  # LFS repo with a `%(prefix)/dev/null/` hooks dir. `/dev/null` and `NUL` are
+  # reserved and can't be created, so `git lfs install` no-ops instead.
+{{- if eq .chezmoi.os "windows" }}
+  hooksPath = NUL
+{{- else }}
+  hooksPath = /dev/null
+{{- end }}
 [init]
   defaultBranch = main
