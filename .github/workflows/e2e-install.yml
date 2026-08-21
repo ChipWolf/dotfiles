@@ -50,7 +50,7 @@ jobs:
       # kics-scan ignore-line — ephemeral CI-only Vaultwarden test password (not a repo secret).
       BW_PASSWORD: "CiTestPassword123!"
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -118,7 +118,7 @@ jobs:
     if: github.event.action != 'closed'
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -172,7 +172,7 @@ jobs:
     if: github.event.action != 'closed'
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
