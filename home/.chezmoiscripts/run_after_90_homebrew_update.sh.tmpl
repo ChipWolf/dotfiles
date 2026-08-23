@@ -20,8 +20,11 @@ EOF
 
   brew update
   brew doctor || true
-  brew upgrade --cask --greedy
-  brew upgrade --greedy
+  # Homebrew 6 makes ask mode the default for install/upgrade/reinstall, which
+  # blocks this unattended apply on a [y/n] prompt. --no-ask restores the old
+  # behaviour (see `brew upgrade --help`, HOMEBREW_NO_ASK).
+  brew upgrade --no-ask --cask --greedy
+  brew upgrade --no-ask --greedy
   brew outdated --cask --greedy --verbose
   brew outdated --greedy --verbose
   brew cleanup
