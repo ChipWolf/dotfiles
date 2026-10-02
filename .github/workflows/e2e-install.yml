@@ -28,7 +28,7 @@ jobs:
   e2e-linux:
     name: E2E install (Linux)
     if: github.event.action != 'closed'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     services:
       vaultwarden:
         image: vaultwarden/server:latest@sha256:094b5689ed81549bd293418395c7cf495ae9d960fc2d4928cef2083ef913d912
