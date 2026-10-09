@@ -1,0 +1,6 @@
+self-hosted-runner:
+  labels:
+    # ubuntu-26.04 is a valid GitHub-hosted runner image; actionlint's known
+    # labels list lags behind new runner releases until actionlint itself is
+    # updated.
+    - ubuntu-26.04
