@@ -93,13 +93,31 @@ def api_request(url: str, data: dict | None = None, token: str | None = None) ->
         raise
 
 
+def api_request_raw(url: str, data: dict | None = None) -> str:
+    """Like api_request but returns the raw response body as text."""
+    headers = {"Content-Type": "application/json"}
+    body = json.dumps(data).encode() if data else None
+    req = urllib.request.Request(url, data=body, headers=headers)
+    try:
+        with urllib.request.urlopen(req) as resp:  # nosec B310
+            return resp.read().decode()
+    except urllib.error.HTTPError as e:
+        body_text = e.read().decode()
+        print(f"API error {e.code} on {url}: {body_text}", file=sys.stderr)
+        raise
+
+
 def register(server: str, email: str, password: str) -> str:
     master_key = derive_master_key(password, email)
     master_hash = derive_master_password_hash(master_key, password)
     enc_key, mac_key = stretch_key(master_key)
     encrypted_key = encrypt_symmetric_key(enc_key, mac_key)
+    base = server.rstrip("/")
 
-    payload = {
+    # Legacy single-step registration (Vaultwarden < 1.37.0 / Bitwarden < 2026.5.0).
+    # Vaultwarden/Bitwarden deployments can expose registration under
+    # /identity/accounts/register (current) or /api/accounts/register (legacy).
+    legacy_payload = {
         "name": "CI Test User",
         "email": email,
         "masterPasswordHash": master_hash,
@@ -108,26 +126,49 @@ def register(server: str, email: str, password: str) -> str:
         "kdf": 0,
         "kdfIterations": 600000,
     }
-
-    # Vaultwarden/Bitwarden deployments can expose registration under
-    # /identity/accounts/register (current) or /api/accounts/register (legacy).
-    endpoints = [
-        f"{server.rstrip('/')}/identity/accounts/register",
-        f"{server.rstrip('/')}/api/accounts/register",
-    ]
-    last_error: Exception | None = None
-    for endpoint in endpoints:
+    for endpoint in [
+        f"{base}/identity/accounts/register",
+        f"{base}/api/accounts/register",
+    ]:
         try:
-            api_request(endpoint, payload)
+            api_request(endpoint, legacy_payload)
             return master_hash
         except urllib.error.HTTPError as e:
-            last_error = e
             if e.code == 404:
                 continue
             raise
 
-    if last_error:
-        raise last_error
+    # New two-step registration flow (Vaultwarden >= 1.37.0 / Bitwarden >= 2026.5.0).
+    #
+    # Step 1: request a verification token. When SIGNUPS_VERIFY is false (the
+    # default), Vaultwarden returns the token directly in the response body so
+    # callers in email-less CI environments can proceed immediately. The token
+    # may be JSON-quoted (\"token\") in older 1.37.x builds; strip the quotes.
+    # A 204 No Content response means email verification is required — that
+    # path is not supported in this CI helper.
+    send_raw = api_request_raw(
+        f"{base}/identity/accounts/register/send-verification-email",
+        {"email": email, "name": "CI Test User", "receiveMarketingEmails": False},
+    )
+    token = send_raw.strip().strip('"')
+    if not token:
+        raise RuntimeError(
+            "Vaultwarden returned no registration token from send-verification-email. "
+            "Ensure SIGNUPS_ALLOWED=true and SIGNUPS_VERIFY is unset or false."
+        )
+
+    # Step 2: complete registration with the token.
+    # Field names changed from the legacy API: key→userSymmetricKey, kdf→kdfType.
+    finish_payload = {
+        "email": email,
+        "masterPasswordHash": master_hash,
+        "masterPasswordHint": "",
+        "userSymmetricKey": encrypted_key,
+        "kdfType": 0,
+        "kdfIterations": 600000,
+        "emailVerificationToken": token,
+    }
+    api_request(f"{base}/identity/accounts/register/finish", finish_payload)
     return master_hash
 
 
