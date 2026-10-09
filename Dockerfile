@@ -11,7 +11,7 @@
 # Pin a concrete universal image tag (not :latest) for reproducible builds and static analysis (Trivy DS-0001 / Checkov).
 # kics-scan ignore-line
 # hadolint ignore=DL3007
-FROM mcr.microsoft.com/devcontainers/universal:6.1.7-linux
+FROM mcr.microsoft.com/devcontainers/universal:6.1.9-linux
 
 # codespace is a named user defined in the devcontainers/universal base image (UID 1000); not a host-side user.
 # hadolint ignore=DL3066
