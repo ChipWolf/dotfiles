@@ -1,6 +1,6 @@
 [tools]
 uv = "0.13.6"
-"pipx:pre-commit" = "4.6.2"
+"pipx:pre-commit" = "4.7.0"
 chezmoi = "2.73.3"
 bats = { version = "1.14.0", os = ["linux", "macos"] }
 bitwarden = { version = "2025.10.0", os = ["linux"] }
